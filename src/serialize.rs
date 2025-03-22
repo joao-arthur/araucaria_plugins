@@ -22,10 +22,10 @@ pub enum Value {
 pub enum Err {
     Required,
     Bool,
+    Str,
     NumU,
     NumI,
     NumF,
-    Obj,
     Eq(Value),
     Ne(Value),
     Gt(Value),
@@ -52,7 +52,7 @@ impl Serialize for ErrWrap {
     }
 }
 
-fn mapValue(value: araucaria::value::Value) -> Value {
+pub fn map_value(value: araucaria::value::Value) -> Value {
     match value {
         araucaria::value::Value::None => Value::None,
         araucaria::value::Value::Bool(value) => Value::Bool(value),
@@ -60,32 +60,40 @@ fn mapValue(value: araucaria::value::Value) -> Value {
         araucaria::value::Value::NumI(value) => Value::NumI(value),
         araucaria::value::Value::NumF(value) => Value::NumF(value),
         araucaria::value::Value::Str(value) => Value::Str(value),
-        araucaria::value::Value::Arr(value) => Value::Arr(value.into_iter().map(mapValue).collect()),
-        araucaria::value::Value::Obj(value) => Value::Obj(value.into_iter().map(|(k, v)| (String::from(k.clone()), mapValue(v))).collect()),
+        araucaria::value::Value::Arr(value) => {
+            Value::Arr(value.into_iter().map(map_value).collect())
+        }
+        araucaria::value::Value::Obj(value) => Value::Obj(
+            value.into_iter().map(|(k, v)| (String::from(k.clone()), map_value(v))).collect(),
+        ),
     }
 }
 
-fn mapErr(value: araucaria::error::Err) -> Err {
+pub fn map_err(value: araucaria::error::Err) -> Err {
     match value {
         araucaria::error::Err::Required => Err::Required,
         araucaria::error::Err::Bool => Err::Bool,
+        araucaria::error::Err::Str => Err::Str,
         araucaria::error::Err::NumU => Err::NumU,
         araucaria::error::Err::NumI => Err::NumI,
         araucaria::error::Err::NumF => Err::NumF,
-        araucaria::error::Err::Obj => Err::Obj,
-        araucaria::error::Err::Eq(value) => Err::Eq(mapValue(value)),
-        araucaria::error::Err::Ne(value) => Err::Ne(mapValue(value)),
-        araucaria::error::Err::Gt(value) => Err::Gt(mapValue(value)),
-        araucaria::error::Err::Lt(value) => Err::Lt(mapValue(value)),
-        araucaria::error::Err::Ge(value) => Err::Ge(mapValue(value)),
-        araucaria::error::Err::Le(value) => Err::Le(mapValue(value)),
+        araucaria::error::Err::Eq(value) => Err::Eq(map_value(value)),
+        araucaria::error::Err::Ne(value) => Err::Ne(map_value(value)),
+        araucaria::error::Err::Gt(value) => Err::Gt(map_value(value)),
+        araucaria::error::Err::Lt(value) => Err::Lt(map_value(value)),
+        araucaria::error::Err::Ge(value) => Err::Ge(map_value(value)),
+        araucaria::error::Err::Le(value) => Err::Le(map_value(value)),
     }
 }
 
-fn mapErrWrap(value: araucaria::error::ErrWrap) -> ErrWrap {
+pub fn map_err_wrap(value: araucaria::error::ErrWrap) -> ErrWrap {
     match value {
-        araucaria::error::ErrWrap::Arr(value) => ErrWrap::Arr(value.into_iter().map(mapErr).collect()),
-        araucaria::error::ErrWrap::Obj(value) => ErrWrap::Obj(value.into_iter().map(|(k, v)| (String::from(k.clone()), mapErrWrap(v))).collect()),
+        araucaria::error::ErrWrap::Arr(value) => {
+            ErrWrap::Arr(value.into_iter().map(map_err).collect())
+        }
+        araucaria::error::ErrWrap::Obj(value) => ErrWrap::Obj(
+            value.into_iter().map(|(k, v)| (String::from(k.clone()), map_err_wrap(v))).collect(),
+        ),
     }
 }
 
@@ -96,9 +104,11 @@ mod test {
     #[test]
     fn test_serialize() {
         assert_eq!(
-            serde_json::to_string(
-            &ErrWrap::Obj(HashMap::from([(String::from("is"), ErrWrap::Arr(vec![Err::Bool, Err::Required, Err::Eq(Value::Bool(false))]))]))
-            ).unwrap(),
+            serde_json::to_string(&ErrWrap::Obj(HashMap::from([(
+                String::from("is"),
+                ErrWrap::Arr(vec![Err::Bool, Err::Required, Err::Eq(Value::Bool(false))])
+            )])))
+            .unwrap(),
             String::from(r#"{"is":["Bool","Required",{"Eq":{"Bool":false}}]}"#)
         );
     }
