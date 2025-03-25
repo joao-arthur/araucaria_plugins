@@ -1,4 +1,4 @@
-use crate::{
+use araucaria::{
     error::{Err, ErrWrap},
     validation::num_u::NumUValidation,
     value::Value,
@@ -94,7 +94,7 @@ pub fn validate_num_u(validation: &NumUValidation, value: &Value) -> Option<ErrW
 
 #[cfg(test)]
 mod test {
-    use crate::value::stub::{
+    use crate::stub::{
         arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub,
     };
 
@@ -121,8 +121,14 @@ mod test {
         let v = NumUValidation::default().eq(42);
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), None);
         assert_eq!(validate_num_u(&v, &Value::NumU(0)), ErrWrap::arr([Err::Eq(Value::NumU(42))]));
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU, Err::Eq(Value::NumU(42))]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU, Err::Eq(Value::NumU(42))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::None),
+            ErrWrap::arr([Err::NumU, Err::Eq(Value::NumU(42))])
+        );
+        assert_eq!(
+            validate_num_u(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumU, Err::Eq(Value::NumU(42))])
+        );
     }
 
     #[test]
@@ -130,8 +136,14 @@ mod test {
         let v = NumUValidation::default().ne(22);
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), None);
         assert_eq!(validate_num_u(&v, &Value::NumU(22)), ErrWrap::arr([Err::Ne(Value::NumU(22))]));
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU, Err::Ne(Value::NumU(22))]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU, Err::Ne(Value::NumU(22))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::None),
+            ErrWrap::arr([Err::NumU, Err::Ne(Value::NumU(22))])
+        );
+        assert_eq!(
+            validate_num_u(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumU, Err::Ne(Value::NumU(22))])
+        );
     }
 
     #[test]
@@ -139,8 +151,14 @@ mod test {
         let v = NumUValidation::default().gt(1);
         assert_eq!(validate_num_u(&v, &Value::NumU(2)), None);
         assert_eq!(validate_num_u(&v, &Value::NumU(1)), ErrWrap::arr([Err::Gt(Value::NumU(1))]));
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU, Err::Gt(Value::NumU(1))]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU, Err::Gt(Value::NumU(1))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::None),
+            ErrWrap::arr([Err::NumU, Err::Gt(Value::NumU(1))])
+        );
+        assert_eq!(
+            validate_num_u(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumU, Err::Gt(Value::NumU(1))])
+        );
     }
 
     #[test]
@@ -148,8 +166,14 @@ mod test {
         let v = NumUValidation::default().lt(5);
         assert_eq!(validate_num_u(&v, &Value::NumU(4)), None);
         assert_eq!(validate_num_u(&v, &Value::NumU(5)), ErrWrap::arr([Err::Lt(Value::NumU(5))]));
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU, Err::Lt(Value::NumU(5))]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU, Err::Lt(Value::NumU(5))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::None),
+            ErrWrap::arr([Err::NumU, Err::Lt(Value::NumU(5))])
+        );
+        assert_eq!(
+            validate_num_u(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumU, Err::Lt(Value::NumU(5))])
+        );
     }
 
     #[test]
@@ -157,8 +181,14 @@ mod test {
         let v = NumUValidation::default().ge(1);
         assert_eq!(validate_num_u(&v, &Value::NumU(1)), None);
         assert_eq!(validate_num_u(&v, &Value::NumU(0)), ErrWrap::arr([Err::Ge(Value::NumU(1))]));
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU, Err::Ge(Value::NumU(1))]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU, Err::Ge(Value::NumU(1))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::None),
+            ErrWrap::arr([Err::NumU, Err::Ge(Value::NumU(1))])
+        );
+        assert_eq!(
+            validate_num_u(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumU, Err::Ge(Value::NumU(1))])
+        );
     }
 
     #[test]
@@ -166,7 +196,13 @@ mod test {
         let v = NumUValidation::default().le(5);
         assert_eq!(validate_num_u(&v, &Value::NumU(5)), None);
         assert_eq!(validate_num_u(&v, &Value::NumU(6)), ErrWrap::arr([Err::Le(Value::NumU(5))]));
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU, Err::Le(Value::NumU(5))]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU, Err::Le(Value::NumU(5))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::None),
+            ErrWrap::arr([Err::NumU, Err::Le(Value::NumU(5))])
+        );
+        assert_eq!(
+            validate_num_u(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumU, Err::Le(Value::NumU(5))])
+        );
     }
 }

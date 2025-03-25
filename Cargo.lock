@@ -29,7 +29,7 @@ dependencies = [
 [[package]]
 name = "araucaria"
 version = "1.0.0"
-source = "git+https://github.com/joao-arthur/araucaria?rev=d29b2af0517ae54e19c1f6efbf9900b34db63f97#d29b2af0517ae54e19c1f6efbf9900b34db63f97"
+source = "git+https://github.com/joao-arthur/araucaria?rev=251a8e64f67292fd0908c15542745df23a8d9efe#251a8e64f67292fd0908c15542745df23a8d9efe"
 
 [[package]]
 name = "araucaria_plugins"

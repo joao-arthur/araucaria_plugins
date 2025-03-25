@@ -1,4 +1,4 @@
-use crate::{
+use araucaria::{
     error::{Err, ErrWrap},
     validation::num_f::NumFValidation,
     value::Value,
@@ -94,7 +94,7 @@ pub fn validate_num_f(validation: &NumFValidation, value: &Value) -> Option<ErrW
 
 #[cfg(test)]
 mod test {
-    use crate::value::stub::{
+    use crate::stub::{
         arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub,
     };
 
@@ -120,53 +120,107 @@ mod test {
     fn test_validate_num_f_eq() {
         let v = NumFValidation::default().eq(-42.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-42.5)), None);
-        assert_eq!(validate_num_f(&v, &Value::NumF(-7.5)), ErrWrap::arr([Err::Eq(Value::NumF(-42.5))]));
-        assert_eq!(validate_num_f(&v, &Value::None), ErrWrap::arr([Err::NumF, Err::Eq(Value::NumF(-42.5))]));
-        assert_eq!(validate_num_f(&v, &bool_stub()), ErrWrap::arr([Err::NumF, Err::Eq(Value::NumF(-42.5))]));
+        assert_eq!(
+            validate_num_f(&v, &Value::NumF(-7.5)),
+            ErrWrap::arr([Err::Eq(Value::NumF(-42.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &Value::None),
+            ErrWrap::arr([Err::NumF, Err::Eq(Value::NumF(-42.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumF, Err::Eq(Value::NumF(-42.5))])
+        );
     }
 
     #[test]
     fn test_validate_num_f_ne() {
         let v = NumFValidation::default().ne(-22.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-42.5)), None);
-        assert_eq!(validate_num_f(&v, &Value::NumF(-22.5)), ErrWrap::arr([Err::Ne(Value::NumF(-22.5))]));
-        assert_eq!(validate_num_f(&v, &Value::None), ErrWrap::arr([Err::NumF, Err::Ne(Value::NumF(-22.5))]));
-        assert_eq!(validate_num_f(&v, &bool_stub()), ErrWrap::arr([Err::NumF, Err::Ne(Value::NumF(-22.5))]));
+        assert_eq!(
+            validate_num_f(&v, &Value::NumF(-22.5)),
+            ErrWrap::arr([Err::Ne(Value::NumF(-22.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &Value::None),
+            ErrWrap::arr([Err::NumF, Err::Ne(Value::NumF(-22.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumF, Err::Ne(Value::NumF(-22.5))])
+        );
     }
 
     #[test]
     fn test_validate_num_f_gt() {
         let v = NumFValidation::default().gt(-2.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-1.5)), None);
-        assert_eq!(validate_num_f(&v, &Value::NumF(-2.5)), ErrWrap::arr([Err::Gt(Value::NumF(-2.5))]));
-        assert_eq!(validate_num_f(&v, &Value::None), ErrWrap::arr([Err::NumF, Err::Gt(Value::NumF(-2.5))]));
-        assert_eq!(validate_num_f(&v, &bool_stub()), ErrWrap::arr([Err::NumF, Err::Gt(Value::NumF(-2.5))]));
+        assert_eq!(
+            validate_num_f(&v, &Value::NumF(-2.5)),
+            ErrWrap::arr([Err::Gt(Value::NumF(-2.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &Value::None),
+            ErrWrap::arr([Err::NumF, Err::Gt(Value::NumF(-2.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumF, Err::Gt(Value::NumF(-2.5))])
+        );
     }
 
     #[test]
     fn test_validate_num_f_lt() {
         let v = NumFValidation::default().lt(-5.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-6.5)), None);
-        assert_eq!(validate_num_f(&v, &Value::NumF(-5.5)), ErrWrap::arr([Err::Lt(Value::NumF(-5.5))]));
-        assert_eq!(validate_num_f(&v, &Value::None), ErrWrap::arr([Err::NumF, Err::Lt(Value::NumF(-5.5))]));
-        assert_eq!(validate_num_f(&v, &bool_stub()), ErrWrap::arr([Err::NumF, Err::Lt(Value::NumF(-5.5))]));
+        assert_eq!(
+            validate_num_f(&v, &Value::NumF(-5.5)),
+            ErrWrap::arr([Err::Lt(Value::NumF(-5.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &Value::None),
+            ErrWrap::arr([Err::NumF, Err::Lt(Value::NumF(-5.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumF, Err::Lt(Value::NumF(-5.5))])
+        );
     }
 
     #[test]
     fn test_validate_num_f_ge() {
         let v = NumFValidation::default().ge(-2.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-2.5)), None);
-        assert_eq!(validate_num_f(&v, &Value::NumF(-3.5)), ErrWrap::arr([Err::Ge(Value::NumF(-2.5))]));
-        assert_eq!(validate_num_f(&v, &Value::None), ErrWrap::arr([Err::NumF, Err::Ge(Value::NumF(-2.5))]));
-        assert_eq!(validate_num_f(&v, &bool_stub()), ErrWrap::arr([Err::NumF, Err::Ge(Value::NumF(-2.5))]));
+        assert_eq!(
+            validate_num_f(&v, &Value::NumF(-3.5)),
+            ErrWrap::arr([Err::Ge(Value::NumF(-2.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &Value::None),
+            ErrWrap::arr([Err::NumF, Err::Ge(Value::NumF(-2.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumF, Err::Ge(Value::NumF(-2.5))])
+        );
     }
 
     #[test]
     fn test_validate_num_f_le() {
         let v = NumFValidation::default().le(-5.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-5.5)), None);
-        assert_eq!(validate_num_f(&v, &Value::NumF(-4.5)), ErrWrap::arr([Err::Le(Value::NumF(-5.5))]));
-        assert_eq!(validate_num_f(&v, &Value::None), ErrWrap::arr([Err::NumF, Err::Le(Value::NumF(-5.5))]));
-        assert_eq!(validate_num_f(&v, &bool_stub()), ErrWrap::arr([Err::NumF, Err::Le(Value::NumF(-5.5))]));
+        assert_eq!(
+            validate_num_f(&v, &Value::NumF(-4.5)),
+            ErrWrap::arr([Err::Le(Value::NumF(-5.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &Value::None),
+            ErrWrap::arr([Err::NumF, Err::Le(Value::NumF(-5.5))])
+        );
+        assert_eq!(
+            validate_num_f(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumF, Err::Le(Value::NumF(-5.5))])
+        );
     }
 }

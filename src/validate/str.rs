@@ -1,4 +1,4 @@
-use crate::{
+use araucaria::{
     error::{Err, ErrWrap},
     validation::str::StrValidation,
     value::Value,
@@ -50,9 +50,7 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Option<ErrWrap
 
 #[cfg(test)]
 mod test {
-    use crate::value::stub::{
-        num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub,
-    };
+    use crate::stub::{num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub};
 
     use super::*;
 
@@ -76,17 +74,35 @@ mod test {
     fn test_validate_str_eq() {
         let v = StrValidation::default().eq(String::from("Cogito ergo sum"));
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum")), None);
-        assert_eq!(validate_str(&v, &Value::from("Memento mori")), ErrWrap::arr([Err::Eq(Value::Str(String::from("Cogito ergo sum")))]));
-        assert_eq!(validate_str(&v, &Value::None), ErrWrap::arr([Err::Str,  Err::Eq(Value::Str(String::from("Cogito ergo sum")))]));
-        assert_eq!(validate_str(&v, &num_u_stub()), ErrWrap::arr([Err::Str, Err::Eq(Value::Str(String::from("Cogito ergo sum")))]));
+        assert_eq!(
+            validate_str(&v, &Value::from("Memento mori")),
+            ErrWrap::arr([Err::Eq(Value::Str(String::from("Cogito ergo sum")))])
+        );
+        assert_eq!(
+            validate_str(&v, &Value::None),
+            ErrWrap::arr([Err::Str, Err::Eq(Value::Str(String::from("Cogito ergo sum")))])
+        );
+        assert_eq!(
+            validate_str(&v, &num_u_stub()),
+            ErrWrap::arr([Err::Str, Err::Eq(Value::Str(String::from("Cogito ergo sum")))])
+        );
     }
 
     #[test]
     fn test_validate_str_ne() {
         let v = StrValidation::default().ne(String::from("Cogito ergo sum"));
         assert_eq!(validate_str(&v, &Value::Str(String::from("Memento mori"))), None);
-        assert_eq!(validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))), ErrWrap::arr([Err::Ne(Value::Str(String::from("Cogito ergo sum")))]));
-        assert_eq!(validate_str(&v, &Value::None), ErrWrap::arr([Err::Str, Err::Ne(Value::Str(String::from("Cogito ergo sum")))]));
-        assert_eq!(validate_str(&v, &num_u_stub()), ErrWrap::arr([Err::Str, Err::Ne(Value::Str(String::from("Cogito ergo sum")))]));
+        assert_eq!(
+            validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))),
+            ErrWrap::arr([Err::Ne(Value::Str(String::from("Cogito ergo sum")))])
+        );
+        assert_eq!(
+            validate_str(&v, &Value::None),
+            ErrWrap::arr([Err::Str, Err::Ne(Value::Str(String::from("Cogito ergo sum")))])
+        );
+        assert_eq!(
+            validate_str(&v, &num_u_stub()),
+            ErrWrap::arr([Err::Str, Err::Ne(Value::Str(String::from("Cogito ergo sum")))])
+        );
     }
 }

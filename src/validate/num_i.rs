@@ -1,4 +1,4 @@
-use crate::{
+use araucaria::{
     error::{Err, ErrWrap},
     validation::num_i::NumIValidation,
     value::Value,
@@ -94,7 +94,7 @@ pub fn validate_num_i(validation: &NumIValidation, value: &Value) -> Option<ErrW
 
 #[cfg(test)]
 mod test {
-    use crate::value::stub::{
+    use crate::stub::{
         arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub,
     };
 
@@ -121,17 +121,32 @@ mod test {
         let v = NumIValidation::default().eq(-42);
         assert_eq!(validate_num_i(&v, &Value::NumI(-42)), None);
         assert_eq!(validate_num_i(&v, &Value::NumI(-7)), ErrWrap::arr([Err::Eq(Value::NumI(-42))]));
-        assert_eq!(validate_num_i(&v, &Value::None), ErrWrap::arr([Err::NumI, Err::Eq(Value::NumI(-42))]));
-        assert_eq!(validate_num_i(&v, &bool_stub()), ErrWrap::arr([Err::NumI, Err::Eq(Value::NumI(-42))]));
+        assert_eq!(
+            validate_num_i(&v, &Value::None),
+            ErrWrap::arr([Err::NumI, Err::Eq(Value::NumI(-42))])
+        );
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumI, Err::Eq(Value::NumI(-42))])
+        );
     }
 
     #[test]
     fn test_validate_num_i_ne() {
         let v = NumIValidation::default().ne(-22);
         assert_eq!(validate_num_i(&v, &Value::NumI(-42)), None);
-        assert_eq!(validate_num_i(&v, &Value::NumI(-22)), ErrWrap::arr([Err::Ne(Value::NumI(-22))]));
-        assert_eq!(validate_num_i(&v, &Value::None), ErrWrap::arr([Err::NumI, Err::Ne(Value::NumI(-22))]));
-        assert_eq!(validate_num_i(&v, &bool_stub()), ErrWrap::arr([Err::NumI, Err::Ne(Value::NumI(-22))]));
+        assert_eq!(
+            validate_num_i(&v, &Value::NumI(-22)),
+            ErrWrap::arr([Err::Ne(Value::NumI(-22))])
+        );
+        assert_eq!(
+            validate_num_i(&v, &Value::None),
+            ErrWrap::arr([Err::NumI, Err::Ne(Value::NumI(-22))])
+        );
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumI, Err::Ne(Value::NumI(-22))])
+        );
     }
 
     #[test]
@@ -139,8 +154,14 @@ mod test {
         let v = NumIValidation::default().gt(-2);
         assert_eq!(validate_num_i(&v, &Value::NumI(-1)), None);
         assert_eq!(validate_num_i(&v, &Value::NumI(-2)), ErrWrap::arr([Err::Gt(Value::NumI(-2))]));
-        assert_eq!(validate_num_i(&v, &Value::None), ErrWrap::arr([Err::NumI, Err::Gt(Value::NumI(-2))]));
-        assert_eq!(validate_num_i(&v, &bool_stub()), ErrWrap::arr([Err::NumI, Err::Gt(Value::NumI(-2))]));
+        assert_eq!(
+            validate_num_i(&v, &Value::None),
+            ErrWrap::arr([Err::NumI, Err::Gt(Value::NumI(-2))])
+        );
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumI, Err::Gt(Value::NumI(-2))])
+        );
     }
 
     #[test]
@@ -148,8 +169,14 @@ mod test {
         let v = NumIValidation::default().lt(-5);
         assert_eq!(validate_num_i(&v, &Value::NumI(-6)), None);
         assert_eq!(validate_num_i(&v, &Value::NumI(-5)), ErrWrap::arr([Err::Lt(Value::NumI(-5))]));
-        assert_eq!(validate_num_i(&v, &Value::None), ErrWrap::arr([Err::NumI, Err::Lt(Value::NumI(-5))]));
-        assert_eq!(validate_num_i(&v, &bool_stub()), ErrWrap::arr([Err::NumI, Err::Lt(Value::NumI(-5))]));
+        assert_eq!(
+            validate_num_i(&v, &Value::None),
+            ErrWrap::arr([Err::NumI, Err::Lt(Value::NumI(-5))])
+        );
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumI, Err::Lt(Value::NumI(-5))])
+        );
     }
 
     #[test]
@@ -157,8 +184,14 @@ mod test {
         let v = NumIValidation::default().ge(-2);
         assert_eq!(validate_num_i(&v, &Value::NumI(-2)), None);
         assert_eq!(validate_num_i(&v, &Value::NumI(-3)), ErrWrap::arr([Err::Ge(Value::NumI(-2))]));
-        assert_eq!(validate_num_i(&v, &Value::None), ErrWrap::arr([Err::NumI, Err::Ge(Value::NumI(-2))]));
-        assert_eq!(validate_num_i(&v, &bool_stub()), ErrWrap::arr([Err::NumI, Err::Ge(Value::NumI(-2))]));
+        assert_eq!(
+            validate_num_i(&v, &Value::None),
+            ErrWrap::arr([Err::NumI, Err::Ge(Value::NumI(-2))])
+        );
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumI, Err::Ge(Value::NumI(-2))])
+        );
     }
 
     #[test]
@@ -166,7 +199,13 @@ mod test {
         let v = NumIValidation::default().le(-5);
         assert_eq!(validate_num_i(&v, &Value::NumI(-5)), None);
         assert_eq!(validate_num_i(&v, &Value::NumI(-4)), ErrWrap::arr([Err::Le(Value::NumI(-5))]));
-        assert_eq!(validate_num_i(&v, &Value::None), ErrWrap::arr([Err::NumI, Err::Le(Value::NumI(-5))]));
-        assert_eq!(validate_num_i(&v, &bool_stub()), ErrWrap::arr([Err::NumI, Err::Le(Value::NumI(-5))]));
+        assert_eq!(
+            validate_num_i(&v, &Value::None),
+            ErrWrap::arr([Err::NumI, Err::Le(Value::NumI(-5))])
+        );
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            ErrWrap::arr([Err::NumI, Err::Le(Value::NumI(-5))])
+        );
     }
 }

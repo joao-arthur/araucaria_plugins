@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use araucaria::{
-    validate::validate,
-    validation::{bool::BoolValidation, ObjValidation, Validation},
-};
+use araucaria::validation::{bool::BoolValidation, ObjValidation, Validation};
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]

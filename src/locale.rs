@@ -1,4 +1,4 @@
-use araucaria::{error::Err, value::Value};
+use araucaria::{error::Err, value::{value_to_string, Value}};
 
 pub struct Locale {
     required: String,
@@ -66,19 +66,6 @@ pub fn locale_en_long() -> Locale {
     }
 }
 
-pub fn to_string(value: &Value) -> String {
-    match value {
-        Value::None => String::from(""),
-        Value::Bool(value) => value.to_string(),
-        Value::NumU(value) => value.to_string(),
-        Value::NumI(value) => value.to_string(),
-        Value::NumF(value) => value.to_string(),
-        Value::Str(value) => "\"".to_owned() + value + "\"",
-        Value::Arr(value) => String::from(""),
-        Value::Obj(value) => String::from(""),
-    }
-}
-
 pub fn err_to_locale(error: &Err, locale: &Locale) -> String {
     match error {
         Err::Required => locale.required.clone(),
@@ -87,12 +74,12 @@ pub fn err_to_locale(error: &Err, locale: &Locale) -> String {
         Err::NumU => locale.num_u.clone(),
         Err::NumI => locale.num_i.clone(),
         Err::NumF => locale.num_f.clone(),
-        Err::Eq(value) => locale.eq.clone() + &to_string(&value),
-        Err::Ne(value) => locale.ne.clone() + &to_string(&value),
-        Err::Gt(value) => locale.gt.clone() + &to_string(&value),
-        Err::Lt(value) => locale.lt.clone() + &to_string(&value),
-        Err::Ge(value) => locale.ge.clone() + &to_string(&value),
-        Err::Le(value) => locale.le.clone() + &to_string(&value),
+        Err::Eq(value) => locale.eq.clone() + &value_to_string(&value),
+        Err::Ne(value) => locale.ne.clone() + &value_to_string(&value),
+        Err::Gt(value) => locale.gt.clone() + &value_to_string(&value),
+        Err::Lt(value) => locale.lt.clone() + &value_to_string(&value),
+        Err::Ge(value) => locale.ge.clone() + &value_to_string(&value),
+        Err::Le(value) => locale.le.clone() + &value_to_string(&value),
     }
 }
 
