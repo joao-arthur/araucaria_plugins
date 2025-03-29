@@ -1,48 +1,48 @@
 use araucaria::{
-    error::{Err, ErrWrap},
+    error::{SchemaErr, ValidationErr},
     validation::str::StrValidation,
     value::Value,
 };
 
-pub fn validate_str(validation: &StrValidation, value: &Value) -> Option<ErrWrap> {
+pub fn validate_str(validation: &StrValidation, value: &Value) -> Option<SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
             if let Some(eq_v) = &validation.eq {
                 if str_value != eq_v {
-                    base.push(Err::Eq(Value::Str(eq_v.clone())));
+                    base.push(ValidationErr::Eq(Value::Str(eq_v.clone())));
                 }
             }
             if let Some(ne_v) = &validation.ne {
                 if str_value == ne_v {
-                    base.push(Err::Ne(Value::Str(ne_v.clone())));
+                    base.push(ValidationErr::Ne(Value::Str(ne_v.clone())));
                 }
             }
         }
         Value::None => {
-            base.push(Err::Str);
+            base.push(ValidationErr::Str);
             if validation.required {
-                base.push(Err::Required);
+                base.push(ValidationErr::Required);
             }
             if let Some(eq_v) = &validation.eq {
-                base.push(Err::Eq(Value::Str(eq_v.clone())));
+                base.push(ValidationErr::Eq(Value::Str(eq_v.clone())));
             }
             if let Some(ne_v) = &validation.ne {
-                base.push(Err::Ne(Value::Str(ne_v.clone())));
+                base.push(ValidationErr::Ne(Value::Str(ne_v.clone())));
             }
         }
         _ => {
-            base.push(Err::Str);
+            base.push(ValidationErr::Str);
             if let Some(eq_v) = &validation.eq {
-                base.push(Err::Eq(Value::Str(eq_v.clone())));
+                base.push(ValidationErr::Eq(Value::Str(eq_v.clone())));
             }
             if let Some(ne_v) = &validation.ne {
-                base.push(Err::Ne(Value::Str(ne_v.clone())));
+                base.push(ValidationErr::Ne(Value::Str(ne_v.clone())));
             }
         }
     }
     if !base.is_empty() {
-        Some(ErrWrap::Arr(base))
+        Some(SchemaErr::Arr(base))
     } else {
         None
     }
@@ -58,16 +58,19 @@ mod test {
     fn test_validate_str_default() {
         let v = StrValidation::default();
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum")), None);
-        assert_eq!(validate_str(&v, &Value::None), ErrWrap::arr([Err::Str]));
-        assert_eq!(validate_str(&v, &num_u_stub()), ErrWrap::arr([Err::Str]));
+        assert_eq!(
+            validate_str(&v, &Value::None),
+            SchemaErr::arr([ValidationErr::Str, ValidationErr::Required])
+        );
+        assert_eq!(validate_str(&v, &num_u_stub()), SchemaErr::arr([ValidationErr::Str]));
     }
 
     #[test]
-    fn test_validate_str_required() {
-        let v = StrValidation::default().required();
+    fn test_validate_str_optional() {
+        let v = StrValidation::default().optional();
         assert_eq!(validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))), None);
-        assert_eq!(validate_str(&v, &Value::None), ErrWrap::arr([Err::Str, Err::Required]));
-        assert_eq!(validate_str(&v, &num_u_stub()), ErrWrap::arr([Err::Str]));
+        assert_eq!(validate_str(&v, &Value::None), SchemaErr::arr([ValidationErr::Str]));
+        assert_eq!(validate_str(&v, &num_u_stub()), SchemaErr::arr([ValidationErr::Str]));
     }
 
     #[test]
@@ -76,15 +79,22 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum")), None);
         assert_eq!(
             validate_str(&v, &Value::from("Memento mori")),
-            ErrWrap::arr([Err::Eq(Value::Str(String::from("Cogito ergo sum")))])
+            SchemaErr::arr([ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))])
         );
         assert_eq!(
             validate_str(&v, &Value::None),
-            ErrWrap::arr([Err::Str, Err::Eq(Value::Str(String::from("Cogito ergo sum")))])
+            SchemaErr::arr([
+                ValidationErr::Str,
+                ValidationErr::Required,
+                ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))
+            ])
         );
         assert_eq!(
             validate_str(&v, &num_u_stub()),
-            ErrWrap::arr([Err::Str, Err::Eq(Value::Str(String::from("Cogito ergo sum")))])
+            SchemaErr::arr([
+                ValidationErr::Str,
+                ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))
+            ])
         );
     }
 
@@ -94,15 +104,22 @@ mod test {
         assert_eq!(validate_str(&v, &Value::Str(String::from("Memento mori"))), None);
         assert_eq!(
             validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))),
-            ErrWrap::arr([Err::Ne(Value::Str(String::from("Cogito ergo sum")))])
+            SchemaErr::arr([ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))])
         );
         assert_eq!(
             validate_str(&v, &Value::None),
-            ErrWrap::arr([Err::Str, Err::Ne(Value::Str(String::from("Cogito ergo sum")))])
+            SchemaErr::arr([
+                ValidationErr::Str,
+                ValidationErr::Required,
+                ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))
+            ])
         );
         assert_eq!(
             validate_str(&v, &num_u_stub()),
-            ErrWrap::arr([Err::Str, Err::Ne(Value::Str(String::from("Cogito ergo sum")))])
+            SchemaErr::arr([
+                ValidationErr::Str,
+                ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))
+            ])
         );
     }
 }

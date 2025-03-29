@@ -1,92 +1,92 @@
 use araucaria::{
-    error::{Err, ErrWrap},
+    error::{SchemaErr, ValidationErr},
     validation::num_u::NumUValidation,
     value::Value,
 };
 
-pub fn validate_num_u(validation: &NumUValidation, value: &Value) -> Option<ErrWrap> {
+pub fn validate_num_u(validation: &NumUValidation, value: &Value) -> Option<SchemaErr> {
     let mut base = vec![];
     match value {
         Value::NumU(num_u_value) => {
             if let Some(eq_v) = validation.eq {
                 if num_u_value != &eq_v {
-                    base.push(Err::Eq(Value::NumU(eq_v)));
+                    base.push(ValidationErr::Eq(Value::NumU(eq_v)));
                 }
             }
             if let Some(ne_v) = validation.ne {
                 if num_u_value == &ne_v {
-                    base.push(Err::Ne(Value::NumU(ne_v)));
+                    base.push(ValidationErr::Ne(Value::NumU(ne_v)));
                 }
             }
             if let Some(gt_v) = validation.gt {
                 if num_u_value <= &gt_v {
-                    base.push(Err::Gt(Value::NumU(gt_v)));
+                    base.push(ValidationErr::Gt(Value::NumU(gt_v)));
                 }
             }
             if let Some(lt_v) = validation.lt {
                 if num_u_value >= &lt_v {
-                    base.push(Err::Lt(Value::NumU(lt_v)));
+                    base.push(ValidationErr::Lt(Value::NumU(lt_v)));
                 }
             }
             if let Some(ge_v) = validation.ge {
                 if num_u_value < &ge_v {
-                    base.push(Err::Ge(Value::NumU(ge_v)));
+                    base.push(ValidationErr::Ge(Value::NumU(ge_v)));
                 }
             }
             if let Some(le_v) = validation.le {
                 if num_u_value > &le_v {
-                    base.push(Err::Le(Value::NumU(le_v)));
+                    base.push(ValidationErr::Le(Value::NumU(le_v)));
                 }
             }
         }
         Value::None => {
-            base.push(Err::NumU);
+            base.push(ValidationErr::NumU);
             if validation.required {
-                base.push(Err::Required);
+                base.push(ValidationErr::Required);
             }
             if let Some(eq_v) = validation.eq {
-                base.push(Err::Eq(Value::NumU(eq_v)));
+                base.push(ValidationErr::Eq(Value::NumU(eq_v)));
             }
             if let Some(ne_v) = validation.ne {
-                base.push(Err::Ne(Value::NumU(ne_v)));
+                base.push(ValidationErr::Ne(Value::NumU(ne_v)));
             }
             if let Some(gt_v) = validation.gt {
-                base.push(Err::Gt(Value::NumU(gt_v)));
+                base.push(ValidationErr::Gt(Value::NumU(gt_v)));
             }
             if let Some(lt_v) = validation.lt {
-                base.push(Err::Lt(Value::NumU(lt_v)));
+                base.push(ValidationErr::Lt(Value::NumU(lt_v)));
             }
             if let Some(ge_v) = validation.ge {
-                base.push(Err::Ge(Value::NumU(ge_v)));
+                base.push(ValidationErr::Ge(Value::NumU(ge_v)));
             }
             if let Some(le_v) = validation.le {
-                base.push(Err::Le(Value::NumU(le_v)));
+                base.push(ValidationErr::Le(Value::NumU(le_v)));
             }
         }
         _ => {
-            base.push(Err::NumU);
+            base.push(ValidationErr::NumU);
             if let Some(eq_v) = validation.eq {
-                base.push(Err::Eq(Value::NumU(eq_v)));
+                base.push(ValidationErr::Eq(Value::NumU(eq_v)));
             }
             if let Some(ne_v) = validation.ne {
-                base.push(Err::Ne(Value::NumU(ne_v)));
+                base.push(ValidationErr::Ne(Value::NumU(ne_v)));
             }
             if let Some(gt_v) = validation.gt {
-                base.push(Err::Gt(Value::NumU(gt_v)));
+                base.push(ValidationErr::Gt(Value::NumU(gt_v)));
             }
             if let Some(lt_v) = validation.lt {
-                base.push(Err::Lt(Value::NumU(lt_v)));
+                base.push(ValidationErr::Lt(Value::NumU(lt_v)));
             }
             if let Some(ge_v) = validation.ge {
-                base.push(Err::Ge(Value::NumU(ge_v)));
+                base.push(ValidationErr::Ge(Value::NumU(ge_v)));
             }
             if let Some(le_v) = validation.le {
-                base.push(Err::Le(Value::NumU(le_v)));
+                base.push(ValidationErr::Le(Value::NumU(le_v)));
             }
         }
     }
     if !base.is_empty() {
-        Some(ErrWrap::Arr(base))
+        Some(SchemaErr::Arr(base))
     } else {
         None
     }
@@ -104,30 +104,40 @@ mod test {
     fn test_validate_num_u_default() {
         let v = NumUValidation::default();
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), None);
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU]));
+        assert_eq!(
+            validate_num_u(&v, &Value::None),
+            SchemaErr::arr([ValidationErr::NumU, ValidationErr::Required])
+        );
+        assert_eq!(validate_num_u(&v, &bool_stub()), SchemaErr::arr([ValidationErr::NumU]));
     }
 
     #[test]
-    fn test_validate_num_u_required() {
-        let v = NumUValidation::default().required();
+    fn test_validate_num_u_optional() {
+        let v = NumUValidation::default().optional();
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), None);
-        assert_eq!(validate_num_u(&v, &Value::None), ErrWrap::arr([Err::NumU, Err::Required]));
-        assert_eq!(validate_num_u(&v, &bool_stub()), ErrWrap::arr([Err::NumU]));
+        assert_eq!(validate_num_u(&v, &Value::None), SchemaErr::arr([ValidationErr::NumU]));
+        assert_eq!(validate_num_u(&v, &bool_stub()), SchemaErr::arr([ValidationErr::NumU]));
     }
 
     #[test]
     fn test_validate_num_u_eq() {
         let v = NumUValidation::default().eq(42);
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), None);
-        assert_eq!(validate_num_u(&v, &Value::NumU(0)), ErrWrap::arr([Err::Eq(Value::NumU(42))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::NumU(0)),
+            SchemaErr::arr([ValidationErr::Eq(Value::NumU(42))])
+        );
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            ErrWrap::arr([Err::NumU, Err::Eq(Value::NumU(42))])
+            SchemaErr::arr([
+                ValidationErr::NumU,
+                ValidationErr::Required,
+                ValidationErr::Eq(Value::NumU(42))
+            ])
         );
         assert_eq!(
             validate_num_u(&v, &bool_stub()),
-            ErrWrap::arr([Err::NumU, Err::Eq(Value::NumU(42))])
+            SchemaErr::arr([ValidationErr::NumU, ValidationErr::Eq(Value::NumU(42))])
         );
     }
 
@@ -135,14 +145,21 @@ mod test {
     fn test_validate_num_u_ne() {
         let v = NumUValidation::default().ne(22);
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), None);
-        assert_eq!(validate_num_u(&v, &Value::NumU(22)), ErrWrap::arr([Err::Ne(Value::NumU(22))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::NumU(22)),
+            SchemaErr::arr([ValidationErr::Ne(Value::NumU(22))])
+        );
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            ErrWrap::arr([Err::NumU, Err::Ne(Value::NumU(22))])
+            SchemaErr::arr([
+                ValidationErr::NumU,
+                ValidationErr::Required,
+                ValidationErr::Ne(Value::NumU(22))
+            ])
         );
         assert_eq!(
             validate_num_u(&v, &bool_stub()),
-            ErrWrap::arr([Err::NumU, Err::Ne(Value::NumU(22))])
+            SchemaErr::arr([ValidationErr::NumU, ValidationErr::Ne(Value::NumU(22))])
         );
     }
 
@@ -150,14 +167,21 @@ mod test {
     fn test_validate_num_u_gt() {
         let v = NumUValidation::default().gt(1);
         assert_eq!(validate_num_u(&v, &Value::NumU(2)), None);
-        assert_eq!(validate_num_u(&v, &Value::NumU(1)), ErrWrap::arr([Err::Gt(Value::NumU(1))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::NumU(1)),
+            SchemaErr::arr([ValidationErr::Gt(Value::NumU(1))])
+        );
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            ErrWrap::arr([Err::NumU, Err::Gt(Value::NumU(1))])
+            SchemaErr::arr([
+                ValidationErr::NumU,
+                ValidationErr::Required,
+                ValidationErr::Gt(Value::NumU(1))
+            ])
         );
         assert_eq!(
             validate_num_u(&v, &bool_stub()),
-            ErrWrap::arr([Err::NumU, Err::Gt(Value::NumU(1))])
+            SchemaErr::arr([ValidationErr::NumU, ValidationErr::Gt(Value::NumU(1))])
         );
     }
 
@@ -165,14 +189,21 @@ mod test {
     fn test_validate_num_u_lt() {
         let v = NumUValidation::default().lt(5);
         assert_eq!(validate_num_u(&v, &Value::NumU(4)), None);
-        assert_eq!(validate_num_u(&v, &Value::NumU(5)), ErrWrap::arr([Err::Lt(Value::NumU(5))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::NumU(5)),
+            SchemaErr::arr([ValidationErr::Lt(Value::NumU(5))])
+        );
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            ErrWrap::arr([Err::NumU, Err::Lt(Value::NumU(5))])
+            SchemaErr::arr([
+                ValidationErr::NumU,
+                ValidationErr::Required,
+                ValidationErr::Lt(Value::NumU(5))
+            ])
         );
         assert_eq!(
             validate_num_u(&v, &bool_stub()),
-            ErrWrap::arr([Err::NumU, Err::Lt(Value::NumU(5))])
+            SchemaErr::arr([ValidationErr::NumU, ValidationErr::Lt(Value::NumU(5))])
         );
     }
 
@@ -180,14 +211,21 @@ mod test {
     fn test_validate_num_u_ge() {
         let v = NumUValidation::default().ge(1);
         assert_eq!(validate_num_u(&v, &Value::NumU(1)), None);
-        assert_eq!(validate_num_u(&v, &Value::NumU(0)), ErrWrap::arr([Err::Ge(Value::NumU(1))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::NumU(0)),
+            SchemaErr::arr([ValidationErr::Ge(Value::NumU(1))])
+        );
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            ErrWrap::arr([Err::NumU, Err::Ge(Value::NumU(1))])
+            SchemaErr::arr([
+                ValidationErr::NumU,
+                ValidationErr::Required,
+                ValidationErr::Ge(Value::NumU(1))
+            ])
         );
         assert_eq!(
             validate_num_u(&v, &bool_stub()),
-            ErrWrap::arr([Err::NumU, Err::Ge(Value::NumU(1))])
+            SchemaErr::arr([ValidationErr::NumU, ValidationErr::Ge(Value::NumU(1))])
         );
     }
 
@@ -195,14 +233,21 @@ mod test {
     fn test_validate_num_u_le() {
         let v = NumUValidation::default().le(5);
         assert_eq!(validate_num_u(&v, &Value::NumU(5)), None);
-        assert_eq!(validate_num_u(&v, &Value::NumU(6)), ErrWrap::arr([Err::Le(Value::NumU(5))]));
+        assert_eq!(
+            validate_num_u(&v, &Value::NumU(6)),
+            SchemaErr::arr([ValidationErr::Le(Value::NumU(5))])
+        );
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            ErrWrap::arr([Err::NumU, Err::Le(Value::NumU(5))])
+            SchemaErr::arr([
+                ValidationErr::NumU,
+                ValidationErr::Required,
+                ValidationErr::Le(Value::NumU(5))
+            ])
         );
         assert_eq!(
             validate_num_u(&v, &bool_stub()),
-            ErrWrap::arr([Err::NumU, Err::Le(Value::NumU(5))])
+            SchemaErr::arr([ValidationErr::NumU, ValidationErr::Le(Value::NumU(5))])
         );
     }
 }

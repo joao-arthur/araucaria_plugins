@@ -16,7 +16,7 @@ pub enum Value {
 }
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-pub enum Err {
+pub enum ValidationErr {
     Required,
     Bool,
     Str,
@@ -32,19 +32,19 @@ pub enum Err {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum ErrWrap {
-    Arr(Vec<Err>),
-    Obj(HashMap<String, ErrWrap>),
+pub enum SchemaErr {
+    Arr(Vec<ValidationErr>),
+    Obj(HashMap<String, SchemaErr>),
 }
 
-impl Serialize for ErrWrap {
+impl Serialize for SchemaErr {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         match self {
-            ErrWrap::Arr(vec) => vec.serialize(serializer),
-            ErrWrap::Obj(map) => map.serialize(serializer),
+            SchemaErr::Arr(vec) => vec.serialize(serializer),
+            SchemaErr::Obj(map) => map.serialize(serializer),
         }
     }
 }
@@ -66,29 +66,29 @@ pub fn map_value(value: araucaria::value::Value) -> Value {
     }
 }
 
-pub fn map_err(value: araucaria::error::Err) -> Err {
+pub fn map_err(value: araucaria::error::ValidationErr) -> ValidationErr {
     match value {
-        araucaria::error::Err::Required => Err::Required,
-        araucaria::error::Err::Bool => Err::Bool,
-        araucaria::error::Err::Str => Err::Str,
-        araucaria::error::Err::NumU => Err::NumU,
-        araucaria::error::Err::NumI => Err::NumI,
-        araucaria::error::Err::NumF => Err::NumF,
-        araucaria::error::Err::Eq(value) => Err::Eq(map_value(value)),
-        araucaria::error::Err::Ne(value) => Err::Ne(map_value(value)),
-        araucaria::error::Err::Gt(value) => Err::Gt(map_value(value)),
-        araucaria::error::Err::Lt(value) => Err::Lt(map_value(value)),
-        araucaria::error::Err::Ge(value) => Err::Ge(map_value(value)),
-        araucaria::error::Err::Le(value) => Err::Le(map_value(value)),
+        araucaria::error::ValidationErr::Required => ValidationErr::Required,
+        araucaria::error::ValidationErr::Bool => ValidationErr::Bool,
+        araucaria::error::ValidationErr::Str => ValidationErr::Str,
+        araucaria::error::ValidationErr::NumU => ValidationErr::NumU,
+        araucaria::error::ValidationErr::NumI => ValidationErr::NumI,
+        araucaria::error::ValidationErr::NumF => ValidationErr::NumF,
+        araucaria::error::ValidationErr::Eq(value) => ValidationErr::Eq(map_value(value)),
+        araucaria::error::ValidationErr::Ne(value) => ValidationErr::Ne(map_value(value)),
+        araucaria::error::ValidationErr::Gt(value) => ValidationErr::Gt(map_value(value)),
+        araucaria::error::ValidationErr::Lt(value) => ValidationErr::Lt(map_value(value)),
+        araucaria::error::ValidationErr::Ge(value) => ValidationErr::Ge(map_value(value)),
+        araucaria::error::ValidationErr::Le(value) => ValidationErr::Le(map_value(value)),
     }
 }
 
-pub fn map_err_wrap(value: araucaria::error::ErrWrap) -> ErrWrap {
+pub fn map_err_wrap(value: araucaria::error::SchemaErr) -> SchemaErr {
     match value {
-        araucaria::error::ErrWrap::Arr(value) => {
-            ErrWrap::Arr(value.into_iter().map(map_err).collect())
+        araucaria::error::SchemaErr::Arr(value) => {
+            SchemaErr::Arr(value.into_iter().map(map_err).collect())
         }
-        araucaria::error::ErrWrap::Obj(value) => ErrWrap::Obj(
+        araucaria::error::SchemaErr::Obj(value) => SchemaErr::Obj(
             value.into_iter().map(|(k, v)| (String::from(k.clone()), map_err_wrap(v))).collect(),
         ),
     }
@@ -101,9 +101,13 @@ mod test {
     #[test]
     fn test_serialize() {
         assert_eq!(
-            serde_json::to_string(&ErrWrap::Obj(HashMap::from([(
+            serde_json::to_string(&SchemaErr::Obj(HashMap::from([(
                 String::from("is"),
-                ErrWrap::Arr(vec![Err::Bool, Err::Required, Err::Eq(Value::Bool(false))])
+                SchemaErr::Arr(vec![
+                    ValidationErr::Bool,
+                    ValidationErr::Required,
+                    ValidationErr::Eq(Value::Bool(false))
+                ])
             )])))
             .unwrap(),
             String::from(r#"{"is":["Bool","Required",{"Eq":{"Bool":false}}]}"#)

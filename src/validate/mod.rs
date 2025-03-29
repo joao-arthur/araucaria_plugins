@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use araucaria::{error::ErrWrap, validation::Validation, value::Value};
+use araucaria::{error::SchemaErr, validation::Validation, value::Value};
 use num_f::validate_num_f;
 use num_i::validate_num_i;
 use num_u::validate_num_u;
@@ -14,7 +14,7 @@ pub mod num_i;
 pub mod num_u;
 pub mod str;
 
-pub fn validate(validation: &Validation, value: &Value) -> Option<ErrWrap> {
+pub fn validate(validation: &Validation, value: &Value) -> Option<SchemaErr> {
     match validation {
         Validation::Bool(v) => validate_bool(v, value),
         Validation::Str(v) => validate_str(v, value),
@@ -23,7 +23,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<ErrWrap> {
         Validation::NumF(v) => validate_num_f(v, value),
         Validation::Obj(v) => match value {
             Value::Obj(value) => {
-                let result: HashMap<String, ErrWrap> = v
+                let result: HashMap<String, SchemaErr> = v
                     .validation
                     .clone()
                     .into_iter()
@@ -39,11 +39,11 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<ErrWrap> {
                 if result.is_empty() {
                     None
                 } else {
-                    Some(ErrWrap::Obj(result))
+                    Some(SchemaErr::Obj(result))
                 }
             }
             Value::None => {
-                let result: HashMap<String, ErrWrap> = v
+                let result: HashMap<String, SchemaErr> = v
                     .validation
                     .clone()
                     .into_iter()
@@ -54,11 +54,11 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<ErrWrap> {
                 if result.is_empty() {
                     None
                 } else {
-                    Some(ErrWrap::Obj(result))
+                    Some(SchemaErr::Obj(result))
                 }
             }
             _ => {
-                let result: HashMap<String, ErrWrap> = v
+                let result: HashMap<String, SchemaErr> = v
                     .validation
                     .clone()
                     .into_iter()
@@ -69,7 +69,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<ErrWrap> {
                 if result.is_empty() {
                     None
                 } else {
-                    Some(ErrWrap::Obj(result))
+                    Some(SchemaErr::Obj(result))
                 }
             }
         },
@@ -81,7 +81,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<ErrWrap> {
 mod test {
 
     use araucaria::{
-        error::Err,
+        error::ValidationErr,
         validation::{bool::BoolValidation, ObjValidation},
     };
 
@@ -90,18 +90,16 @@ mod test {
     #[test]
     fn test_bool() {
         assert_eq!(
-            validate(
-                &Validation::Bool(BoolValidation::default().required().eq(false)),
-                &Value::Bool(false)
-            ),
+            validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false)),
             None
         );
         assert_eq!(
-            validate(
-                &Validation::Bool(BoolValidation::default().required().eq(false)),
-                &Value::None
-            ),
-            ErrWrap::arr([Err::Bool, Err::Required, Err::Eq(Value::Bool(false))])
+            validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::None),
+            SchemaErr::arr([
+                ValidationErr::Bool,
+                ValidationErr::Required,
+                ValidationErr::Eq(Value::Bool(false))
+            ])
         );
     }
 
@@ -109,15 +107,15 @@ mod test {
     fn test_bool_some() {
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default()), &Value::NumU(1)),
-            ErrWrap::arr([Err::Bool])
+            SchemaErr::arr([ValidationErr::Bool])
         );
         assert_eq!(
-            validate(&Validation::Bool(BoolValidation::default().required()), &Value::None),
-            ErrWrap::arr([Err::Bool, Err::Required])
+            validate(&Validation::Bool(BoolValidation::default()), &Value::None),
+            SchemaErr::arr([ValidationErr::Bool, ValidationErr::Required])
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(true)),
-            ErrWrap::arr([Err::Eq(Value::Bool(false))])
+            SchemaErr::arr([ValidationErr::Eq(Value::Bool(false))])
         );
     }
 
@@ -128,7 +126,7 @@ mod test {
                 &Validation::Obj(ObjValidation {
                     validation: HashMap::from([(
                         "is",
-                        Validation::Bool(BoolValidation::default().required().eq(false))
+                        Validation::Bool(BoolValidation::default().eq(false))
                     )]),
                     required: false
                 }),
@@ -145,15 +143,19 @@ mod test {
                 &Validation::Obj(ObjValidation {
                     validation: HashMap::from([(
                         "is",
-                        Validation::Bool(BoolValidation::default().required().eq(false))
+                        Validation::Bool(BoolValidation::default().eq(false))
                     )]),
                     required: false
                 }),
                 &Value::None
             ),
-            ErrWrap::obj([(
+            SchemaErr::obj([(
                 String::from("is"),
-                ErrWrap::Arr(vec![Err::Bool, Err::Required, Err::Eq(Value::Bool(false))])
+                SchemaErr::Arr(vec![
+                    ValidationErr::Bool,
+                    ValidationErr::Required,
+                    ValidationErr::Eq(Value::Bool(false))
+                ])
             )])
         );
         assert_eq!(
@@ -161,15 +163,19 @@ mod test {
                 &Validation::Obj(ObjValidation {
                     validation: HashMap::from([(
                         "is",
-                        Validation::Bool(BoolValidation::default().required().eq(false))
+                        Validation::Bool(BoolValidation::default().eq(false))
                     )]),
                     required: true
                 }),
                 &Value::None
             ),
-            ErrWrap::obj([(
+            SchemaErr::obj([(
                 String::from("is"),
-                ErrWrap::Arr(vec![Err::Bool, Err::Required, Err::Eq(Value::Bool(false))])
+                SchemaErr::Arr(vec![
+                    ValidationErr::Bool,
+                    ValidationErr::Required,
+                    ValidationErr::Eq(Value::Bool(false))
+                ])
             )])
         );
         assert_eq!(
@@ -177,15 +183,19 @@ mod test {
                 &Validation::Obj(ObjValidation {
                     validation: HashMap::from([(
                         "is",
-                        Validation::Bool(BoolValidation::default().required().eq(false))
+                        Validation::Bool(BoolValidation::default().eq(false))
                     )]),
                     required: false
                 }),
                 &Value::Bool(false)
             ),
-            ErrWrap::obj([(
+            SchemaErr::obj([(
                 String::from("is"),
-                ErrWrap::Arr(vec![Err::Bool, Err::Required, Err::Eq(Value::Bool(false))])
+                SchemaErr::Arr(vec![
+                    ValidationErr::Bool,
+                    ValidationErr::Required,
+                    ValidationErr::Eq(Value::Bool(false))
+                ])
             )])
         );
     }
