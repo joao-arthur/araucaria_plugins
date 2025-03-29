@@ -1,6 +1,9 @@
+use std::collections::HashMap;
+use serde::{Deserialize, Serialize, Serializer};
+
 use araucaria::{
-    error::ValidationErr,
-    value::{value_to_string, Value},
+    error::{SchemaErr, ValidationErr},
+    value::value_to_string,
 };
 
 pub struct Locale {
@@ -16,6 +19,44 @@ pub struct Locale {
     lt: String,
     ge: String,
     le: String,
+}
+
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub enum SchemaLocalizedErr {
+    Arr(Vec<String>),
+    Obj(HashMap<String, SchemaLocalizedErr>),
+}
+
+pub fn schema_err_to_locale(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
+    match err {
+        SchemaErr::Arr(arr) => SchemaLocalizedErr::Arr(
+            arr.iter().map(|item| validation_err_to_locale(item, locale)).collect(),
+        ),
+        SchemaErr::Obj(obj) => {
+            let mut result: HashMap<String, SchemaLocalizedErr> = HashMap::new();
+            for (key, item) in obj {
+                result.insert(key.clone(), schema_err_to_locale(item, locale));
+            }
+            SchemaLocalizedErr::Obj(result)
+        }
+    }
+}
+
+pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> String {
+    match error {
+        ValidationErr::Required => locale.required.clone(),
+        ValidationErr::Bool => locale.bool.clone(),
+        ValidationErr::Str => locale.str.clone(),
+        ValidationErr::NumU => locale.num_u.clone(),
+        ValidationErr::NumI => locale.num_i.clone(),
+        ValidationErr::NumF => locale.num_f.clone(),
+        ValidationErr::Eq(value) => locale.eq.clone() + &value_to_string(&value),
+        ValidationErr::Ne(value) => locale.ne.clone() + &value_to_string(&value),
+        ValidationErr::Gt(value) => locale.gt.clone() + &value_to_string(&value),
+        ValidationErr::Lt(value) => locale.lt.clone() + &value_to_string(&value),
+        ValidationErr::Ge(value) => locale.ge.clone() + &value_to_string(&value),
+        ValidationErr::Le(value) => locale.le.clone() + &value_to_string(&value),
+    }
 }
 
 pub fn locale_pt_long() -> Locale {
@@ -69,23 +110,6 @@ pub fn locale_en_long() -> Locale {
     }
 }
 
-pub fn err_to_locale(error: &ValidationErr, locale: &Locale) -> String {
-    match error {
-        ValidationErr::Required => locale.required.clone(),
-        ValidationErr::Bool => locale.bool.clone(),
-        ValidationErr::Str => locale.str.clone(),
-        ValidationErr::NumU => locale.num_u.clone(),
-        ValidationErr::NumI => locale.num_i.clone(),
-        ValidationErr::NumF => locale.num_f.clone(),
-        ValidationErr::Eq(value) => locale.eq.clone() + &value_to_string(&value),
-        ValidationErr::Ne(value) => locale.ne.clone() + &value_to_string(&value),
-        ValidationErr::Gt(value) => locale.gt.clone() + &value_to_string(&value),
-        ValidationErr::Lt(value) => locale.lt.clone() + &value_to_string(&value),
-        ValidationErr::Ge(value) => locale.ge.clone() + &value_to_string(&value),
-        ValidationErr::Le(value) => locale.le.clone() + &value_to_string(&value),
-    }
-}
-
 #[cfg(test)]
 mod test {
     use araucaria::value::Value;
@@ -93,335 +117,234 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_schema_err_to_locale() {
+        let locale = locale_pt_long();
+        assert_eq!(
+            schema_err_to_locale(
+                &SchemaErr::Arr(vec![
+                    ValidationErr::Bool,
+                    ValidationErr::Required,
+                    ValidationErr::Eq(Value::Bool(true))
+                ]),
+                &locale
+            ),
+            SchemaLocalizedErr::Arr(vec![
+                String::from("Deve ser um booleano"),
+                String::from("É obrigatório"),
+                String::from("Deve ser igual a true")
+            ])
+        );
+        assert_eq!(
+            schema_err_to_locale(
+                &SchemaErr::Obj(HashMap::from([
+                    (
+                        String::from("name"),
+                        SchemaErr::Arr(vec![
+                            ValidationErr::Str,
+                            ValidationErr::Required,
+                            ValidationErr::Eq(Value::Str(String::from("Paul McCartney")))
+                        ])
+                    ),
+                    (
+                        String::from("birthdate"),
+                        SchemaErr::Arr(vec![
+                            ValidationErr::Str,
+                            ValidationErr::Required,
+                            ValidationErr::Eq(Value::Str(String::from("1942-06-18")))
+                        ])
+                    ),
+                    (
+                        String::from("alive"),
+                        SchemaErr::Arr(vec![
+                            ValidationErr::Bool,
+                            ValidationErr::Required,
+                            ValidationErr::Eq(Value::Bool(true))
+                        ])
+                    ),
+                    (
+                        String::from("bands"),
+                        SchemaErr::Arr(vec![
+                            ValidationErr::Str,
+                            ValidationErr::Required,
+                            ValidationErr::Eq(Value::Str(String::from("The Beatles")))
+                        ])
+                    ),
+                ])),
+                &locale
+            ),
+            SchemaLocalizedErr::Obj(HashMap::from([
+                (
+                    String::from("name"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser uma string"),
+                        String::from("É obrigatório"),
+                        String::from(r#"Deve ser igual a "Paul McCartney""#),
+                    ])
+                ),
+                (
+                    String::from("birthdate"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser uma string"),
+                        String::from("É obrigatório"),
+                        String::from(r#"Deve ser igual a "1942-06-18""#),
+                    ])
+                ),
+                (
+                    String::from("alive"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser um booleano"),
+                        String::from("É obrigatório"),
+                        String::from("Deve ser igual a true"),
+                    ])
+                ),
+                (
+                    String::from("bands"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser uma string"),
+                        String::from("É obrigatório"),
+                        String::from(r#"Deve ser igual a "The Beatles""#),
+                    ])
+                ),
+            ]))
+        );
+        assert_eq!(
+            serde_json::to_string(&SchemaLocalizedErr::Obj(HashMap::from([
+                (
+                    String::from("name"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser uma string"),
+                        String::from("É obrigatório"),
+                        String::from(r#"Deve ser igual a "Paul McCartney""#),
+                    ])
+                ),
+                (
+                    String::from("birthdate"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser uma string"),
+                        String::from("É obrigatório"),
+                        String::from(r#"Deve ser igual a "1942-06-18""#),
+                    ])
+                ),
+                (
+                    String::from("alive"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser um booleano"),
+                        String::from("É obrigatório"),
+                        String::from("Deve ser igual a true"),
+                    ])
+                ),
+                (
+                    String::from("bands"),
+                    SchemaLocalizedErr::Arr(vec![
+                        String::from("Deve ser uma string"),
+                        String::from("É obrigatório"),
+                        String::from(r#"Deve ser igual a "The Beatles""#),
+                    ])
+                ),
+            ])))
+            .unwrap(),
+            String::from(
+                r#"{"Obj":{"alive":{"Arr":["Deve ser um booleano","É obrigatório","Deve ser igual a true"]},"bands":{"Arr":["Deve ser uma string","É obrigatório","Deve ser igual a \"The Beatles\""]},"name":{"Arr":["Deve ser uma string","É obrigatório","Deve ser igual a \"Paul McCartney\""]},"birthdate":{"Arr":["Deve ser uma string","É obrigatório","Deve ser igual a \"1942-06-18\""]}}}"#
+            )
+        );
+    }
+
+    #[test]
     fn test_locale_pt_long() {
         let locale = locale_pt_long();
-        assert_eq!(err_to_locale(&ValidationErr::Required, &locale), String::from("É obrigatório"));
-        assert_eq!(
-            err_to_locale(&ValidationErr::Bool, &locale),
-            String::from("Deve ser um booleano")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Str, &locale),
-            String::from("Deve ser uma string")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumU, &locale),
-            String::from("Deve ser um número inteiro sem sinal")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumI, &locale),
-            String::from("Deve ser um número inteiro")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumF, &locale),
-            String::from("Deve ser um número com ponto flutuante")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::Bool(false)), &locale),
-            String::from("Deve ser igual a false")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumU(34)), &locale),
-            String::from("Deve ser igual a 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumI(-4)), &locale),
-            String::from("Deve ser igual a -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumF(-4.6)), &locale),
-            String::from("Deve ser igual a -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::Str(String::from("aurorae"))), &locale),
-            String::from("Deve ser igual a \"aurorae\"")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::Bool(false)), &locale),
-            String::from("Deve ser diferente de false")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumU(34)), &locale),
-            String::from("Deve ser diferente de 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumI(-4)), &locale),
-            String::from("Deve ser diferente de -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumF(-4.6)), &locale),
-            String::from("Deve ser diferente de -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::Str(String::from("aurorae"))), &locale),
-            String::from("Deve ser diferente de \"aurorae\"")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumU(34)), &locale),
-            String::from("Deve ser maior que 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumI(-4)), &locale),
-            String::from("Deve ser maior que -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumF(-4.6)), &locale),
-            String::from("Deve ser maior que -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumU(34)), &locale),
-            String::from("Deve ser menor que 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumI(-4)), &locale),
-            String::from("Deve ser menor que -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumF(-4.6)), &locale),
-            String::from("Deve ser menor que -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumU(34)), &locale),
-            String::from("Deve ser maior ou igual a 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumI(-4)), &locale),
-            String::from("Deve ser maior ou igual a -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumF(-4.6)), &locale),
-            String::from("Deve ser maior ou igual a -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumU(34)), &locale),
-            String::from("Deve ser menor ou igual a 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumI(-4)), &locale),
-            String::from("Deve ser menor ou igual a -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumF(-4.6)), &locale),
-            String::from("Deve ser menor ou igual a -4.6")
-        );
+        assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), String::from("É obrigatório"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Bool, &locale), String::from("Deve ser um booleano"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Str, &locale), String::from("Deve ser uma string"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumU, &locale), String::from("Deve ser um número inteiro sem sinal"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumI, &locale), String::from("Deve ser um número inteiro"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumF, &locale), String::from("Deve ser um número com ponto flutuante"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::Bool(false)), &locale), String::from("Deve ser igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumU(34)), &locale), String::from("Deve ser igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumI(-4)), &locale), String::from("Deve ser igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumF(-4.6)), &locale), String::from("Deve ser igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::Str(String::from("aurorae"))), &locale), String::from("Deve ser igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::Bool(false)), &locale), String::from("Deve ser diferente de false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumU(34)), &locale), String::from("Deve ser diferente de 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumI(-4)), &locale), String::from("Deve ser diferente de -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumF(-4.6)), &locale), String::from("Deve ser diferente de -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::Str(String::from("aurorae"))), &locale), String::from("Deve ser diferente de \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumU(34)), &locale), String::from("Deve ser maior que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumI(-4)), &locale), String::from("Deve ser maior que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumF(-4.6)), &locale), String::from("Deve ser maior que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumU(34)), &locale), String::from("Deve ser menor que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumI(-4)), &locale), String::from("Deve ser menor que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumF(-4.6)), &locale), String::from("Deve ser menor que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumU(34)), &locale), String::from("Deve ser maior ou igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumI(-4)), &locale), String::from("Deve ser maior ou igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumF(-4.6)), &locale), String::from("Deve ser maior ou igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumU(34)), &locale), String::from("Deve ser menor ou igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumI(-4)), &locale), String::from("Deve ser menor ou igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumF(-4.6)), &locale), String::from("Deve ser menor ou igual a -4.6"));
     }
 
     #[test]
     fn test_locale_es_long() {
         let locale = locale_es_long();
-        assert_eq!(err_to_locale(&ValidationErr::Required, &locale), String::from("Se requiere"));
-        assert_eq!(
-            err_to_locale(&ValidationErr::Bool, &locale),
-            String::from("Debe ser un booleano")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Str, &locale),
-            String::from("Debe ser una cadena")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumU, &locale),
-            String::from("Debe ser un número entero sin signo")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumI, &locale),
-            String::from("Debe ser un número entero")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumF, &locale),
-            String::from("Debe ser un número de punto flotante")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::Bool(false)), &locale),
-            String::from("Debe ser igual a false")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumU(34)), &locale),
-            String::from("Debe ser igual a 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumI(-4)), &locale),
-            String::from("Debe ser igual a -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumF(-4.6)), &locale),
-            String::from("Debe ser igual a -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::Str(String::from("aurorae"))), &locale),
-            String::from("Debe ser igual a \"aurorae\"")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::Bool(false)), &locale),
-            String::from("Debe ser diferente de false")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumU(34)), &locale),
-            String::from("Debe ser diferente de 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumI(-4)), &locale),
-            String::from("Debe ser diferente de -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumF(-4.6)), &locale),
-            String::from("Debe ser diferente de -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::Str(String::from("aurorae"))), &locale),
-            String::from("Debe ser diferente de \"aurorae\"")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumU(34)), &locale),
-            String::from("Debe ser mayor que 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumI(-4)), &locale),
-            String::from("Debe ser mayor que -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumF(-4.6)), &locale),
-            String::from("Debe ser mayor que -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumU(34)), &locale),
-            String::from("Debe ser menor que 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumI(-4)), &locale),
-            String::from("Debe ser menor que -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumF(-4.6)), &locale),
-            String::from("Debe ser menor que -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumU(34)), &locale),
-            String::from("Debe ser mayor o igual a 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumI(-4)), &locale),
-            String::from("Debe ser mayor o igual a -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumF(-4.6)), &locale),
-            String::from("Debe ser mayor o igual a -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumU(34)), &locale),
-            String::from("Debe ser menor o igual a 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumI(-4)), &locale),
-            String::from("Debe ser menor o igual a -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumF(-4.6)), &locale),
-            String::from("Debe ser menor o igual a -4.6")
-        );
+        assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), String::from("Se requiere"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Bool, &locale), String::from("Debe ser un booleano"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Str, &locale), String::from("Debe ser una cadena"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumU, &locale), String::from("Debe ser un número entero sin signo"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumI, &locale), String::from("Debe ser un número entero"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumF, &locale), String::from("Debe ser un número de punto flotante"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::Bool(false)), &locale), String::from("Debe ser igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumU(34)), &locale), String::from("Debe ser igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumI(-4)), &locale), String::from("Debe ser igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumF(-4.6)), &locale), String::from("Debe ser igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::Str(String::from("aurorae"))), &locale), String::from("Debe ser igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::Bool(false)), &locale), String::from("Debe ser diferente de false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumU(34)), &locale), String::from("Debe ser diferente de 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumI(-4)), &locale), String::from("Debe ser diferente de -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumF(-4.6)), &locale), String::from("Debe ser diferente de -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::Str(String::from("aurorae"))), &locale), String::from("Debe ser diferente de \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumU(34)), &locale), String::from("Debe ser mayor que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumI(-4)), &locale), String::from("Debe ser mayor que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumF(-4.6)), &locale), String::from("Debe ser mayor que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumU(34)), &locale), String::from("Debe ser menor que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumI(-4)), &locale), String::from("Debe ser menor que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumF(-4.6)), &locale), String::from("Debe ser menor que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumU(34)), &locale), String::from("Debe ser mayor o igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumI(-4)), &locale), String::from("Debe ser mayor o igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumF(-4.6)), &locale), String::from("Debe ser mayor o igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumU(34)), &locale), String::from("Debe ser menor o igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumI(-4)), &locale), String::from("Debe ser menor o igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumF(-4.6)), &locale), String::from("Debe ser menor o igual a -4.6"));
     }
 
     #[test]
     fn test_locale_en_long() {
         let locale = locale_en_long();
-        assert_eq!(err_to_locale(&ValidationErr::Required, &locale), String::from("Is required"));
-        assert_eq!(err_to_locale(&ValidationErr::Bool, &locale), String::from("Must be a boolean"));
-        assert_eq!(err_to_locale(&ValidationErr::Str, &locale), String::from("Must be a string"));
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumU, &locale),
-            String::from("Must be an unsigned integer")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::NumI, &locale),
-            String::from("Must be an integer")
-        );
-        assert_eq!(err_to_locale(&ValidationErr::NumF, &locale), String::from("Must be a float"));
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::Bool(false)), &locale),
-            String::from("Must be equals to false")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumU(34)), &locale),
-            String::from("Must be equals to 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumI(-4)), &locale),
-            String::from("Must be equals to -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::NumF(-4.6)), &locale),
-            String::from("Must be equals to -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Eq(Value::Str(String::from("aurorae"))), &locale),
-            String::from("Must be equals to \"aurorae\"")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::Bool(false)), &locale),
-            String::from("Must be different to false")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumU(34)), &locale),
-            String::from("Must be different to 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumI(-4)), &locale),
-            String::from("Must be different to -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::NumF(-4.6)), &locale),
-            String::from("Must be different to -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ne(Value::Str(String::from("aurorae"))), &locale),
-            String::from("Must be different to \"aurorae\"")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumU(34)), &locale),
-            String::from("Must be greater than 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumI(-4)), &locale),
-            String::from("Must be greater than -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Gt(Value::NumF(-4.6)), &locale),
-            String::from("Must be greater than -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumU(34)), &locale),
-            String::from("Must be smaller than 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumI(-4)), &locale),
-            String::from("Must be smaller than -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Lt(Value::NumF(-4.6)), &locale),
-            String::from("Must be smaller than -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumU(34)), &locale),
-            String::from("Must be greater or equals to 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumI(-4)), &locale),
-            String::from("Must be greater or equals to -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Ge(Value::NumF(-4.6)), &locale),
-            String::from("Must be greater or equals to -4.6")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumU(34)), &locale),
-            String::from("Must be smaller or equals to 34")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumI(-4)), &locale),
-            String::from("Must be smaller or equals to -4")
-        );
-        assert_eq!(
-            err_to_locale(&ValidationErr::Le(Value::NumF(-4.6)), &locale),
-            String::from("Must be smaller or equals to -4.6")
-        );
+        assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), String::from("Is required"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Bool, &locale), String::from("Must be a boolean"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Str, &locale), String::from("Must be a string"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumU, &locale), String::from("Must be an unsigned integer"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumI, &locale), String::from("Must be an integer"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumF, &locale), String::from("Must be a float"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::Bool(false)), &locale), String::from("Must be equals to false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumU(34)), &locale), String::from("Must be equals to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumI(-4)), &locale), String::from("Must be equals to -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::NumF(-4.6)), &locale), String::from("Must be equals to -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Eq(Value::Str(String::from("aurorae"))), &locale), String::from("Must be equals to \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::Bool(false)), &locale), String::from("Must be different to false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumU(34)), &locale), String::from("Must be different to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumI(-4)), &locale), String::from("Must be different to -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::NumF(-4.6)), &locale), String::from("Must be different to -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ne(Value::Str(String::from("aurorae"))), &locale), String::from("Must be different to \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumU(34)), &locale), String::from("Must be greater than 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumI(-4)), &locale), String::from("Must be greater than -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Gt(Value::NumF(-4.6)), &locale), String::from("Must be greater than -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumU(34)), &locale), String::from("Must be smaller than 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumI(-4)), &locale), String::from("Must be smaller than -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Lt(Value::NumF(-4.6)), &locale), String::from("Must be smaller than -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumU(34)), &locale), String::from("Must be greater or equals to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumI(-4)), &locale), String::from("Must be greater or equals to -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Ge(Value::NumF(-4.6)), &locale), String::from("Must be greater or equals to -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumU(34)), &locale), String::from("Must be smaller or equals to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumI(-4)), &locale), String::from("Must be smaller or equals to -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Le(Value::NumF(-4.6)), &locale), String::from("Must be smaller or equals to -4.6"));
     }
 }

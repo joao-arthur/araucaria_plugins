@@ -2,12 +2,13 @@
 name = "araucaria_plugins"
 version = "1.0.0"
 edition = "2021"
-
 license = "AGPL-3.0"
+authors = ["João Arthur <joaoarthurlf.dev@gmail.com>"]
 
 [lib]
 crate-type = ["rlib"]
-bench = false
+
+[features]
 
 [dependencies]
 araucaria = { git = "https://github.com/joao-arthur/araucaria", rev = "ce10bcaf84919d834eca2415967108288a5292b4" }
