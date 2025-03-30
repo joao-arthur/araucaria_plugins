@@ -50,7 +50,7 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
 
 #[cfg(test)]
 mod test {
-    use crate::stub::{arr_bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub};
+    use araucaria::value::stub::{arr_bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub};
 
     use super::*;
 

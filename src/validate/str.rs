@@ -50,7 +50,7 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
 
 #[cfg(test)]
 mod test {
-    use crate::stub::{num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub};
+    use araucaria::value::stub::{num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub};
 
     use super::*;
 

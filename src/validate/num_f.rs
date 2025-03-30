@@ -94,7 +94,7 @@ pub fn validate_num_f(validation: &NumFValidation, value: &Value) -> Result<(), 
 
 #[cfg(test)]
 mod test {
-    use crate::stub::{
+    use araucaria::value::stub::{
         arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub,
     };
 

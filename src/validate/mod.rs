@@ -123,13 +123,10 @@ mod test {
     fn test_obj_ok() {
         assert_eq!(
             validate(
-                &Validation::Obj(ObjValidation {
-                    validation: HashMap::from([(
-                        "is",
-                        Validation::Bool(BoolValidation::default().eq(false))
-                    )]),
-                    required: false
-                }),
+                &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
+                    "is",
+                    Validation::Bool(BoolValidation::default().eq(false))
+                )]))),
                 &Value::Obj(HashMap::from([(String::from("is"), Value::Bool(false))]))
             ),
             Ok(())
@@ -140,13 +137,10 @@ mod test {
     fn test_obj_err() {
         assert_eq!(
             validate(
-                &Validation::Obj(ObjValidation {
-                    validation: HashMap::from([(
-                        "is",
-                        Validation::Bool(BoolValidation::default().eq(false))
-                    )]),
-                    required: false
-                }),
+                &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
+                    "is",
+                    Validation::Bool(BoolValidation::default().eq(false))
+                )]))),
                 &Value::None
             ),
             Err(SchemaErr::obj([(
@@ -160,13 +154,10 @@ mod test {
         );
         assert_eq!(
             validate(
-                &Validation::Obj(ObjValidation {
-                    validation: HashMap::from([(
-                        "is",
-                        Validation::Bool(BoolValidation::default().eq(false))
-                    )]),
-                    required: true
-                }),
+                &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
+                    "is",
+                    Validation::Bool(BoolValidation::default().eq(false))
+                )]))),
                 &Value::None
             ),
             Err(SchemaErr::obj([(
@@ -180,13 +171,10 @@ mod test {
         );
         assert_eq!(
             validate(
-                &Validation::Obj(ObjValidation {
-                    validation: HashMap::from([(
-                        "is",
-                        Validation::Bool(BoolValidation::default().eq(false))
-                    )]),
-                    required: false
-                }),
+                &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
+                    "is",
+                    Validation::Bool(BoolValidation::default().eq(false))
+                )]))),
                 &Value::Bool(false)
             ),
             Err(SchemaErr::obj([(
