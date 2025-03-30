@@ -14,7 +14,7 @@ pub mod num_i;
 pub mod num_u;
 pub mod str;
 
-pub fn validate(validation: &Validation, value: &Value) -> Option<SchemaErr> {
+pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
     match validation {
         Validation::Bool(v) => validate_bool(v, value),
         Validation::Str(v) => validate_str(v, value),
@@ -33,13 +33,13 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<SchemaErr> {
                             validate(&v, value.get(k.clone()).unwrap_or(&Value::None)),
                         )
                     })
-                    .filter(|(k, v)| v.is_some())
-                    .map(|(k, v)| (k, v.unwrap()))
+                    .filter(|(k, v)| v.is_err())
+                    .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
                 if result.is_empty() {
-                    None
+                    Ok(())
                 } else {
-                    Some(SchemaErr::Obj(result))
+                    Err(SchemaErr::Obj(result))
                 }
             }
             Value::None => {
@@ -48,13 +48,13 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<SchemaErr> {
                     .clone()
                     .into_iter()
                     .map(|(k, v)| (String::from(k.clone()), validate(&v, &Value::None)))
-                    .filter(|(k, v)| v.is_some())
-                    .map(|(k, v)| (k, v.unwrap()))
+                    .filter(|(k, v)| v.is_err())
+                    .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
                 if result.is_empty() {
-                    None
+                    Ok(())
                 } else {
-                    Some(SchemaErr::Obj(result))
+                    Err(SchemaErr::Obj(result))
                 }
             }
             _ => {
@@ -63,17 +63,17 @@ pub fn validate(validation: &Validation, value: &Value) -> Option<SchemaErr> {
                     .clone()
                     .into_iter()
                     .map(|(k, v)| (String::from(k.clone()), validate(&v, &Value::None)))
-                    .filter(|(k, v)| v.is_some())
-                    .map(|(k, v)| (k, v.unwrap()))
+                    .filter(|(k, v)| v.is_err())
+                    .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
                 if result.is_empty() {
-                    None
+                    Ok(())
                 } else {
-                    Some(SchemaErr::Obj(result))
+                    Err(SchemaErr::Obj(result))
                 }
             }
         },
-        _ => None,
+        _ => Ok(()),
     }
 }
 
@@ -91,15 +91,15 @@ mod test {
     fn test_bool() {
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false)),
-            None
+            Ok(())
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::None),
-            SchemaErr::arr([
+            Err(SchemaErr::arr([
                 ValidationErr::Bool,
                 ValidationErr::Required,
                 ValidationErr::Eq(Value::Bool(false))
-            ])
+            ]))
         );
     }
 
@@ -107,15 +107,15 @@ mod test {
     fn test_bool_some() {
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default()), &Value::NumU(1)),
-            SchemaErr::arr([ValidationErr::Bool])
+            Err(SchemaErr::arr([ValidationErr::Bool]))
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default()), &Value::None),
-            SchemaErr::arr([ValidationErr::Bool, ValidationErr::Required])
+            Err(SchemaErr::arr([ValidationErr::Bool, ValidationErr::Required]))
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(true)),
-            SchemaErr::arr([ValidationErr::Eq(Value::Bool(false))])
+            Err(SchemaErr::arr([ValidationErr::Eq(Value::Bool(false))]))
         );
     }
 
@@ -132,7 +132,7 @@ mod test {
                 }),
                 &Value::Obj(HashMap::from([(String::from("is"), Value::Bool(false))]))
             ),
-            None
+            Ok(())
         );
     }
 
@@ -149,14 +149,14 @@ mod test {
                 }),
                 &Value::None
             ),
-            SchemaErr::obj([(
+            Err(SchemaErr::obj([(
                 String::from("is"),
                 SchemaErr::Arr(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(false))
                 ])
-            )])
+            )]))
         );
         assert_eq!(
             validate(
@@ -169,14 +169,14 @@ mod test {
                 }),
                 &Value::None
             ),
-            SchemaErr::obj([(
+            Err(SchemaErr::obj([(
                 String::from("is"),
                 SchemaErr::Arr(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(false))
                 ])
-            )])
+            )]))
         );
         assert_eq!(
             validate(
@@ -189,14 +189,14 @@ mod test {
                 }),
                 &Value::Bool(false)
             ),
-            SchemaErr::obj([(
+            Err(SchemaErr::obj([(
                 String::from("is"),
                 SchemaErr::Arr(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(false))
                 ])
-            )])
+            )]))
         );
     }
 }

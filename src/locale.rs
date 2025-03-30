@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize, Serializer};
+use std::collections::HashMap;
 
 use araucaria::{
     error::{SchemaErr, ValidationErr},
