@@ -62,15 +62,24 @@ mod test {
             validate_str(&v, &Value::None),
             Err(SchemaErr::validation([ValidationErr::Str, ValidationErr::Required]))
         );
-        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str])));
+        assert_eq!(
+            validate_str(&v, &num_u_stub()),
+            Err(SchemaErr::validation([ValidationErr::Str]))
+        );
     }
 
     #[test]
     fn test_validate_str_optional() {
         let v = StrValidation::default().optional();
         assert_eq!(validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))), Ok(()));
-        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Str])));
-        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str])));
+        assert_eq!(
+            validate_str(&v, &Value::None),
+            Err(SchemaErr::validation([ValidationErr::Str]))
+        );
+        assert_eq!(
+            validate_str(&v, &num_u_stub()),
+            Err(SchemaErr::validation([ValidationErr::Str]))
+        );
     }
 
     #[test]
@@ -79,7 +88,9 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum")), Ok(()));
         assert_eq!(
             validate_str(&v, &Value::from("Memento mori")),
-            Err(SchemaErr::validation([ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))]))
+            Err(SchemaErr::validation([ValidationErr::Eq(Value::Str(String::from(
+                "Cogito ergo sum"
+            )))]))
         );
         assert_eq!(
             validate_str(&v, &Value::None),
@@ -104,7 +115,9 @@ mod test {
         assert_eq!(validate_str(&v, &Value::Str(String::from("Memento mori"))), Ok(()));
         assert_eq!(
             validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))),
-            Err(SchemaErr::validation([ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))]))
+            Err(SchemaErr::validation([ValidationErr::Ne(Value::Str(String::from(
+                "Cogito ergo sum"
+            )))]))
         );
         assert_eq!(
             validate_str(&v, &Value::None),

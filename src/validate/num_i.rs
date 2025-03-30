@@ -108,15 +108,24 @@ mod test {
             validate_num_i(&v, &Value::None),
             Err(SchemaErr::validation([ValidationErr::NumI, ValidationErr::Required]))
         );
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumI])));
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            Err(SchemaErr::validation([ValidationErr::NumI]))
+        );
     }
 
     #[test]
     fn test_validate_num_i_optional() {
         let v = NumIValidation::default().optional();
         assert_eq!(validate_num_i(&v, &Value::NumI(-42)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::NumI])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumI])));
+        assert_eq!(
+            validate_num_i(&v, &Value::None),
+            Err(SchemaErr::validation([ValidationErr::NumI]))
+        );
+        assert_eq!(
+            validate_num_i(&v, &bool_stub()),
+            Err(SchemaErr::validation([ValidationErr::NumI]))
+        );
     }
 
     #[test]
