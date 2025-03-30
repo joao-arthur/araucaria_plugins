@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use araucaria::validation::{bool::BoolValidation, ObjValidation, Validation};
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -33,7 +32,7 @@ pub enum ValidationErr {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SchemaErr {
-    Arr(Vec<ValidationErr>),
+    Validation(Vec<ValidationErr>),
     Obj(HashMap<String, SchemaErr>),
 }
 
@@ -43,7 +42,7 @@ impl Serialize for SchemaErr {
         S: Serializer,
     {
         match self {
-            SchemaErr::Arr(vec) => vec.serialize(serializer),
+            SchemaErr::Validation(vec) => vec.serialize(serializer),
             SchemaErr::Obj(map) => map.serialize(serializer),
         }
     }
@@ -85,8 +84,8 @@ pub fn map_err(value: araucaria::error::ValidationErr) -> ValidationErr {
 
 pub fn map_err_wrap(value: araucaria::error::SchemaErr) -> SchemaErr {
     match value {
-        araucaria::error::SchemaErr::Arr(value) => {
-            SchemaErr::Arr(value.into_iter().map(map_err).collect())
+        araucaria::error::SchemaErr::Validation(value) => {
+            SchemaErr::Validation(value.into_iter().map(map_err).collect())
         }
         araucaria::error::SchemaErr::Obj(value) => SchemaErr::Obj(
             value.into_iter().map(|(k, v)| (String::from(k.clone()), map_err_wrap(v))).collect(),
@@ -103,7 +102,7 @@ mod test {
         assert_eq!(
             serde_json::to_string(&SchemaErr::Obj(HashMap::from([(
                 String::from("is"),
-                SchemaErr::Arr(vec![
+                SchemaErr::Validation(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(false))

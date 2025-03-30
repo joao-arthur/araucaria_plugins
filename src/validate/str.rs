@@ -42,7 +42,7 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
         }
     }
     if !base.is_empty() {
-        Err(SchemaErr::Arr(base))
+        Err(SchemaErr::Validation(base))
     } else {
         Ok(())
     }
@@ -60,17 +60,17 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum")), Ok(()));
         assert_eq!(
             validate_str(&v, &Value::None),
-            Err(SchemaErr::arr([ValidationErr::Str, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Str, ValidationErr::Required]))
         );
-        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::arr([ValidationErr::Str])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str])));
     }
 
     #[test]
     fn test_validate_str_optional() {
         let v = StrValidation::default().optional();
         assert_eq!(validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))), Ok(()));
-        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::arr([ValidationErr::Str])));
-        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::arr([ValidationErr::Str])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Str])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str])));
     }
 
     #[test]
@@ -79,11 +79,11 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum")), Ok(()));
         assert_eq!(
             validate_str(&v, &Value::from("Memento mori")),
-            Err(SchemaErr::arr([ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))]))
+            Err(SchemaErr::validation([ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))]))
         );
         assert_eq!(
             validate_str(&v, &Value::None),
-            Err(SchemaErr::arr([
+            Err(SchemaErr::validation([
                 ValidationErr::Str,
                 ValidationErr::Required,
                 ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))
@@ -91,7 +91,7 @@ mod test {
         );
         assert_eq!(
             validate_str(&v, &num_u_stub()),
-            Err(SchemaErr::arr([
+            Err(SchemaErr::validation([
                 ValidationErr::Str,
                 ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))
             ]))
@@ -104,11 +104,11 @@ mod test {
         assert_eq!(validate_str(&v, &Value::Str(String::from("Memento mori"))), Ok(()));
         assert_eq!(
             validate_str(&v, &Value::Str(String::from("Cogito ergo sum"))),
-            Err(SchemaErr::arr([ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))]))
+            Err(SchemaErr::validation([ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))]))
         );
         assert_eq!(
             validate_str(&v, &Value::None),
-            Err(SchemaErr::arr([
+            Err(SchemaErr::validation([
                 ValidationErr::Str,
                 ValidationErr::Required,
                 ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))
@@ -116,7 +116,7 @@ mod test {
         );
         assert_eq!(
             validate_str(&v, &num_u_stub()),
-            Err(SchemaErr::arr([
+            Err(SchemaErr::validation([
                 ValidationErr::Str,
                 ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))
             ]))

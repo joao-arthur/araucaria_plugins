@@ -29,7 +29,7 @@ pub enum SchemaLocalizedErr {
 
 pub fn schema_err_to_locale(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
     match err {
-        SchemaErr::Arr(arr) => SchemaLocalizedErr::Arr(
+        SchemaErr::Validation(arr) => SchemaLocalizedErr::Arr(
             arr.iter().map(|item| validation_err_to_locale(item, locale)).collect(),
         ),
         SchemaErr::Obj(obj) => {
@@ -121,7 +121,7 @@ mod test {
         let locale = locale_pt_long();
         assert_eq!(
             schema_err_to_locale(
-                &SchemaErr::Arr(vec![
+                &SchemaErr::Validation(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(true))
@@ -139,7 +139,7 @@ mod test {
                 &SchemaErr::Obj(HashMap::from([
                     (
                         String::from("name"),
-                        SchemaErr::Arr(vec![
+                        SchemaErr::Validation(vec![
                             ValidationErr::Str,
                             ValidationErr::Required,
                             ValidationErr::Eq(Value::Str(String::from("Paul McCartney")))
@@ -147,7 +147,7 @@ mod test {
                     ),
                     (
                         String::from("birthdate"),
-                        SchemaErr::Arr(vec![
+                        SchemaErr::Validation(vec![
                             ValidationErr::Str,
                             ValidationErr::Required,
                             ValidationErr::Eq(Value::Str(String::from("1942-06-18")))
@@ -155,7 +155,7 @@ mod test {
                     ),
                     (
                         String::from("alive"),
-                        SchemaErr::Arr(vec![
+                        SchemaErr::Validation(vec![
                             ValidationErr::Bool,
                             ValidationErr::Required,
                             ValidationErr::Eq(Value::Bool(true))
@@ -163,7 +163,7 @@ mod test {
                     ),
                     (
                         String::from("bands"),
-                        SchemaErr::Arr(vec![
+                        SchemaErr::Validation(vec![
                             ValidationErr::Str,
                             ValidationErr::Required,
                             ValidationErr::Eq(Value::Str(String::from("The Beatles")))

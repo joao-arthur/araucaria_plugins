@@ -30,7 +30,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
                     .map(|(k, v)| {
                         (
                             String::from(k.clone()),
-                            validate(&v, value.get(k.clone()).unwrap_or(&Value::None)),
+                            validate(&v, value.get(&k).unwrap_or(&Value::None)),
                         )
                     })
                     .filter(|(k, v)| v.is_err())
@@ -95,7 +95,7 @@ mod test {
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::None),
-            Err(SchemaErr::arr([
+            Err(SchemaErr::validation([
                 ValidationErr::Bool,
                 ValidationErr::Required,
                 ValidationErr::Eq(Value::Bool(false))
@@ -107,15 +107,15 @@ mod test {
     fn test_bool_some() {
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default()), &Value::NumU(1)),
-            Err(SchemaErr::arr([ValidationErr::Bool]))
+            Err(SchemaErr::validation([ValidationErr::Bool]))
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default()), &Value::None),
-            Err(SchemaErr::arr([ValidationErr::Bool, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Required]))
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(true)),
-            Err(SchemaErr::arr([ValidationErr::Eq(Value::Bool(false))]))
+            Err(SchemaErr::validation([ValidationErr::Eq(Value::Bool(false))]))
         );
     }
 
@@ -124,7 +124,7 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
-                    "is",
+                    String::from("is"),
                     Validation::Bool(BoolValidation::default().eq(false))
                 )]))),
                 &Value::Obj(HashMap::from([(String::from("is"), Value::Bool(false))]))
@@ -138,14 +138,14 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
-                    "is",
+                    String::from("is"),
                     Validation::Bool(BoolValidation::default().eq(false))
                 )]))),
                 &Value::None
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
-                SchemaErr::Arr(vec![
+                SchemaErr::Validation(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(false))
@@ -155,14 +155,14 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
-                    "is",
+                    String::from("is"),
                     Validation::Bool(BoolValidation::default().eq(false))
                 )]))),
                 &Value::None
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
-                SchemaErr::Arr(vec![
+                SchemaErr::Validation(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(false))
@@ -172,14 +172,14 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(ObjValidation::default().validation(HashMap::from([(
-                    "is",
+                    String::from("is"),
                     Validation::Bool(BoolValidation::default().eq(false))
                 )]))),
                 &Value::Bool(false)
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
-                SchemaErr::Arr(vec![
+                SchemaErr::Validation(vec![
                     ValidationErr::Bool,
                     ValidationErr::Required,
                     ValidationErr::Eq(Value::Bool(false))

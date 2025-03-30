@@ -42,7 +42,7 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
         }
     }
     if !base.is_empty() {
-        Err(SchemaErr::Arr(base))
+        Err(SchemaErr::Validation(base))
     } else {
         Ok(())
     }
@@ -63,9 +63,9 @@ mod test {
         assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
         assert_eq!(
             validate_bool(&v, &Value::None),
-            Err(SchemaErr::arr([ValidationErr::Bool, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Required]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::arr([ValidationErr::Bool])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool])));
     }
 
     #[test]
@@ -73,8 +73,8 @@ mod test {
         let v = BoolValidation::default().optional();
         assert_eq!(validate_bool(&v, &Value::Bool(false)), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::arr([ValidationErr::Bool])));
-        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::arr([ValidationErr::Bool])));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Bool])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool])));
     }
 
     #[test]
@@ -83,11 +83,11 @@ mod test {
         assert_eq!(validate_bool(&v, &Value::Bool(false)), Ok(()));
         assert_eq!(
             validate_bool(&v, &Value::Bool(true)),
-            Err(SchemaErr::arr([ValidationErr::Eq(Value::Bool(false))]))
+            Err(SchemaErr::validation([ValidationErr::Eq(Value::Bool(false))]))
         );
         assert_eq!(
             validate_bool(&v, &Value::None),
-            Err(SchemaErr::arr([
+            Err(SchemaErr::validation([
                 ValidationErr::Bool,
                 ValidationErr::Required,
                 ValidationErr::Eq(Value::Bool(false),)
@@ -95,7 +95,7 @@ mod test {
         );
         assert_eq!(
             validate_bool(&v, &num_u_stub()),
-            Err(SchemaErr::arr([ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))]))
+            Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))]))
         );
     }
 
@@ -105,11 +105,11 @@ mod test {
         assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
         assert_eq!(
             validate_bool(&v, &Value::Bool(false)),
-            Err(SchemaErr::arr([ValidationErr::Ne(Value::Bool(false))]))
+            Err(SchemaErr::validation([ValidationErr::Ne(Value::Bool(false))]))
         );
         assert_eq!(
             validate_bool(&v, &Value::None),
-            Err(SchemaErr::arr([
+            Err(SchemaErr::validation([
                 ValidationErr::Bool,
                 ValidationErr::Required,
                 ValidationErr::Ne(Value::Bool(false))
@@ -117,7 +117,7 @@ mod test {
         );
         assert_eq!(
             validate_bool(&v, &num_u_stub()),
-            Err(SchemaErr::arr([ValidationErr::Bool, ValidationErr::Ne(Value::Bool(false))]))
+            Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Ne(Value::Bool(false))]))
         );
     }
 }
