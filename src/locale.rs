@@ -21,10 +21,22 @@ pub struct Locale {
     le: String,
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Deserialize)]
 pub enum SchemaLocalizedErr {
     Arr(Vec<String>),
     Obj(HashMap<String, SchemaLocalizedErr>),
+}
+
+impl Serialize for SchemaLocalizedErr {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            SchemaLocalizedErr::Arr(vec) => vec.serialize(serializer),
+            SchemaLocalizedErr::Obj(map) => map.serialize(serializer),
+        }
+    }
 }
 
 pub fn schema_err_to_locale(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
