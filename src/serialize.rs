@@ -56,12 +56,8 @@ pub fn map_value(value: araucaria::value::Value) -> Value {
         araucaria::value::Value::NumI(value) => Value::NumI(value),
         araucaria::value::Value::NumF(value) => Value::NumF(value),
         araucaria::value::Value::Str(value) => Value::Str(value),
-        araucaria::value::Value::Arr(value) => {
-            Value::Arr(value.into_iter().map(map_value).collect())
-        }
-        araucaria::value::Value::Obj(value) => Value::Obj(
-            value.into_iter().map(|(k, v)| (String::from(k.clone()), map_value(v))).collect(),
-        ),
+        araucaria::value::Value::Arr(value) => Value::Arr(value.into_iter().map(map_value).collect()),
+        araucaria::value::Value::Obj(value) => Value::Obj(value.into_iter().map(|(k, v)| (String::from(k.clone()), map_value(v))).collect()),
     }
 }
 
@@ -84,12 +80,10 @@ pub fn map_err(value: araucaria::error::ValidationErr) -> ValidationErr {
 
 pub fn map_err_wrap(value: araucaria::error::SchemaErr) -> SchemaErr {
     match value {
-        araucaria::error::SchemaErr::Validation(value) => {
-            SchemaErr::Validation(value.into_iter().map(map_err).collect())
+        araucaria::error::SchemaErr::Validation(value) => SchemaErr::Validation(value.into_iter().map(map_err).collect()),
+        araucaria::error::SchemaErr::Obj(value) => {
+            SchemaErr::Obj(value.into_iter().map(|(k, v)| (String::from(k.clone()), map_err_wrap(v))).collect())
         }
-        araucaria::error::SchemaErr::Obj(value) => SchemaErr::Obj(
-            value.into_iter().map(|(k, v)| (String::from(k.clone()), map_err_wrap(v))).collect(),
-        ),
     }
 }
 
@@ -102,11 +96,7 @@ mod test {
         assert_eq!(
             serde_json::to_string(&SchemaErr::Obj(HashMap::from([(
                 String::from("is"),
-                SchemaErr::Validation(vec![
-                    ValidationErr::Required,
-                    ValidationErr::Bool,
-                    ValidationErr::Eq(Value::Bool(false))
-                ])
+                SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))])
             )])))
             .unwrap(),
             String::from(r#"{"is":["Required","Bool",{"Eq":{"Bool":false}}]}"#)

@@ -94,9 +94,7 @@ pub fn validate_num_f(validation: &NumFValidation, value: &Value) -> Result<(), 
 
 #[cfg(test)]
 mod test {
-    use araucaria::value::stub::{
-        arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub,
-    };
+    use araucaria::value::stub::{arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub};
 
     use super::*;
 
@@ -104,165 +102,87 @@ mod test {
     fn test_validate_num_f_default() {
         let v = NumFValidation::default();
         assert_eq!(validate_num_f(&v, &Value::NumF(-42.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF]))
-        );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumF]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF])));
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF])));
     }
 
     #[test]
     fn test_validate_num_f_optional() {
         let v = NumFValidation::default().optional();
         assert_eq!(validate_num_f(&v, &Value::NumF(-42.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::NumF]))
-        );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumF]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::NumF])));
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF])));
     }
 
     #[test]
     fn test_validate_num_f_eq() {
         let v = NumFValidation::default().eq(-42.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-42.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::NumF(-7.5)),
-            Err(SchemaErr::validation([ValidationErr::Eq(Value::NumF(-42.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::NumF(-7.5)), Err(SchemaErr::validation([ValidationErr::Eq(Value::NumF(-42.5))])));
         assert_eq!(
             validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumF,
-                ValidationErr::Eq(Value::NumF(-42.5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF, ValidationErr::Eq(Value::NumF(-42.5))]))
         );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([
-                ValidationErr::NumF,
-                ValidationErr::Eq(Value::NumF(-42.5))
-            ]))
-        );
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Eq(Value::NumF(-42.5))])));
     }
 
     #[test]
     fn test_validate_num_f_ne() {
         let v = NumFValidation::default().ne(-22.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-42.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::NumF(-22.5)),
-            Err(SchemaErr::validation([ValidationErr::Ne(Value::NumF(-22.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::NumF(-22.5)), Err(SchemaErr::validation([ValidationErr::Ne(Value::NumF(-22.5))])));
         assert_eq!(
             validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumF,
-                ValidationErr::Ne(Value::NumF(-22.5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF, ValidationErr::Ne(Value::NumF(-22.5))]))
         );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([
-                ValidationErr::NumF,
-                ValidationErr::Ne(Value::NumF(-22.5))
-            ]))
-        );
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Ne(Value::NumF(-22.5))])));
     }
 
     #[test]
     fn test_validate_num_f_gt() {
         let v = NumFValidation::default().gt(-2.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-1.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::NumF(-2.5)),
-            Err(SchemaErr::validation([ValidationErr::Gt(Value::NumF(-2.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::NumF(-2.5)), Err(SchemaErr::validation([ValidationErr::Gt(Value::NumF(-2.5))])));
         assert_eq!(
             validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumF,
-                ValidationErr::Gt(Value::NumF(-2.5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF, ValidationErr::Gt(Value::NumF(-2.5))]))
         );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Gt(Value::NumF(-2.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Gt(Value::NumF(-2.5))])));
     }
 
     #[test]
     fn test_validate_num_f_lt() {
         let v = NumFValidation::default().lt(-5.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-6.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::NumF(-5.5)),
-            Err(SchemaErr::validation([ValidationErr::Lt(Value::NumF(-5.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::NumF(-5.5)), Err(SchemaErr::validation([ValidationErr::Lt(Value::NumF(-5.5))])));
         assert_eq!(
             validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumF,
-                ValidationErr::Lt(Value::NumF(-5.5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF, ValidationErr::Lt(Value::NumF(-5.5))]))
         );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Lt(Value::NumF(-5.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Lt(Value::NumF(-5.5))])));
     }
 
     #[test]
     fn test_validate_num_f_ge() {
         let v = NumFValidation::default().ge(-2.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-2.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::NumF(-3.5)),
-            Err(SchemaErr::validation([ValidationErr::Ge(Value::NumF(-2.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::NumF(-3.5)), Err(SchemaErr::validation([ValidationErr::Ge(Value::NumF(-2.5))])));
         assert_eq!(
             validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumF,
-                ValidationErr::Ge(Value::NumF(-2.5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF, ValidationErr::Ge(Value::NumF(-2.5))]))
         );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Ge(Value::NumF(-2.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Ge(Value::NumF(-2.5))])));
     }
 
     #[test]
     fn test_validate_num_f_le() {
         let v = NumFValidation::default().le(-5.5);
         assert_eq!(validate_num_f(&v, &Value::NumF(-5.5)), Ok(()));
-        assert_eq!(
-            validate_num_f(&v, &Value::NumF(-4.5)),
-            Err(SchemaErr::validation([ValidationErr::Le(Value::NumF(-5.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &Value::NumF(-4.5)), Err(SchemaErr::validation([ValidationErr::Le(Value::NumF(-5.5))])));
         assert_eq!(
             validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumF,
-                ValidationErr::Le(Value::NumF(-5.5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF, ValidationErr::Le(Value::NumF(-5.5))]))
         );
-        assert_eq!(
-            validate_num_f(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Le(Value::NumF(-5.5))]))
-        );
+        assert_eq!(validate_num_f(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Le(Value::NumF(-5.5))])));
     }
 }

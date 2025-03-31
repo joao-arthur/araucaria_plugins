@@ -94,9 +94,7 @@ pub fn validate_num_u(validation: &NumUValidation, value: &Value) -> Result<(), 
 
 #[cfg(test)]
 mod test {
-    use araucaria::value::stub::{
-        arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub,
-    };
+    use araucaria::value::stub::{arr_bool_stub, bool_stub, num_f_stub, num_i_stub, num_u_stub, obj_stub, str_stub};
 
     use super::*;
 
@@ -104,159 +102,87 @@ mod test {
     fn test_validate_num_u_default() {
         let v = NumUValidation::default();
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU]))
-        );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU])));
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU])));
     }
 
     #[test]
     fn test_validate_num_u_optional() {
         let v = NumUValidation::default().optional();
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::NumU]))
-        );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::NumU])));
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU])));
     }
 
     #[test]
     fn test_validate_num_u_eq() {
         let v = NumUValidation::default().eq(42);
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::NumU(0)),
-            Err(SchemaErr::validation([ValidationErr::Eq(Value::NumU(42))]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::NumU(0)), Err(SchemaErr::validation([ValidationErr::Eq(Value::NumU(42))])));
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumU,
-                ValidationErr::Eq(Value::NumU(42))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU, ValidationErr::Eq(Value::NumU(42))]))
         );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Eq(Value::NumU(42))]))
-        );
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Eq(Value::NumU(42))])));
     }
 
     #[test]
     fn test_validate_num_u_ne() {
         let v = NumUValidation::default().ne(22);
         assert_eq!(validate_num_u(&v, &Value::NumU(42)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::NumU(22)),
-            Err(SchemaErr::validation([ValidationErr::Ne(Value::NumU(22))]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::NumU(22)), Err(SchemaErr::validation([ValidationErr::Ne(Value::NumU(22))])));
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumU,
-                ValidationErr::Ne(Value::NumU(22))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU, ValidationErr::Ne(Value::NumU(22))]))
         );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Ne(Value::NumU(22))]))
-        );
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Ne(Value::NumU(22))])));
     }
 
     #[test]
     fn test_validate_num_u_gt() {
         let v = NumUValidation::default().gt(1);
         assert_eq!(validate_num_u(&v, &Value::NumU(2)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::NumU(1)),
-            Err(SchemaErr::validation([ValidationErr::Gt(Value::NumU(1))]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::NumU(1)), Err(SchemaErr::validation([ValidationErr::Gt(Value::NumU(1))])));
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumU,
-                ValidationErr::Gt(Value::NumU(1))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU, ValidationErr::Gt(Value::NumU(1))]))
         );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Gt(Value::NumU(1))]))
-        );
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Gt(Value::NumU(1))])));
     }
 
     #[test]
     fn test_validate_num_u_lt() {
         let v = NumUValidation::default().lt(5);
         assert_eq!(validate_num_u(&v, &Value::NumU(4)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::NumU(5)),
-            Err(SchemaErr::validation([ValidationErr::Lt(Value::NumU(5))]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::NumU(5)), Err(SchemaErr::validation([ValidationErr::Lt(Value::NumU(5))])));
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumU,
-                ValidationErr::Lt(Value::NumU(5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU, ValidationErr::Lt(Value::NumU(5))]))
         );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Lt(Value::NumU(5))]))
-        );
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Lt(Value::NumU(5))])));
     }
 
     #[test]
     fn test_validate_num_u_ge() {
         let v = NumUValidation::default().ge(1);
         assert_eq!(validate_num_u(&v, &Value::NumU(1)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::NumU(0)),
-            Err(SchemaErr::validation([ValidationErr::Ge(Value::NumU(1))]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::NumU(0)), Err(SchemaErr::validation([ValidationErr::Ge(Value::NumU(1))])));
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumU,
-                ValidationErr::Ge(Value::NumU(1))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU, ValidationErr::Ge(Value::NumU(1))]))
         );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Ge(Value::NumU(1))]))
-        );
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Ge(Value::NumU(1))])));
     }
 
     #[test]
     fn test_validate_num_u_le() {
         let v = NumUValidation::default().le(5);
         assert_eq!(validate_num_u(&v, &Value::NumU(5)), Ok(()));
-        assert_eq!(
-            validate_num_u(&v, &Value::NumU(6)),
-            Err(SchemaErr::validation([ValidationErr::Le(Value::NumU(5))]))
-        );
+        assert_eq!(validate_num_u(&v, &Value::NumU(6)), Err(SchemaErr::validation([ValidationErr::Le(Value::NumU(5))])));
         assert_eq!(
             validate_num_u(&v, &Value::None),
-            Err(SchemaErr::validation([
-                ValidationErr::Required,
-                ValidationErr::NumU,
-                ValidationErr::Le(Value::NumU(5))
-            ]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumU, ValidationErr::Le(Value::NumU(5))]))
         );
-        assert_eq!(
-            validate_num_u(&v, &bool_stub()),
-            Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Le(Value::NumU(5))]))
-        );
+        assert_eq!(validate_num_u(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::NumU, ValidationErr::Le(Value::NumU(5))])));
     }
 }
