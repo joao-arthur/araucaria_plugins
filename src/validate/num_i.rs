@@ -40,10 +40,10 @@ pub fn validate_num_i(validation: &NumIValidation, value: &Value) -> Result<(), 
             }
         }
         Value::None => {
-            base.push(ValidationErr::NumI);
             if validation.required {
                 base.push(ValidationErr::Required);
             }
+            base.push(ValidationErr::NumI);
             if let Some(eq_v) = validation.eq {
                 base.push(ValidationErr::Eq(Value::NumI(eq_v)));
             }
@@ -106,7 +106,7 @@ mod test {
         assert_eq!(validate_num_i(&v, &Value::NumI(-42)), Ok(()));
         assert_eq!(
             validate_num_i(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::NumI, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumI]))
         );
         assert_eq!(
             validate_num_i(&v, &bool_stub()),
@@ -139,8 +139,8 @@ mod test {
         assert_eq!(
             validate_num_i(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumI,
                 ValidationErr::Required,
+                ValidationErr::NumI,
                 ValidationErr::Eq(Value::NumI(-42))
             ]))
         );
@@ -161,8 +161,8 @@ mod test {
         assert_eq!(
             validate_num_i(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumI,
                 ValidationErr::Required,
+                ValidationErr::NumI,
                 ValidationErr::Ne(Value::NumI(-22))
             ]))
         );
@@ -183,8 +183,8 @@ mod test {
         assert_eq!(
             validate_num_i(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumI,
                 ValidationErr::Required,
+                ValidationErr::NumI,
                 ValidationErr::Gt(Value::NumI(-2))
             ]))
         );
@@ -205,8 +205,8 @@ mod test {
         assert_eq!(
             validate_num_i(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumI,
                 ValidationErr::Required,
+                ValidationErr::NumI,
                 ValidationErr::Lt(Value::NumI(-5))
             ]))
         );
@@ -227,8 +227,8 @@ mod test {
         assert_eq!(
             validate_num_i(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumI,
                 ValidationErr::Required,
+                ValidationErr::NumI,
                 ValidationErr::Ge(Value::NumI(-2))
             ]))
         );
@@ -249,8 +249,8 @@ mod test {
         assert_eq!(
             validate_num_i(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumI,
                 ValidationErr::Required,
+                ValidationErr::NumI,
                 ValidationErr::Le(Value::NumI(-5))
             ]))
         );

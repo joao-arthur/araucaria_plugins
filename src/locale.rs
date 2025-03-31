@@ -134,15 +134,15 @@ mod test {
         assert_eq!(
             schema_err_to_locale(
                 &SchemaErr::Validation(vec![
-                    ValidationErr::Bool,
                     ValidationErr::Required,
+                    ValidationErr::Bool,
                     ValidationErr::Eq(Value::Bool(true))
                 ]),
                 &locale
             ),
             SchemaLocalizedErr::Arr(vec![
-                String::from("Deve ser um booleano"),
                 String::from("É obrigatório"),
+                String::from("Deve ser um booleano"),
                 String::from("Deve ser igual a true")
             ])
         );
@@ -152,32 +152,32 @@ mod test {
                     (
                         String::from("name"),
                         SchemaErr::Validation(vec![
-                            ValidationErr::Str,
                             ValidationErr::Required,
+                            ValidationErr::Str,
                             ValidationErr::Eq(Value::Str(String::from("Paul McCartney")))
                         ])
                     ),
                     (
                         String::from("birthdate"),
                         SchemaErr::Validation(vec![
-                            ValidationErr::Str,
                             ValidationErr::Required,
+                            ValidationErr::Str,
                             ValidationErr::Eq(Value::Str(String::from("1942-06-18")))
                         ])
                     ),
                     (
                         String::from("alive"),
                         SchemaErr::Validation(vec![
-                            ValidationErr::Bool,
                             ValidationErr::Required,
+                            ValidationErr::Bool,
                             ValidationErr::Eq(Value::Bool(true))
                         ])
                     ),
                     (
                         String::from("bands"),
                         SchemaErr::Validation(vec![
-                            ValidationErr::Str,
                             ValidationErr::Required,
+                            ValidationErr::Str,
                             ValidationErr::Eq(Value::Str(String::from("The Beatles")))
                         ])
                     ),
@@ -188,32 +188,32 @@ mod test {
                 (
                     String::from("name"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser uma string"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser uma string"),
                         String::from(r#"Deve ser igual a "Paul McCartney""#),
                     ])
                 ),
                 (
                     String::from("birthdate"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser uma string"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser uma string"),
                         String::from(r#"Deve ser igual a "1942-06-18""#),
                     ])
                 ),
                 (
                     String::from("alive"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser um booleano"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser um booleano"),
                         String::from("Deve ser igual a true"),
                     ])
                 ),
                 (
                     String::from("bands"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser uma string"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser uma string"),
                         String::from(r#"Deve ser igual a "The Beatles""#),
                     ])
                 ),
@@ -224,39 +224,39 @@ mod test {
                 (
                     String::from("name"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser uma string"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser uma string"),
                         String::from(r#"Deve ser igual a "Paul McCartney""#),
                     ])
                 ),
                 (
                     String::from("birthdate"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser uma string"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser uma string"),
                         String::from(r#"Deve ser igual a "1942-06-18""#),
                     ])
                 ),
                 (
                     String::from("alive"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser um booleano"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser um booleano"),
                         String::from("Deve ser igual a true"),
                     ])
                 ),
                 (
                     String::from("bands"),
                     SchemaLocalizedErr::Arr(vec![
-                        String::from("Deve ser uma string"),
                         String::from("É obrigatório"),
+                        String::from("Deve ser uma string"),
                         String::from(r#"Deve ser igual a "The Beatles""#),
                     ])
                 ),
             ])))
             .unwrap(),
             String::from(
-                r#"{"Obj":{"alive":{"Arr":["Deve ser um booleano","É obrigatório","Deve ser igual a true"]},"bands":{"Arr":["Deve ser uma string","É obrigatório","Deve ser igual a \"The Beatles\""]},"name":{"Arr":["Deve ser uma string","É obrigatório","Deve ser igual a \"Paul McCartney\""]},"birthdate":{"Arr":["Deve ser uma string","É obrigatório","Deve ser igual a \"1942-06-18\""]}}}"#
+                r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"],"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""],"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""],"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""]}"#
             )
         );
     }

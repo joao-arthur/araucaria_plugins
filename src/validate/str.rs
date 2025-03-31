@@ -20,10 +20,10 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
             }
         }
         Value::None => {
-            base.push(ValidationErr::Str);
             if validation.required {
                 base.push(ValidationErr::Required);
             }
+            base.push(ValidationErr::Str);
             if let Some(eq_v) = &validation.eq {
                 base.push(ValidationErr::Eq(Value::Str(eq_v.clone())));
             }
@@ -60,7 +60,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum")), Ok(()));
         assert_eq!(
             validate_str(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::Str, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str]))
         );
         assert_eq!(
             validate_str(&v, &num_u_stub()),
@@ -95,8 +95,8 @@ mod test {
         assert_eq!(
             validate_str(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::Str,
                 ValidationErr::Required,
+                ValidationErr::Str,
                 ValidationErr::Eq(Value::Str(String::from("Cogito ergo sum")))
             ]))
         );
@@ -122,8 +122,8 @@ mod test {
         assert_eq!(
             validate_str(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::Str,
                 ValidationErr::Required,
+                ValidationErr::Str,
                 ValidationErr::Ne(Value::Str(String::from("Cogito ergo sum")))
             ]))
         );

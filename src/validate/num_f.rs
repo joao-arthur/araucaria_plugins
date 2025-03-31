@@ -40,10 +40,10 @@ pub fn validate_num_f(validation: &NumFValidation, value: &Value) -> Result<(), 
             }
         }
         Value::None => {
-            base.push(ValidationErr::NumF);
             if validation.required {
                 base.push(ValidationErr::Required);
             }
+            base.push(ValidationErr::NumF);
             if let Some(eq_v) = validation.eq {
                 base.push(ValidationErr::Eq(Value::NumF(eq_v)));
             }
@@ -106,7 +106,7 @@ mod test {
         assert_eq!(validate_num_f(&v, &Value::NumF(-42.5)), Ok(()));
         assert_eq!(
             validate_num_f(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::NumF, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::NumF]))
         );
         assert_eq!(
             validate_num_f(&v, &bool_stub()),
@@ -139,8 +139,8 @@ mod test {
         assert_eq!(
             validate_num_f(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumF,
                 ValidationErr::Required,
+                ValidationErr::NumF,
                 ValidationErr::Eq(Value::NumF(-42.5))
             ]))
         );
@@ -164,8 +164,8 @@ mod test {
         assert_eq!(
             validate_num_f(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumF,
                 ValidationErr::Required,
+                ValidationErr::NumF,
                 ValidationErr::Ne(Value::NumF(-22.5))
             ]))
         );
@@ -189,8 +189,8 @@ mod test {
         assert_eq!(
             validate_num_f(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumF,
                 ValidationErr::Required,
+                ValidationErr::NumF,
                 ValidationErr::Gt(Value::NumF(-2.5))
             ]))
         );
@@ -211,8 +211,8 @@ mod test {
         assert_eq!(
             validate_num_f(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumF,
                 ValidationErr::Required,
+                ValidationErr::NumF,
                 ValidationErr::Lt(Value::NumF(-5.5))
             ]))
         );
@@ -233,8 +233,8 @@ mod test {
         assert_eq!(
             validate_num_f(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumF,
                 ValidationErr::Required,
+                ValidationErr::NumF,
                 ValidationErr::Ge(Value::NumF(-2.5))
             ]))
         );
@@ -255,8 +255,8 @@ mod test {
         assert_eq!(
             validate_num_f(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::NumF,
                 ValidationErr::Required,
+                ValidationErr::NumF,
                 ValidationErr::Le(Value::NumF(-5.5))
             ]))
         );

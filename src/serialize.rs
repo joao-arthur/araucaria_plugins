@@ -103,13 +103,13 @@ mod test {
             serde_json::to_string(&SchemaErr::Obj(HashMap::from([(
                 String::from("is"),
                 SchemaErr::Validation(vec![
-                    ValidationErr::Bool,
                     ValidationErr::Required,
+                    ValidationErr::Bool,
                     ValidationErr::Eq(Value::Bool(false))
                 ])
             )])))
             .unwrap(),
-            String::from(r#"{"is":["Bool","Required",{"Eq":{"Bool":false}}]}"#)
+            String::from(r#"{"is":["Required","Bool",{"Eq":{"Bool":false}}]}"#)
         );
     }
 }

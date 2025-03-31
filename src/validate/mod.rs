@@ -96,8 +96,8 @@ mod test {
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::Bool,
                 ValidationErr::Required,
+                ValidationErr::Bool,
                 ValidationErr::Eq(Value::Bool(false))
             ]))
         );
@@ -111,7 +111,7 @@ mod test {
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default()), &Value::None),
-            Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ]))
         );
         assert_eq!(
             validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(true)),
@@ -146,8 +146,8 @@ mod test {
             Err(SchemaErr::obj([(
                 String::from("is"),
                 SchemaErr::Validation(vec![
-                    ValidationErr::Bool,
                     ValidationErr::Required,
+                    ValidationErr::Bool,
                     ValidationErr::Eq(Value::Bool(false))
                 ])
             )]))
@@ -163,8 +163,8 @@ mod test {
             Err(SchemaErr::obj([(
                 String::from("is"),
                 SchemaErr::Validation(vec![
-                    ValidationErr::Bool,
                     ValidationErr::Required,
+                    ValidationErr::Bool,
                     ValidationErr::Eq(Value::Bool(false))
                 ])
             )]))
@@ -180,8 +180,8 @@ mod test {
             Err(SchemaErr::obj([(
                 String::from("is"),
                 SchemaErr::Validation(vec![
-                    ValidationErr::Bool,
                     ValidationErr::Required,
+                    ValidationErr::Bool,
                     ValidationErr::Eq(Value::Bool(false))
                 ])
             )]))

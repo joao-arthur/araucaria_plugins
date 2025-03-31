@@ -20,10 +20,10 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
             }
         }
         Value::None => {
-            base.push(ValidationErr::Bool);
             if validation.required {
                 base.push(ValidationErr::Required);
             }
+            base.push(ValidationErr::Bool);
             if let Some(eq_v) = validation.eq {
                 base.push(ValidationErr::Eq(Value::Bool(eq_v)));
             }
@@ -63,7 +63,7 @@ mod test {
         assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
         assert_eq!(
             validate_bool(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Required]))
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool]))
         );
         assert_eq!(
             validate_bool(&v, &num_u_stub()),
@@ -97,8 +97,8 @@ mod test {
         assert_eq!(
             validate_bool(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::Bool,
                 ValidationErr::Required,
+                ValidationErr::Bool,
                 ValidationErr::Eq(Value::Bool(false),)
             ]))
         );
@@ -122,8 +122,8 @@ mod test {
         assert_eq!(
             validate_bool(&v, &Value::None),
             Err(SchemaErr::validation([
-                ValidationErr::Bool,
                 ValidationErr::Required,
+                ValidationErr::Bool,
                 ValidationErr::Ne(Value::Bool(false))
             ]))
         );
