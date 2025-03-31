@@ -11,7 +11,7 @@ crate-type = ["rlib"]
 [features]
 
 [dependencies]
-araucaria = { git = "https://github.com/joao-arthur/araucaria", rev = "d38d6bc411babf4ad3a3272225e725f112698059" }
+araucaria = { git = "https://github.com/joao-arthur/araucaria", rev = "48380e22925614e89be32e2654b5775750001729" }
 email_address = "0.2.9"
 regex = "1.11.1"
 serde_json = "1.0.140"
