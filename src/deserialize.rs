@@ -52,8 +52,6 @@ pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Vali
 
 #[cfg(test)]
 mod test {
-    use std::collections::BTreeMap;
-
     use araucaria::validation::{num_f::NumFValidation, num_i::NumIValidation, num_u::NumUValidation, ObjValidation, Validation};
 
     use super::*;

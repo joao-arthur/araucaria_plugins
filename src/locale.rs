@@ -66,7 +66,7 @@ pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> Strin
         ValidationErr::Lt(value) => locale.lt.clone() + &value_to_string(&value),
         ValidationErr::Ge(value) => locale.ge.clone() + &value_to_string(&value),
         ValidationErr::Le(value) => locale.le.clone() + &value_to_string(&value),
-        _ => String::from("")
+        _ => String::from(""),
     }
 }
 
