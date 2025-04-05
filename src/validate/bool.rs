@@ -8,14 +8,14 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
     let mut base = vec![];
     match value {
         Value::Bool(bool_value) => {
-            if let Some(eq_v) = validation.eq {
-                if bool_value != &eq_v {
-                    base.push(ValidationErr::Eq(Value::Bool(eq_v)));
+            if let Some(v) = validation.eq {
+                if bool_value != &v {
+                    base.push(ValidationErr::Eq(Value::Bool(v)));
                 }
             }
-            if let Some(ne_v) = validation.ne {
-                if bool_value == &ne_v {
-                    base.push(ValidationErr::Ne(Value::Bool(ne_v)));
+            if let Some(v) = validation.ne {
+                if bool_value == &v {
+                    base.push(ValidationErr::Ne(Value::Bool(v)));
                 }
             }
         }
@@ -24,20 +24,20 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
                 base.push(ValidationErr::Required);
             }
             base.push(ValidationErr::Bool);
-            if let Some(eq_v) = validation.eq {
-                base.push(ValidationErr::Eq(Value::Bool(eq_v)));
+            if let Some(v) = validation.eq {
+                base.push(ValidationErr::Eq(Value::Bool(v)));
             }
-            if let Some(ne_v) = validation.ne {
-                base.push(ValidationErr::Ne(Value::Bool(ne_v)));
+            if let Some(v) = validation.ne {
+                base.push(ValidationErr::Ne(Value::Bool(v)));
             }
         }
         _ => {
             base.push(ValidationErr::Bool);
-            if let Some(eq_v) = validation.eq {
-                base.push(ValidationErr::Eq(Value::Bool(eq_v)));
+            if let Some(v) = validation.eq {
+                base.push(ValidationErr::Eq(Value::Bool(v)));
             }
-            if let Some(ne_v) = validation.ne {
-                base.push(ValidationErr::Ne(Value::Bool(ne_v)));
+            if let Some(v) = validation.ne {
+                base.push(ValidationErr::Ne(Value::Bool(v)));
             }
         }
     }

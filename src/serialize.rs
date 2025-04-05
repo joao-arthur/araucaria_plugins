@@ -32,6 +32,18 @@ pub enum ValidationErr {
     Lt(Value),
     Ge(Value),
     Le(Value),
+    MinBytesLen,
+    MaxBytesLen,
+    MinGraphemesLen,
+    MaxGraphemesLen,
+    MinLowercaseLen,
+    MaxLowercaseLen,
+    MinUppercaseLen,
+    MaxUppercaseLen,
+    MinNumberLen,
+    MaxNumberLen,
+    MinSymbolsLen,
+    MaxSymbolsLen,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -83,6 +95,18 @@ pub fn map_err(value: araucaria::error::ValidationErr) -> ValidationErr {
         araucaria::error::ValidationErr::Lt(value) => ValidationErr::Lt(map_value(value)),
         araucaria::error::ValidationErr::Ge(value) => ValidationErr::Ge(map_value(value)),
         araucaria::error::ValidationErr::Le(value) => ValidationErr::Le(map_value(value)),
+        araucaria::error::ValidationErr::MinBytesLen => ValidationErr::MinBytesLen,
+        araucaria::error::ValidationErr::MaxBytesLen => ValidationErr::MaxBytesLen,
+        araucaria::error::ValidationErr::MinGraphemesLen => ValidationErr::MinGraphemesLen,
+        araucaria::error::ValidationErr::MaxGraphemesLen => ValidationErr::MaxGraphemesLen,
+        araucaria::error::ValidationErr::MinLowercaseLen => ValidationErr::MinLowercaseLen,
+        araucaria::error::ValidationErr::MaxLowercaseLen => ValidationErr::MaxLowercaseLen,
+        araucaria::error::ValidationErr::MinUppercaseLen => ValidationErr::MinUppercaseLen,
+        araucaria::error::ValidationErr::MaxUppercaseLen => ValidationErr::MaxUppercaseLen,
+        araucaria::error::ValidationErr::MinNumberLen => ValidationErr::MinNumberLen,
+        araucaria::error::ValidationErr::MaxNumberLen => ValidationErr::MaxNumberLen,
+        araucaria::error::ValidationErr::MinSymbolsLen => ValidationErr::MinSymbolsLen,
+        araucaria::error::ValidationErr::MaxSymbolsLen => ValidationErr::MaxSymbolsLen,
     }
 }
 

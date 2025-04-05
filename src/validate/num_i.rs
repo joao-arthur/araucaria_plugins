@@ -8,34 +8,34 @@ pub fn validate_num_i(validation: &NumIValidation, value: &Value) -> Result<(), 
     let mut base = vec![];
     match value {
         Value::NumI(num_i_value) => {
-            if let Some(eq_v) = validation.eq {
-                if num_i_value != &eq_v {
-                    base.push(ValidationErr::Eq(Value::NumI(eq_v)));
+            if let Some(v) = validation.eq {
+                if num_i_value != &v {
+                    base.push(ValidationErr::Eq(Value::NumI(v)));
                 }
             }
-            if let Some(ne_v) = validation.ne {
-                if num_i_value == &ne_v {
-                    base.push(ValidationErr::Ne(Value::NumI(ne_v)));
+            if let Some(v) = validation.ne {
+                if num_i_value == &v {
+                    base.push(ValidationErr::Ne(Value::NumI(v)));
                 }
             }
-            if let Some(gt_v) = validation.gt {
-                if num_i_value <= &gt_v {
-                    base.push(ValidationErr::Gt(Value::NumI(gt_v)));
+            if let Some(v) = validation.gt {
+                if num_i_value <= &v {
+                    base.push(ValidationErr::Gt(Value::NumI(v)));
                 }
             }
-            if let Some(lt_v) = validation.lt {
-                if num_i_value >= &lt_v {
-                    base.push(ValidationErr::Lt(Value::NumI(lt_v)));
+            if let Some(v) = validation.lt {
+                if num_i_value >= &v {
+                    base.push(ValidationErr::Lt(Value::NumI(v)));
                 }
             }
-            if let Some(ge_v) = validation.ge {
-                if num_i_value < &ge_v {
-                    base.push(ValidationErr::Ge(Value::NumI(ge_v)));
+            if let Some(v) = validation.ge {
+                if num_i_value < &v {
+                    base.push(ValidationErr::Ge(Value::NumI(v)));
                 }
             }
-            if let Some(le_v) = validation.le {
-                if num_i_value > &le_v {
-                    base.push(ValidationErr::Le(Value::NumI(le_v)));
+            if let Some(v) = validation.le {
+                if num_i_value > &v {
+                    base.push(ValidationErr::Le(Value::NumI(v)));
                 }
             }
         }
@@ -44,44 +44,44 @@ pub fn validate_num_i(validation: &NumIValidation, value: &Value) -> Result<(), 
                 base.push(ValidationErr::Required);
             }
             base.push(ValidationErr::NumI);
-            if let Some(eq_v) = validation.eq {
-                base.push(ValidationErr::Eq(Value::NumI(eq_v)));
+            if let Some(v) = validation.eq {
+                base.push(ValidationErr::Eq(Value::NumI(v)));
             }
-            if let Some(ne_v) = validation.ne {
-                base.push(ValidationErr::Ne(Value::NumI(ne_v)));
+            if let Some(v) = validation.ne {
+                base.push(ValidationErr::Ne(Value::NumI(v)));
             }
-            if let Some(gt_v) = validation.gt {
-                base.push(ValidationErr::Gt(Value::NumI(gt_v)));
+            if let Some(v) = validation.gt {
+                base.push(ValidationErr::Gt(Value::NumI(v)));
             }
-            if let Some(lt_v) = validation.lt {
-                base.push(ValidationErr::Lt(Value::NumI(lt_v)));
+            if let Some(v) = validation.lt {
+                base.push(ValidationErr::Lt(Value::NumI(v)));
             }
-            if let Some(ge_v) = validation.ge {
-                base.push(ValidationErr::Ge(Value::NumI(ge_v)));
+            if let Some(v) = validation.ge {
+                base.push(ValidationErr::Ge(Value::NumI(v)));
             }
-            if let Some(le_v) = validation.le {
-                base.push(ValidationErr::Le(Value::NumI(le_v)));
+            if let Some(v) = validation.le {
+                base.push(ValidationErr::Le(Value::NumI(v)));
             }
         }
         _ => {
             base.push(ValidationErr::NumI);
-            if let Some(eq_v) = validation.eq {
-                base.push(ValidationErr::Eq(Value::NumI(eq_v)));
+            if let Some(v) = validation.eq {
+                base.push(ValidationErr::Eq(Value::NumI(v)));
             }
-            if let Some(ne_v) = validation.ne {
-                base.push(ValidationErr::Ne(Value::NumI(ne_v)));
+            if let Some(v) = validation.ne {
+                base.push(ValidationErr::Ne(Value::NumI(v)));
             }
-            if let Some(gt_v) = validation.gt {
-                base.push(ValidationErr::Gt(Value::NumI(gt_v)));
+            if let Some(v) = validation.gt {
+                base.push(ValidationErr::Gt(Value::NumI(v)));
             }
-            if let Some(lt_v) = validation.lt {
-                base.push(ValidationErr::Lt(Value::NumI(lt_v)));
+            if let Some(v) = validation.lt {
+                base.push(ValidationErr::Lt(Value::NumI(v)));
             }
-            if let Some(ge_v) = validation.ge {
-                base.push(ValidationErr::Ge(Value::NumI(ge_v)));
+            if let Some(v) = validation.ge {
+                base.push(ValidationErr::Ge(Value::NumI(v)));
             }
-            if let Some(le_v) = validation.le {
-                base.push(ValidationErr::Le(Value::NumI(le_v)));
+            if let Some(v) = validation.le {
+                base.push(ValidationErr::Le(Value::NumI(v)));
             }
         }
     }
