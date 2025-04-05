@@ -1,7 +1,5 @@
 use araucaria::{
-    error::{SchemaErr, ValidationErr},
-    validation::str::StrValidation,
-    value::Value,
+    error::{SchemaErr, ValidationErr}, operation::Operation, validation::str::StrValidation, value::Value
 };
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -19,24 +17,84 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
                     base.push(ValidationErr::Ne(Value::Str(v.clone())));
                 }
             }
-            if let Some(v) = validation.min_bytes_len {
-                if str_value.as_bytes().len() < v {
-                    base.push(ValidationErr::MinBytesLen);
+            if let Some(op) = &validation.bytes_len {
+                let len = str_value.as_bytes().len();
+                match op {
+                    Operation::Eq(v) => {
+                        if len != *v {
+                            base.push(ValidationErr::MinBytesLen);
+                        }
+                    }
+                    Operation::Ne(v) => {
+                        if len == *v {
+                            base.push(ValidationErr::MinBytesLen);
+                        }
+                    }
+                    Operation::Gt(v) => {
+                        if len <= *v {
+                            base.push(ValidationErr::MinBytesLen);
+                        }
+                    }
+                    Operation::Lt(v) => {
+                        if len >= *v {
+                            base.push(ValidationErr::MinBytesLen);
+                        } 
+                    }
+                    Operation::Ge(v) => {
+                        if len < *v {
+                            base.push(ValidationErr::MinBytesLen);
+                        }
+                    }
+                    Operation::Le(v) => {
+                        if len > *v {
+                            base.push(ValidationErr::MinBytesLen);
+                        }
+                    }
+                    Operation::Btwn(a, b) => {
+                        if len < *a || len >  *b {
+                            base.push(ValidationErr::MinBytesLen);
+                        }
+                    }
                 }
             }
-            if let Some(v) = validation.max_bytes_len {
-                if str_value.as_bytes().len() > v {
-                    base.push(ValidationErr::MaxBytesLen);
-                }
-            }
-            if let Some(v) = validation.min_graphemes_len {
-                if str_value.graphemes(true).collect::<Vec<&str>>().len() < v {
-                    base.push(ValidationErr::MinBytesLen);
-                }
-            }
-            if let Some(v) = validation.max_graphemes_len {
-                if str_value.graphemes(true).collect::<Vec<&str>>().len() > v {
-                    base.push(ValidationErr::MaxBytesLen);
+            if let Some(op) = &validation.graphemes_len {
+                let len = str_value.graphemes(true).collect::<Vec<&str>>().len() ;
+                match op {
+                    Operation::Eq(v) => {
+                        if len != *v {
+                            base.push(ValidationErr::MinGraphemesLen);
+                        }
+                    }
+                    Operation::Ne(v) => {
+                        if len == *v {
+                            base.push(ValidationErr::MinGraphemesLen);
+                        }
+                    }
+                    Operation::Gt(v) => {
+                        if len <= *v {
+                            base.push(ValidationErr::MinGraphemesLen);
+                        }
+                    }
+                    Operation::Lt(v) => {
+                        if len >= *v {
+                            base.push(ValidationErr::MinGraphemesLen);
+                        } 
+                    }
+                    Operation::Ge(v) => {
+                        if len < *v {
+                            base.push(ValidationErr::MinGraphemesLen);
+                        }
+                    }
+                    Operation::Le(v) => {
+                        if len > *v {
+                            base.push(ValidationErr::MinGraphemesLen);
+                        }
+                    }
+                    Operation::Btwn(a, b) => {
+                        if len < *a || len >  *b {
+                            base.push(ValidationErr::MinGraphemesLen);
+                        }
+                    }
                 }
             }
         }
@@ -129,7 +187,7 @@ mod test {
 
     #[test]
     fn test_validate_min_bytes_len() {
-        let v = StrValidation::default().min_bytes_len(23);
+        let v = StrValidation::default().bytes_len(Operation::Ge(23));
         assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Ok(()));
         assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
         assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::MinBytesLen])));
@@ -137,10 +195,9 @@ mod test {
 
     #[test]
     fn test_validate_max_bytes_len() {
-        let v = StrValidation::default().max_bytes_len(23);
+        let v = StrValidation::default().bytes_len(Operation::Le(23));
         assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::MaxBytesLen])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::MinBytesLen])));
         assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
     }
-
 }
