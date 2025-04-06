@@ -60,12 +60,12 @@ pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> Strin
         ValidationErr::NumU => locale.num_u.clone(),
         ValidationErr::NumI => locale.num_i.clone(),
         ValidationErr::NumF => locale.num_f.clone(),
-        ValidationErr::Eq(value) => locale.eq.clone() + &value_to_string(&value),
-        ValidationErr::Ne(value) => locale.ne.clone() + &value_to_string(&value),
-        ValidationErr::Gt(value) => locale.gt.clone() + &value_to_string(&value),
-        ValidationErr::Lt(value) => locale.lt.clone() + &value_to_string(&value),
-        ValidationErr::Ge(value) => locale.ge.clone() + &value_to_string(&value),
-        ValidationErr::Le(value) => locale.le.clone() + &value_to_string(&value),
+        ValidationErr::Eq(value) => locale.eq.replace("_", &value_to_string(&value)),
+        ValidationErr::Ne(value) => locale.ne.replace("_", &value_to_string(&value)),
+        ValidationErr::Gt(value) => locale.gt.replace("_", &value_to_string(&value)),
+        ValidationErr::Lt(value) => locale.lt.replace("_", &value_to_string(&value)),
+        ValidationErr::Ge(value) => locale.ge.replace("_", &value_to_string(&value)),
+        ValidationErr::Le(value) => locale.le.replace("_", &value_to_string(&value)),
         _ => String::from(""),
     }
 }
@@ -78,12 +78,12 @@ pub fn locale_pt_long() -> Locale {
         num_u: String::from("Deve ser um número inteiro sem sinal"),
         num_i: String::from("Deve ser um número inteiro"),
         num_f: String::from("Deve ser um número com ponto flutuante"),
-        eq: String::from("Deve ser igual a "),
-        ne: String::from("Deve ser diferente de "),
-        gt: String::from("Deve ser maior que "),
-        lt: String::from("Deve ser menor que "),
-        ge: String::from("Deve ser maior ou igual a "),
-        le: String::from("Deve ser menor ou igual a "),
+        eq: String::from("Deve ser igual a _"),
+        ne: String::from("Deve ser diferente de _"),
+        gt: String::from("Deve ser maior que _"),
+        lt: String::from("Deve ser menor que _"),
+        ge: String::from("Deve ser maior ou igual a _"),
+        le: String::from("Deve ser menor ou igual a _"),
     }
 }
 
@@ -95,12 +95,12 @@ pub fn locale_es_long() -> Locale {
         num_u: String::from("Debe ser un número entero sin signo"),
         num_i: String::from("Debe ser un número entero"),
         num_f: String::from("Debe ser un número de punto flotante"),
-        eq: String::from("Debe ser igual a "),
-        ne: String::from("Debe ser diferente de "),
-        gt: String::from("Debe ser mayor que "),
-        lt: String::from("Debe ser menor que "),
-        ge: String::from("Debe ser mayor o igual a "),
-        le: String::from("Debe ser menor o igual a "),
+        eq: String::from("Debe ser igual a _"),
+        ne: String::from("Debe ser diferente de _"),
+        gt: String::from("Debe ser mayor que _"),
+        lt: String::from("Debe ser menor que _"),
+        ge: String::from("Debe ser mayor o igual a _"),
+        le: String::from("Debe ser menor o igual a _"),
     }
 }
 
@@ -112,12 +112,12 @@ pub fn locale_en_long() -> Locale {
         num_u: String::from("Must be an unsigned integer"),
         num_i: String::from("Must be an integer"),
         num_f: String::from("Must be a float"),
-        eq: String::from("Must be equals to "),
-        ne: String::from("Must be different to "),
-        gt: String::from("Must be greater than "),
-        lt: String::from("Must be smaller than "),
-        ge: String::from("Must be greater or equals to "),
-        le: String::from("Must be smaller or equals to "),
+        eq: String::from("Must be equals to _"),
+        ne: String::from("Must be different to _"),
+        gt: String::from("Must be greater than _"),
+        lt: String::from("Must be smaller than _"),
+        ge: String::from("Must be greater or equals to _"),
+        le: String::from("Must be smaller or equals to _"),
     }
 }
 

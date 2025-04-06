@@ -26,7 +26,7 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
                     base.push(ValidationErr::BytesLen(op_err))
                 }
             }
-            // let len = str_value.graphemes(true).collect::<Vec<&str>>().len() ;
+            // let len = str_value.graphemes(true).collect::<Vec<&str>>().len();
         }
         Value::None => {
             if validation.required {
