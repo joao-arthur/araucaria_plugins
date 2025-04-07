@@ -40,8 +40,8 @@ pub enum ValidationErr {
     MaxLowercaseLen,
     MinUppercaseLen,
     MaxUppercaseLen,
-    MinNumberLen,
-    MaxNumberLen,
+    MinNumbersLen,
+    MaxNumbersLen,
     MinSymbolsLen,
     MaxSymbolsLen,
 }
@@ -103,8 +103,8 @@ pub fn map_err(value: araucaria::error::ValidationErr) -> ValidationErr {
         araucaria::error::ValidationErr::MaxLowercaseLen => ValidationErr::MaxLowercaseLen,
         araucaria::error::ValidationErr::MinUppercaseLen => ValidationErr::MinUppercaseLen,
         araucaria::error::ValidationErr::MaxUppercaseLen => ValidationErr::MaxUppercaseLen,
-        araucaria::error::ValidationErr::MinNumberLen => ValidationErr::MinNumberLen,
-        araucaria::error::ValidationErr::MaxNumberLen => ValidationErr::MaxNumberLen,
+        araucaria::error::ValidationErr::MinNumbersLen => ValidationErr::MinNumbersLen,
+        araucaria::error::ValidationErr::MaxNumbersLen => ValidationErr::MaxNumbersLen,
         araucaria::error::ValidationErr::MinSymbolsLen => ValidationErr::MinSymbolsLen,
         araucaria::error::ValidationErr::MaxSymbolsLen => ValidationErr::MaxSymbolsLen,
     }
