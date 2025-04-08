@@ -210,10 +210,10 @@ pub fn locale_pt_long() -> Locale {
         num_f: String::from("Deve ser um número com ponto flutuante"),
         bool: String::from("Deve ser um booleano"),
         str: String::from("Deve ser uma string"),
-        email: String::from("Deve ser uma string"),
-        date: String::from("Deve ser uma string"),
-        time: String::from("Deve ser uma string"),
-        date_time: String::from("Deve ser uma string"),
+        email: String::from("Deve ser um e-mail"),
+        date: String::from("Deve ser uma data"),
+        time: String::from("Deve ser uma hora"),
+        date_time: String::from("Deve ser uma data e hora"),
 
         eq: String::from("Deve ser igual a %value%"),
         ne: String::from("Deve ser diferente de %value%"),
@@ -280,23 +280,84 @@ pub fn locale_pt_long() -> Locale {
     }
 }
 
-//pub fn locale_es_long() -> Locale {
-//    Locale {
-//        required: String::from("Se requiere"),
-//        bool: String::from("Debe ser un booleano"),
-//        str: String::from("Debe ser una cadena"),
-//        num_u: String::from("Debe ser un número entero sin signo"),
-//        num_i: String::from("Debe ser un número entero"),
-//        num_f: String::from("Debe ser un número de punto flotante"),
-//        eq: String::from("Debe ser igual a _"),
-//        ne: String::from("Debe ser diferente de _"),
-//        gt: String::from("Debe ser mayor que _"),
-//        lt: String::from("Debe ser menor que _"),
-//        ge: String::from("Debe ser mayor o igual a _"),
-//        le: String::from("Debe ser menor o igual a _"),
-//    }
-//}
-//
+pub fn locale_es_long() -> Locale {
+    Locale {
+        required: String::from("Se requiere"),
+        num_u: String::from("Debe ser un número entero sin signo"),
+        num_i: String::from("Debe ser un número entero"),
+        num_f: String::from("Debe ser un número de punto flotante"),
+        bool: String::from("Debe ser un booleano"),
+        str: String::from("Debe ser una cadena"),
+        email: String::from("Debe ser un correo electrónico"),
+        date: String::from("Debe ser una fecha"),
+        time: String::from("Debe ser una hora"),
+        date_time: String::from("Debe ser una fecha y hora"),
+
+        eq: String::from("Debe ser igual a %value%"),
+        ne: String::from("Debe ser diferente de %value%"),
+        gt: String::from("Debe ser mayor que %value%"),
+        ge: String::from("Debe ser mayor o igual a %value%"),
+        lt: String::from("Debe ser menor que %value%"),
+        le: String::from("Debe ser menor o igual a %value%"),
+
+        bytes_len_eq: String::from("La cantidad de bytes debe ser igual a %value%"),
+        bytes_len_ne: String::from("La cantidad de bytes debe ser diferente de %value%"),
+        bytes_len_gt: String::from("La cantidad de bytes debe ser mayor que %value%"),
+        bytes_len_ge: String::from("La cantidad de bytes debe ser mayor o igual a %value%"),
+        bytes_len_lt: String::from("La cantidad de bytes debe ser menor que %value%"),
+        bytes_len_le: String::from("La cantidad de bytes debe ser menor o igual a %value%"),
+        bytes_len_btwn: String::from("La cantidad de bytes debe estar entre %value_a% y %value_b%"),
+
+        chars_len_eq: String::from("La cantidad de caracteres debe ser igual a %value%"),
+        chars_len_ne: String::from("La cantidad de caracteres debe ser diferente de %value%"),
+        chars_len_gt: String::from("La cantidad de caracteres debe ser mayor que %value%"),
+        chars_len_ge: String::from("La cantidad de caracteres debe ser mayor o igual a %value%"),
+        chars_len_lt: String::from("La cantidad de caracteres debe ser menor que %value%"),
+        chars_len_le: String::from("La cantidad de caracteres debe ser menor o igual a %value%"),
+        chars_len_btwn: String::from("La cantidad de caracteres debe estar entre %value_a% y %value_b%"),
+
+        graphemes_len_eq: String::from("La cantidad de grafemas debe ser igual a %value%"),
+        graphemes_len_ne: String::from("La cantidad de grafemas debe ser diferente de %value%"),
+        graphemes_len_gt: String::from("La cantidad de grafemas debe ser mayor que %value%"),
+        graphemes_len_ge: String::from("La cantidad de grafemas debe ser mayor o igual a %value%"),
+        graphemes_len_lt: String::from("La cantidad de grafemas debe ser menor que %value%"),
+        graphemes_len_le: String::from("La cantidad de grafemas debe ser menor o igual a %value%"),
+        graphemes_len_btwn: String::from("La cantidad de grafemas debe estar entre %value_a% y %value_b%"),
+
+        lowercase_len_eq: String::from("La cantidad de caracteres en minúsculas debe ser igual a %value%"),
+        lowercase_len_ne: String::from("La cantidad de caracteres en minúsculas debe ser diferente de %value%"),
+        lowercase_len_gt: String::from("La cantidad de caracteres en minúsculas debe ser mayor que %value%"),
+        lowercase_len_ge: String::from("La cantidad de caracteres en minúsculas debe ser mayor o igual a %value%"),
+        lowercase_len_lt: String::from("La cantidad de caracteres en minúsculas debe ser menor que %value%"),
+        lowercase_len_le: String::from("La cantidad de caracteres en minúsculas debe ser menor o igual a %value%"),
+        lowercase_len_btwn: String::from("La cantidad de caracteres en minúsculas debe estar entre %value_a% y %value_b%"),
+
+        uppercase_len_eq: String::from("La cantidad de caracteres en mayúsculas debe ser igual a %value%"),
+        uppercase_len_ne: String::from("La cantidad de caracteres en mayúsculas debe ser diferente de %value%"),
+        uppercase_len_gt: String::from("La cantidad de caracteres en mayúsculas debe ser mayor que %value%"),
+        uppercase_len_ge: String::from("La cantidad de caracteres en mayúsculas debe ser mayor o igual a %value%"),
+        uppercase_len_lt: String::from("La cantidad de caracteres en mayúsculas debe ser menor que %value%"),
+        uppercase_len_le: String::from("La cantidad de caracteres en mayúsculas debe ser menor o igual a %value%"),
+        uppercase_len_btwn: String::from("La cantidad de caracteres en mayúsculas debe estar entre %value_a% y %value_b%"),
+
+        number_len_eq: String::from("La cantidad de números debe ser igual a %value%"),
+        number_len_ne: String::from("La cantidad de números debe ser diferente de %value%"),
+        number_len_gt: String::from("La cantidad de números debe ser mayor que %value%"),
+        number_len_ge: String::from("La cantidad de números debe ser mayor o igual a %value%"),
+        number_len_lt: String::from("La cantidad de números debe ser menor que %value%"),
+        number_len_le: String::from("La cantidad de números debe ser menor o igual a %value%"),
+        number_len_btwn: String::from("La cantidad de números debe estar entre %value_a% y %value_b%"),
+        
+        symbols_eq: String::from("La cantidad de símbolos debe ser igual a %value%"),
+        symbols_ne: String::from("La cantidad de símbolos debe ser diferente de %value%"),
+        symbols_gt: String::from("La cantidad de símbolos debe ser mayor que %value%"),
+        symbols_ge: String::from("La cantidad de símbolos debe ser mayor o igual a %value%"),
+        symbols_lt: String::from("La cantidad de símbolos debe ser menor que %value%"),
+        symbols_le: String::from("La cantidad de símbolos debe ser menor o igual a %value%"),
+        symbols_btwn: String::from("La cantidad de símbolos debe estar entre %value_a% y %value_b%"),
+    }
+}
+
 //pub fn locale_en_long() -> Locale {
 //    Locale {
 //        required: String::from("Is required"),
