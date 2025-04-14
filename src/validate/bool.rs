@@ -1,5 +1,6 @@
 use araucaria::{
     error::{SchemaErr, ValidationErr},
+    operation::{compare, OperandValue},
     validation::bool::BoolValidation,
     value::Value,
 };
@@ -8,14 +9,9 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
     let mut base = vec![];
     match value {
         Value::Bool(bool_value) => {
-            if let Some(v) = validation.eq {
-                if bool_value != &v {
-                    base.push(ValidationErr::Eq(Value::Bool(v)));
-                }
-            }
-            if let Some(v) = validation.ne {
-                if bool_value == &v {
-                    base.push(ValidationErr::Ne(Value::Bool(v)));
+            if let Some(operation) = &validation.operation {
+                if let Some(Err(())) = compare(operation, &OperandValue::Bool(*bool_value)) {
+                    base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
         }
@@ -24,20 +20,14 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
                 base.push(ValidationErr::Required);
             }
             base.push(ValidationErr::Bool);
-            if let Some(v) = validation.eq {
-                base.push(ValidationErr::Eq(Value::Bool(v)));
-            }
-            if let Some(v) = validation.ne {
-                base.push(ValidationErr::Ne(Value::Bool(v)));
+            if let Some(operation) = &validation.operation {
+                base.push(ValidationErr::Operation(operation.clone()));
             }
         }
         _ => {
             base.push(ValidationErr::Bool);
-            if let Some(v) = validation.eq {
-                base.push(ValidationErr::Eq(Value::Bool(v)));
-            }
-            if let Some(v) = validation.ne {
-                base.push(ValidationErr::Ne(Value::Bool(v)));
+            if let Some(operation) = &validation.operation {
+                base.push(ValidationErr::Operation(operation.clone()));
             }
         }
     }
@@ -50,9 +40,13 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value) -> Result<(), S
 
 #[cfg(test)]
 mod test {
-    use araucaria::value::stub::num_u_stub;
+    use araucaria::{
+        error::{SchemaErr, ValidationErr},
+        operation::{Operand, OperandValue, Operation},
+        value::{stub::num_u_stub, Value},
+    };
 
-    use super::*;
+    use super::{validate_bool, BoolValidation};
 
     #[test]
     fn test_validate_bool_default() {
@@ -76,23 +70,62 @@ mod test {
     fn test_validate_bool_eq() {
         let v = BoolValidation::default().eq(false);
         assert_eq!(validate_bool(&v, &Value::Bool(false)), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::Bool(true)), Err(SchemaErr::validation([ValidationErr::Eq(Value::Bool(false))])));
-        assert_eq!(
-            validate_bool(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))]))
-        );
-        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))])));
+        assert_eq!(validate_bool(&v, &Value::Bool(true)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))])));
     }
 
     #[test]
     fn test_validate_bool_ne() {
         let v = BoolValidation::default().ne(false);
         assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::Bool(false)), Err(SchemaErr::validation([ValidationErr::Ne(Value::Bool(false))])));
-        assert_eq!(
-            validate_bool(&v, &Value::None),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Ne(Value::Bool(false))]))
-        );
-        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Ne(Value::Bool(false))])));
+        assert_eq!(validate_bool(&v, &Value::Bool(false)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Bool(false))))])));
+    }
+
+    #[test]
+    fn test_validate_bool_gt() {
+        let v = BoolValidation::default().gt(false);
+        assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
+        assert_eq!(validate_bool(&v, &Value::Bool(false)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Bool(false))))])));
+    }
+
+    #[test]
+    fn test_validate_bool_ge() {
+        let v = BoolValidation::default().ge(true);
+        assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
+        assert_eq!(validate_bool(&v, &Value::Bool(false)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Bool(true))))])));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Bool(true))))])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Bool(true))))])));
+    }
+
+    #[test]
+    fn test_validate_bool_lt() {
+        let v = BoolValidation::default().lt(true);
+        assert_eq!(validate_bool(&v, &Value::Bool(false)), Ok(()));
+        assert_eq!(validate_bool(&v, &Value::Bool(true)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Bool(true))))])));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Bool(true))))])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Bool(true))))])));
+    }
+
+    #[test]
+    fn test_validate_bool_le() {
+        let v = BoolValidation::default().le(false);
+        assert_eq!(validate_bool(&v, &Value::Bool(false)), Ok(()));
+        assert_eq!(validate_bool(&v, &Value::Bool(true)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false))))])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false))))])));
+    }
+
+    #[test]
+    fn test_validate_bool_btwn() {
+        let v = BoolValidation::default().btwn(false, true);
+        assert_eq!(validate_bool(&v, &Value::Bool(true)), Ok(()));
+        assert_eq!(validate_bool(&v, &Value::Bool(false)), Ok(()));
+        assert_eq!(validate_bool(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true))))])));
+        assert_eq!(validate_bool(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Bool, ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true))))])));
     }
 }

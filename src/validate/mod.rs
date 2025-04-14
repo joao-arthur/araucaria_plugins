@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
 use araucaria::{error::SchemaErr, validation::Validation, value::Value};
+use bool::validate_bool;
 use email::validate_email;
 use num_f::validate_num_f;
 use num_i::validate_num_i;
 use num_u::validate_num_u;
 use str::validate_str;
-
-use crate::validate::bool::validate_bool;
 
 pub mod bool;
 pub mod email;
@@ -18,9 +17,9 @@ pub mod str;
 
 pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
     match validation {
-        Validation::NumU(v) => validate_num_u(v, value),
-        Validation::NumI(v) => validate_num_i(v, value),
-        Validation::NumF(v) => validate_num_f(v, value),
+        Validation::U64(v) => validate_num_u(v, value),
+        Validation::I64(v) => validate_num_i(v, value),
+        Validation::F64(v) => validate_num_f(v, value),
         Validation::Bool(v) => validate_bool(v, value),
         Validation::Str(v) => validate_str(v, value),
         Validation::Date(v) => Ok(()),
@@ -80,21 +79,25 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
 #[cfg(test)]
 mod test {
 
+    use std::collections::HashMap;
+
     use araucaria::{
-        error::ValidationErr,
+        error::{SchemaErr, ValidationErr},
+        operation::{Operand, OperandValue, Operation},
         validation::{
             bool::BoolValidation, date::DateValidation, datetime::DateTimeValidation, email::EmailValidation, num_f::NumFValidation,
             num_i::NumIValidation, num_u::NumUValidation, str::StrValidation, time::TimeValidation, ObjValidation,
         },
+        value::Value,
     };
 
-    use super::*;
+    use super::{validate, Validation};
 
     #[test]
     fn test_validate_primite_types() {
-        assert_eq!(validate(&Validation::NumU(NumUValidation::default().eq(1917)), &Value::NumU(1917)), Ok(()));
-        assert_eq!(validate(&Validation::NumI(NumIValidation::default().eq(-800)), &Value::NumI(-800)), Ok(()));
-        assert_eq!(validate(&Validation::NumF(NumFValidation::default().eq(1.5)), &Value::NumF(1.5)), Ok(()));
+        assert_eq!(validate(&Validation::U64(NumUValidation::default().eq(1917)), &Value::U64(1917)), Ok(()));
+        assert_eq!(validate(&Validation::I64(NumIValidation::default().eq(-800)), &Value::I64(-800)), Ok(()));
+        assert_eq!(validate(&Validation::F64(NumFValidation::default().eq(1.5)), &Value::F64(1.5)), Ok(()));
         assert_eq!(validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false)), Ok(()));
         assert_eq!(validate(&Validation::Str(StrValidation::default().eq(String::from("Gladius"))), &Value::Str(String::from("Gladius"))), Ok(()));
         assert_eq!(
@@ -136,7 +139,11 @@ mod test {
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
-                SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))])
+                SchemaErr::Validation(vec![
+                    ValidationErr::Required,
+                    ValidationErr::Bool,
+                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
+                ])
             )]))
         );
         assert_eq!(
@@ -148,7 +155,11 @@ mod test {
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
-                SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))])
+                SchemaErr::Validation(vec![
+                    ValidationErr::Required,
+                    ValidationErr::Bool,
+                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
+                ])
             )]))
         );
         assert_eq!(
@@ -160,7 +171,11 @@ mod test {
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
-                SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::Bool, ValidationErr::Eq(Value::Bool(false))])
+                SchemaErr::Validation(vec![
+                    ValidationErr::Required,
+                    ValidationErr::Bool,
+                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
+                ])
             )]))
         );
     }

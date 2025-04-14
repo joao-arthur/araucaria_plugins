@@ -32,9 +32,12 @@ pub fn validate_email(validation: &EmailValidation, value: &Value) -> Result<(),
 
 #[cfg(test)]
 mod test {
-    use araucaria::value::stub::num_u_stub;
+    use araucaria::{
+        error::{SchemaErr, ValidationErr},
+        value::{stub::num_u_stub, Value},
+    };
 
-    use super::*;
+    use super::{validate_email, EmailValidation};
 
     #[test]
     fn test_validate_email_default() {

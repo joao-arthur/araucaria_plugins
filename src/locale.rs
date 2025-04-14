@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::HashMap;
 
-use araucaria::{error::{SchemaErr, ValidationErr}, operation::{Operation, OperationEq}};
+use araucaria::{
+    error::{SchemaErr, ValidationErr},
+    operation::{Operand, OperandValue, Operation},
+};
 
 pub struct Locale {
     required: String,
@@ -103,144 +106,113 @@ pub fn schema_err_to_locale(err: &SchemaErr, locale: &Locale) -> SchemaLocalized
     }
 }
 
+pub fn operand_value_to_string(value: &OperandValue) -> String {
+    match value {
+        OperandValue::U64(val) => val.to_string(),
+        OperandValue::I64(val) => val.to_string(),
+        OperandValue::F64(val) => val.to_string(),
+        OperandValue::USize(val) => val.to_string(),
+        OperandValue::Bool(val) => val.to_string(),
+        OperandValue::Str(val) => String::from("\"") + val + "\"",
+    }
+}
+
+pub fn operand_to_string(operand: &Operand) -> String {
+    match operand {
+        Operand::Value(value) => operand_value_to_string(value),
+        Operand::FieldPath(path) => String::from("\"") + path + "\"",
+    }
+}
+
 pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> String {
     match error {
         ValidationErr::Required => locale.required.clone(),
-        ValidationErr::NumU => locale.num_u.clone(),
-        ValidationErr::NumI => locale.num_i.clone(),
-        ValidationErr::NumF => locale.num_f.clone(),
+        ValidationErr::U64 => locale.num_u.clone(),
+        ValidationErr::I64 => locale.num_i.clone(),
+        ValidationErr::F64 => locale.num_f.clone(),
         ValidationErr::Bool => locale.bool.clone(),
         ValidationErr::Str => locale.str.clone(),
         ValidationErr::Email => locale.email.clone(),
         ValidationErr::Date => locale.date.clone(),
         ValidationErr::Time => locale.time.clone(),
         ValidationErr::DateTime => locale.date_time.clone(),
-        ValidationErr::U64Operation(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-            }
-        }
-        ValidationErr::I64Operation(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-            }
-        }
-        ValidationErr::F64Operation(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-            }
-        }
-        ValidationErr::StringOperation(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.eq.replace("%value%", &(String::from("\"") + &v.clone() + "\"")),
-                Operation::Ne(v) => locale.ne.replace("%value%", &(String::from("\"") + &v.clone() + "\"")),
-                Operation::Gt(v) => locale.gt.replace("%value%", &(String::from("\"") + &v.clone() + "\"")),
-                Operation::Ge(v) => locale.ge.replace("%value%", &(String::from("\"") + &v.clone() + "\"")),
-                Operation::Lt(v) => locale.lt.replace("%value%", &(String::from("\"") + &v.clone() + "\"")),
-                Operation::Le(v) => locale.le.replace("%value%", &(String::from("\"") + &v.clone() + "\"")),
-                Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &(String::from("\"") + &a.clone() + "\"")).replace("%value_b%", &(String::from("\"") + &b.clone() + "\"")),
-            }
-        }
-        ValidationErr::BoolOperation(operation) => {
-            match operation {
-                OperationEq::Eq(v) => locale.eq.replace("%value%", &v.to_string()),
-                OperationEq::Ne(v) => locale.ne.replace("%value%", &v.to_string()),
-            }
-        }
-        ValidationErr::BytesLen(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.bytes_len_eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.bytes_len_ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.bytes_len_gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.bytes_len_ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.bytes_len_lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.bytes_len_le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.bytes_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
+        ValidationErr::Operation(operation) => match operation {
+            Operation::Eq(v) => locale.eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b)),
+        },
+        ValidationErr::BytesLen(operation) => match operation {
+            Operation::Eq(v) => locale.bytes_len_eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.bytes_len_ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.bytes_len_gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.bytes_len_ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.bytes_len_lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.bytes_len_le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => locale.bytes_len_btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b)),
+        },
+        ValidationErr::CharsLen(operation) => match operation {
+            Operation::Eq(v) => locale.chars_len_eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.chars_len_ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.chars_len_gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.chars_len_ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.chars_len_lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.chars_len_le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => locale.chars_len_btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b)),
+        },
+        ValidationErr::GraphemesLen(operation) => match operation {
+            Operation::Eq(v) => locale.graphemes_len_eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.graphemes_len_ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.graphemes_len_gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.graphemes_len_ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.graphemes_len_lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.graphemes_len_le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => {
+                locale.graphemes_len_btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b))
             }
         },
-        ValidationErr::CharsLen(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.chars_len_eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.chars_len_ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.chars_len_gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.chars_len_ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.chars_len_lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.chars_len_le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.chars_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
+        ValidationErr::LowercaseLen(operation) => match operation {
+            Operation::Eq(v) => locale.lowercase_len_eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.lowercase_len_ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.lowercase_len_gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.lowercase_len_ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.lowercase_len_lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.lowercase_len_le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => {
+                locale.lowercase_len_btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b))
             }
         },
-        ValidationErr::GraphemesLen(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.graphemes_len_eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.graphemes_len_ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.graphemes_len_gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.graphemes_len_ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.graphemes_len_lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.graphemes_len_le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.graphemes_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()), 
+        ValidationErr::UppercaseLen(operation) => match operation {
+            Operation::Eq(v) => locale.uppercase_len_eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.uppercase_len_ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.uppercase_len_gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.uppercase_len_ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.uppercase_len_lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.uppercase_len_le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => {
+                locale.uppercase_len_btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b))
             }
         },
-        ValidationErr::LowercaseLen(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.lowercase_len_eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.lowercase_len_ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.lowercase_len_gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.lowercase_len_ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.lowercase_len_lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.lowercase_len_le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.lowercase_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-            }
+        ValidationErr::NumbersLen(operation) => match operation {
+            Operation::Eq(v) => locale.number_len_eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.number_len_ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.number_len_gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.number_len_ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.number_len_lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.number_len_le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => locale.number_len_btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b)),
         },
-        ValidationErr::UppercaseLen(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.uppercase_len_eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.uppercase_len_ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.uppercase_len_gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.uppercase_len_ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.uppercase_len_lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.uppercase_len_le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.uppercase_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()) ,
-            }
-        },
-        ValidationErr::NumbersLen(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.number_len_eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.number_len_ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.number_len_gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.number_len_ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.number_len_lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.number_len_le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.number_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()) ,
-            }
-        },
-        ValidationErr::SymbolsLen(operation) => {
-            match operation {
-                Operation::Eq(v) => locale.symbols_eq.replace("%value%", &v.to_string()),
-                Operation::Ne(v) => locale.symbols_ne.replace("%value%", &v.to_string()),
-                Operation::Gt(v) => locale.symbols_gt.replace("%value%", &v.to_string()),
-                Operation::Ge(v) => locale.symbols_ge.replace("%value%", &v.to_string()),
-                Operation::Lt(v) => locale.symbols_lt.replace("%value%", &v.to_string()),
-                Operation::Le(v) => locale.symbols_le.replace("%value%", &v.to_string()),
-                Operation::Btwn(a, b) => locale.symbols_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()) ,
-            }
+        ValidationErr::SymbolsLen(operation) => match operation {
+            Operation::Eq(v) => locale.symbols_eq.replace("%value%", &operand_to_string(&v)),
+            Operation::Ne(v) => locale.symbols_ne.replace("%value%", &operand_to_string(&v)),
+            Operation::Gt(v) => locale.symbols_gt.replace("%value%", &operand_to_string(&v)),
+            Operation::Ge(v) => locale.symbols_ge.replace("%value%", &operand_to_string(&v)),
+            Operation::Lt(v) => locale.symbols_lt.replace("%value%", &operand_to_string(&v)),
+            Operation::Le(v) => locale.symbols_le.replace("%value%", &operand_to_string(&v)),
+            Operation::Btwn(a, b) => locale.symbols_btwn.replace("%value_a%", &operand_to_string(&a)).replace("%value_b%", &operand_to_string(&b)),
         },
     }
 }
@@ -278,7 +250,7 @@ pub fn locale_pt_long() -> Locale {
         chars_len_lt: String::from("A quantidade de caracteres deve ser menor que %value%"),
         chars_len_le: String::from("A quantidade de caracteres deve ser menor ou igual a %value%"),
         chars_len_btwn: String::from("A quantidade de caracteres deve estar entre %value_a% e %value_b%"),
-        graphemes_len_eq: String::from("A quantidade de grafemas deve ser igual a %value%"), 
+        graphemes_len_eq: String::from("A quantidade de grafemas deve ser igual a %value%"),
         graphemes_len_ne: String::from("A quantidade de grafemas deve ser diferente de %value%"),
         graphemes_len_gt: String::from("A quantidade de grafemas deve ser maior que %value%"),
         graphemes_len_ge: String::from("A quantidade de grafemas deve ser maior ou igual a %value%"),
@@ -462,16 +434,23 @@ pub fn locale_en_long() -> Locale {
 mod test {
     use std::collections::HashMap;
 
-    use araucaria::{error::{SchemaErr, ValidationErr}, operation::{Operation, OperationEq}, value::Value};
+    use araucaria::{
+        error::{SchemaErr, ValidationErr},
+        operation::{Operand, OperandValue, Operation},
+    };
 
-    use super::{schema_err_to_locale, locale_en_long, locale_es_long, locale_pt_long, SchemaLocalizedErr, validation_err_to_locale};
+    use super::{locale_en_long, locale_es_long, locale_pt_long, schema_err_to_locale, validation_err_to_locale, SchemaLocalizedErr};
 
     #[test]
     fn test_schema_err_to_locale() {
         let locale = locale_pt_long();
         assert_eq!(
             schema_err_to_locale(
-                &SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::Bool, ValidationErr::BoolOperation(OperationEq::Eq(true))]),
+                &SchemaErr::Validation(vec![
+                    ValidationErr::Required,
+                    ValidationErr::Bool,
+                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(true))))
+                ]),
                 &locale
             ),
             SchemaLocalizedErr::Arr(vec![String::from("É obrigatório"), String::from("Deve ser um booleano"), String::from("Deve ser igual a true")])
@@ -484,7 +463,7 @@ mod test {
                         SchemaErr::Validation(vec![
                             ValidationErr::Required,
                             ValidationErr::Str,
-                            ValidationErr::StringOperation(Operation::Eq(String::from("Paul McCartney")))
+                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str(String::from("Paul McCartney")))))
                         ])
                     ),
                     (
@@ -492,19 +471,23 @@ mod test {
                         SchemaErr::Validation(vec![
                             ValidationErr::Required,
                             ValidationErr::Str,
-                            ValidationErr::StringOperation(Operation::Eq(String::from("1942-06-18")))
+                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str(String::from("1942-06-18")))))
                         ])
                     ),
                     (
                         String::from("alive"),
-                        SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::Bool, ValidationErr::BoolOperation(OperationEq::Eq(true))])
+                        SchemaErr::Validation(vec![
+                            ValidationErr::Required,
+                            ValidationErr::Bool,
+                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(true))))
+                        ])
                     ),
                     (
                         String::from("bands"),
                         SchemaErr::Validation(vec![
                             ValidationErr::Required,
                             ValidationErr::Str,
-                            ValidationErr::StringOperation(Operation::Eq(String::from("The Beatles")))
+                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str(String::from("The Beatles")))))
                         ])
                     ),
                 ])),
@@ -591,9 +574,9 @@ mod test {
     fn test_locale_pt_long() {
         let locale = locale_pt_long();
         assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), String::from("É obrigatório"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumU, &locale), String::from("Deve ser um número inteiro sem sinal"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumI, &locale), String::from("Deve ser um número inteiro"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumF, &locale), String::from("Deve ser um número com ponto flutuante"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::U64, &locale), String::from("Deve ser um número inteiro sem sinal"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::I64, &locale), String::from("Deve ser um número inteiro"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::F64, &locale), String::from("Deve ser um número com ponto flutuante"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Bool, &locale), String::from("Deve ser um booleano"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Str, &locale), String::from("Deve ser uma string"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Email, &locale), String::from("Deve ser um e-mail"));
@@ -601,105 +584,110 @@ mod test {
         assert_eq!(validation_err_to_locale(&ValidationErr::Time, &locale), String::from("Deve ser uma hora"));
         assert_eq!(validation_err_to_locale(&ValidationErr::DateTime, &locale), String::from("Deve ser uma data e hora"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Eq(34)), &locale), String::from("Deve ser igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Ne(34)), &locale), String::from("Deve ser diferente de 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Gt(34)), &locale), String::from("Deve ser maior que 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Ge(34)), &locale), String::from("Deve ser maior ou igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Lt(34)), &locale), String::from("Deve ser menor que 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Le(34)), &locale), String::from("Deve ser menor ou igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Btwn(34, 43)), &locale), String::from("Deve estar entre 34 e 43"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Deve ser igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Deve ser diferente de 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Deve ser maior que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Deve ser maior ou igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Deve ser menor que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Deve ser menor ou igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::U64(34)), Operand::Value(OperandValue::U64(43)))), &locale), String::from("Deve estar entre 34 e 43"));
         
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Eq(-4)), &locale), String::from("Deve ser igual a -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Ne(-4)), &locale), String::from("Deve ser diferente de -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Gt(-4)), &locale), String::from("Deve ser maior que -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Ge(-4)), &locale), String::from("Deve ser maior ou igual a -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Lt(-4)), &locale), String::from("Deve ser menor que -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Le(-4)), &locale), String::from("Deve ser menor ou igual a -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Btwn(-4, 4)), &locale), String::from("Deve estar entre -4 e 4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Deve ser igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Deve ser diferente de -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Deve ser maior que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Deve ser maior ou igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Deve ser menor que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Deve ser menor ou igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(-4)), Operand::Value(OperandValue::I64(4)))), &locale), String::from("Deve estar entre -4 e 4"));
         
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Eq(-4.6)), &locale), String::from("Deve ser igual a -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Ne(-4.6)), &locale), String::from("Deve ser diferente de -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Gt(-4.6)), &locale), String::from("Deve ser maior que -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Ge(-4.6)), &locale), String::from("Deve ser maior ou igual a -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Lt(-4.6)), &locale), String::from("Deve ser menor que -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Le(-4.6)), &locale), String::from("Deve ser menor ou igual a -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Btwn(-4.6, -2.4)), &locale), String::from("Deve estar entre -4.6 e -2.4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Deve ser igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Deve ser diferente de -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Deve ser maior que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Deve ser maior ou igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Deve ser menor que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Deve ser menor ou igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::F64(-4.6)), Operand::Value(OperandValue::F64(-2.4)))), &locale), String::from("Deve estar entre -4.6 e -2.4"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::BoolOperation(OperationEq::Eq(false)), &locale), String::from("Deve ser igual a false"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BoolOperation(OperationEq::Ne(false)), &locale), String::from("Deve ser diferente de false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Deve ser igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Deve ser diferente de false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Deve ser maior que false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Deve ser maior ou igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Deve ser menor que false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Deve ser menor ou igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true)))), &locale), String::from("Deve estar entre false e true"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Eq(String::from("aurorae"))), &locale), String::from("Deve ser igual a \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Ne(String::from("aurorae"))), &locale), String::from("Deve ser diferente de \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Gt(String::from("aurorae"))), &locale), String::from("Deve ser maior que \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Ge(String::from("aurorae"))), &locale), String::from("Deve ser maior ou igual a \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Lt(String::from("aurorae"))), &locale), String::from("Deve ser menor que \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Le(String::from("aurorae"))), &locale), String::from("Deve ser menor ou igual a \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Btwn(String::from("aurorae"), String::from("crespúculum"))), &locale), String::from("Deve estar entre \"aurorae\" e \"crespúculum\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Deve ser igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Deve ser diferente de \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Deve ser maior que \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Deve ser maior ou igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Deve ser menor que \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Deve ser menor ou igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Str(String::from("aurorae"))), Operand::Value(OperandValue::Str(String::from("crespúculum"))))), &locale), String::from("Deve estar entre \"aurorae\" e \"crespúculum\""));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(10)), &locale), String::from("A quantidade de bytes deve ser igual a 10"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(11)), &locale), String::from("A quantidade de bytes deve ser diferente de 11"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Gt(12)), &locale), String::from("A quantidade de bytes deve ser maior que 12"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ge(13)), &locale), String::from("A quantidade de bytes deve ser maior ou igual a 13"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Lt(14)), &locale), String::from("A quantidade de bytes deve ser menor que 14"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Le(15)), &locale), String::from("A quantidade de bytes deve ser menor ou igual a 15"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Btwn(16, 17)), &locale), String::from("A quantidade de bytes deve estar entre 16 e 17"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(10)))), &locale), String::from("A quantidade de bytes deve ser igual a 10"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(11)))), &locale), String::from("A quantidade de bytes deve ser diferente de 11"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(12)))), &locale), String::from("A quantidade de bytes deve ser maior que 12"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(13)))), &locale), String::from("A quantidade de bytes deve ser maior ou igual a 13"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(14)))), &locale), String::from("A quantidade de bytes deve ser menor que 14"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(15)))), &locale), String::from("A quantidade de bytes deve ser menor ou igual a 15"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(16)), Operand::Value(OperandValue::USize(17)))), &locale), String::from("A quantidade de bytes deve estar entre 16 e 17"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Eq(18)), &locale), String::from("A quantidade de caracteres deve ser igual a 18"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ne(19)), &locale), String::from("A quantidade de caracteres deve ser diferente de 19"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Gt(20)), &locale), String::from("A quantidade de caracteres deve ser maior que 20"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ge(21)), &locale), String::from("A quantidade de caracteres deve ser maior ou igual a 21"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Lt(22)), &locale), String::from("A quantidade de caracteres deve ser menor que 22"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Le(23)), &locale), String::from("A quantidade de caracteres deve ser menor ou igual a 23"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Btwn(24, 25)), &locale), String::from("A quantidade de caracteres deve estar entre 24 e 25"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Eq(Operand::Value(OperandValue::USize(18)))), &locale), String::from("A quantidade de caracteres deve ser igual a 18"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ne(Operand::Value(OperandValue::USize(19)))), &locale), String::from("A quantidade de caracteres deve ser diferente de 19"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Gt(Operand::Value(OperandValue::USize(20)))), &locale), String::from("A quantidade de caracteres deve ser maior que 20"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ge(Operand::Value(OperandValue::USize(21)))), &locale), String::from("A quantidade de caracteres deve ser maior ou igual a 21"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Lt(Operand::Value(OperandValue::USize(22)))), &locale), String::from("A quantidade de caracteres deve ser menor que 22"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Le(Operand::Value(OperandValue::USize(23)))), &locale), String::from("A quantidade de caracteres deve ser menor ou igual a 23"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Btwn(Operand::Value(OperandValue::USize(24)), Operand::Value(OperandValue::USize(25)))), &locale), String::from("A quantidade de caracteres deve estar entre 24 e 25"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Eq(26)), &locale), String::from("A quantidade de grafemas deve ser igual a 26"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ne(27)), &locale), String::from("A quantidade de grafemas deve ser diferente de 27"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Gt(28)), &locale), String::from("A quantidade de grafemas deve ser maior que 28"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ge(29)), &locale), String::from("A quantidade de grafemas deve ser maior ou igual a 29"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Lt(30)), &locale), String::from("A quantidade de grafemas deve ser menor que 30"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Le(31)), &locale), String::from("A quantidade de grafemas deve ser menor ou igual a 31"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Btwn(32, 33)), &locale), String::from("A quantidade de grafemas deve estar entre 32 e 33"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Eq(Operand::Value(OperandValue::USize(26)))), &locale), String::from("A quantidade de grafemas deve ser igual a 26"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ne(Operand::Value(OperandValue::USize(27)))), &locale), String::from("A quantidade de grafemas deve ser diferente de 27"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Gt(Operand::Value(OperandValue::USize(28)))), &locale), String::from("A quantidade de grafemas deve ser maior que 28"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ge(Operand::Value(OperandValue::USize(29)))), &locale), String::from("A quantidade de grafemas deve ser maior ou igual a 29"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Lt(Operand::Value(OperandValue::USize(30)))), &locale), String::from("A quantidade de grafemas deve ser menor que 30"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Le(Operand::Value(OperandValue::USize(31)))), &locale), String::from("A quantidade de grafemas deve ser menor ou igual a 31"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Btwn(Operand::Value(OperandValue::USize(32)), Operand::Value(OperandValue::USize(33)))), &locale), String::from("A quantidade de grafemas deve estar entre 32 e 33"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Eq(42)), &locale), String::from("A quantidade de caracteres minúsculos deve ser igual a 42"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ne(43)), &locale), String::from("A quantidade de caracteres minúsculos deve ser diferente de 43"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Gt(44)), &locale), String::from("A quantidade de caracteres minúsculos deve ser maior que 44"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ge(45)), &locale), String::from("A quantidade de caracteres minúsculos deve ser maior ou igual a 45"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Lt(46)), &locale), String::from("A quantidade de caracteres minúsculos deve ser menor que 46"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Le(47)), &locale), String::from("A quantidade de caracteres minúsculos deve ser menor ou igual a 47"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Btwn(48, 49)), &locale), String::from("A quantidade de caracteres minúsculos deve estar entre 48 e 49"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(42)))), &locale), String::from("A quantidade de caracteres minúsculos deve ser igual a 42"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(43)))), &locale), String::from("A quantidade de caracteres minúsculos deve ser diferente de 43"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(44)))), &locale), String::from("A quantidade de caracteres minúsculos deve ser maior que 44"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(45)))), &locale), String::from("A quantidade de caracteres minúsculos deve ser maior ou igual a 45"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(46)))), &locale), String::from("A quantidade de caracteres minúsculos deve ser menor que 46"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Le(Operand::Value(OperandValue::USize(47)))), &locale), String::from("A quantidade de caracteres minúsculos deve ser menor ou igual a 47"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(48)), Operand::Value(OperandValue::USize(49)))), &locale), String::from("A quantidade de caracteres minúsculos deve estar entre 48 e 49"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Eq(34)), &locale), String::from("A quantidade de caracteres maiúsculos deve ser igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ne(35)), &locale), String::from("A quantidade de caracteres maiúsculos deve ser diferente de 35"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Gt(36)), &locale), String::from("A quantidade de caracteres maiúsculos deve ser maior que 36"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ge(37)), &locale), String::from("A quantidade de caracteres maiúsculos deve ser maior ou igual a 37"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Lt(38)), &locale), String::from("A quantidade de caracteres maiúsculos deve ser menor que 38"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Le(39)), &locale), String::from("A quantidade de caracteres maiúsculos deve ser menor ou igual a 39"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Btwn(40, 41)), &locale), String::from("A quantidade de caracteres maiúsculos deve estar entre 40 e 41"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(34)))), &locale), String::from("A quantidade de caracteres maiúsculos deve ser igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(35)))), &locale), String::from("A quantidade de caracteres maiúsculos deve ser diferente de 35"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(36)))), &locale), String::from("A quantidade de caracteres maiúsculos deve ser maior que 36"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(37)))), &locale), String::from("A quantidade de caracteres maiúsculos deve ser maior ou igual a 37"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(38)))), &locale), String::from("A quantidade de caracteres maiúsculos deve ser menor que 38"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Le(Operand::Value(OperandValue::USize(39)))), &locale), String::from("A quantidade de caracteres maiúsculos deve ser menor ou igual a 39"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(40)), Operand::Value(OperandValue::USize(41)))), &locale), String::from("A quantidade de caracteres maiúsculos deve estar entre 40 e 41"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Eq(50)), &locale), String::from("A quantidade de números deve ser igual a 50"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ne(51)), &locale), String::from("A quantidade de números deve ser diferente de 51"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Gt(52)), &locale), String::from("A quantidade de números deve ser maior que 52"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ge(53)), &locale), String::from("A quantidade de números deve ser maior ou igual a 53"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Lt(54)), &locale), String::from("A quantidade de números deve ser menor que 54"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Le(55)), &locale), String::from("A quantidade de números deve ser menor ou igual a 55"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Btwn(56, 57)), &locale), String::from("A quantidade de números deve estar entre 56 e 57"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Eq(Operand::Value(OperandValue::USize(50)))), &locale), String::from("A quantidade de números deve ser igual a 50"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ne(Operand::Value(OperandValue::USize(51)))), &locale), String::from("A quantidade de números deve ser diferente de 51"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Gt(Operand::Value(OperandValue::USize(52)))), &locale), String::from("A quantidade de números deve ser maior que 52"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ge(Operand::Value(OperandValue::USize(53)))), &locale), String::from("A quantidade de números deve ser maior ou igual a 53"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Lt(Operand::Value(OperandValue::USize(54)))), &locale), String::from("A quantidade de números deve ser menor que 54"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Le(Operand::Value(OperandValue::USize(55)))), &locale), String::from("A quantidade de números deve ser menor ou igual a 55"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Btwn(Operand::Value(OperandValue::USize(56)), Operand::Value(OperandValue::USize(57)))), &locale), String::from("A quantidade de números deve estar entre 56 e 57"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Eq(58)), &locale), String::from("A quantidade de símbolos deve ser igual a 58"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ne(59)), &locale), String::from("A quantidade de símbolos deve ser diferente de 59"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Gt(60)), &locale), String::from("A quantidade de símbolos deve ser maior que 60"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ge(61)), &locale), String::from("A quantidade de símbolos deve ser maior ou igual a 61"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Lt(62)), &locale), String::from("A quantidade de símbolos deve ser menor que 62"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Le(63)), &locale), String::from("A quantidade de símbolos deve ser menor ou igual a 63"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Btwn(64, 65)), &locale), String::from("A quantidade de símbolos deve estar entre 64 e 65"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Eq(Operand::Value(OperandValue::USize(58)))), &locale), String::from("A quantidade de símbolos deve ser igual a 58"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ne(Operand::Value(OperandValue::USize(59)))), &locale), String::from("A quantidade de símbolos deve ser diferente de 59"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Gt(Operand::Value(OperandValue::USize(60)))), &locale), String::from("A quantidade de símbolos deve ser maior que 60"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ge(Operand::Value(OperandValue::USize(61)))), &locale), String::from("A quantidade de símbolos deve ser maior ou igual a 61"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Lt(Operand::Value(OperandValue::USize(62)))), &locale), String::from("A quantidade de símbolos deve ser menor que 62"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Le(Operand::Value(OperandValue::USize(63)))), &locale), String::from("A quantidade de símbolos deve ser menor ou igual a 63"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Btwn(Operand::Value(OperandValue::USize(64)), Operand::Value(OperandValue::USize(65)))), &locale), String::from("A quantidade de símbolos deve estar entre 64 e 65"));
     }
 
     #[test]
     fn test_locale_es_long() {
         let locale = locale_es_long();
         assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), String::from("Se requiere"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumU, &locale), String::from("Debe ser un número entero sin signo"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumI, &locale), String::from("Debe ser un número entero"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumF, &locale), String::from("Debe ser un número de punto flotante"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::U64, &locale), String::from("Debe ser un número entero sin signo"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::I64, &locale), String::from("Debe ser un número entero"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::F64, &locale), String::from("Debe ser un número de punto flotante"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Bool, &locale), String::from("Debe ser un booleano"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Str, &locale), String::from("Debe ser una cadena"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Email, &locale), String::from("Debe ser un correo electrónico"));
@@ -707,105 +695,110 @@ mod test {
         assert_eq!(validation_err_to_locale(&ValidationErr::Time, &locale), String::from("Debe ser una hora"));
         assert_eq!(validation_err_to_locale(&ValidationErr::DateTime, &locale), String::from("Debe ser una fecha y hora"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Eq(34)), &locale), String::from("Debe ser igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Ne(34)), &locale), String::from("Debe ser diferente de 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Gt(34)), &locale), String::from("Debe ser mayor que 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Ge(34)), &locale), String::from("Debe ser mayor o igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Lt(34)), &locale), String::from("Debe ser menor que 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Le(34)), &locale), String::from("Debe ser menor o igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Btwn(34, 43)), &locale), String::from("Debe estar entre 34 y 43"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Debe ser igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Debe ser diferente de 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Debe ser mayor que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Debe ser mayor o igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Debe ser menor que 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Debe ser menor o igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::U64(34)), Operand::Value(OperandValue::U64(43)))), &locale), String::from("Debe estar entre 34 y 43"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Eq(-4)), &locale), String::from("Debe ser igual a -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Ne(-4)), &locale), String::from("Debe ser diferente de -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Gt(-4)), &locale), String::from("Debe ser mayor que -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Ge(-4)), &locale), String::from("Debe ser mayor o igual a -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Lt(-4)), &locale), String::from("Debe ser menor que -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Le(-4)), &locale), String::from("Debe ser menor o igual a -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Btwn(-4, 4)), &locale), String::from("Debe estar entre -4 y 4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Debe ser igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Debe ser diferente de -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Debe ser mayor que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Debe ser mayor o igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Debe ser menor que -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Debe ser menor o igual a -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(-4)), Operand::Value(OperandValue::I64(4)))), &locale), String::from("Debe estar entre -4 y 4"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Eq(-4.6)), &locale), String::from("Debe ser igual a -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Ne(-4.6)), &locale), String::from("Debe ser diferente de -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Gt(-4.6)), &locale), String::from("Debe ser mayor que -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Ge(-4.6)), &locale), String::from("Debe ser mayor o igual a -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Lt(-4.6)), &locale), String::from("Debe ser menor que -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Le(-4.6)), &locale), String::from("Debe ser menor o igual a -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Btwn(-4.6, -2.4)), &locale), String::from("Debe estar entre -4.6 y -2.4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Debe ser igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Debe ser diferente de -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Debe ser mayor que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Debe ser mayor o igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Debe ser menor que -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Debe ser menor o igual a -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::F64(-4.6)), Operand::Value(OperandValue::F64(-2.4)))), &locale), String::from("Debe estar entre -4.6 y -2.4"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::BoolOperation(OperationEq::Eq(false)), &locale), String::from("Debe ser igual a false"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BoolOperation(OperationEq::Ne(false)), &locale), String::from("Debe ser diferente de false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Debe ser igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Debe ser diferente de false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Debe ser mayor que false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Debe ser mayor o igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Debe ser menor que false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Debe ser menor o igual a false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true)))), &locale), String::from("Debe estar entre false y true"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Eq(String::from("aurorae"))), &locale), String::from("Debe ser igual a \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Ne(String::from("aurorae"))), &locale), String::from("Debe ser diferente de \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Gt(String::from("aurorae"))), &locale), String::from("Debe ser mayor que \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Ge(String::from("aurorae"))), &locale), String::from("Debe ser mayor o igual a \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Lt(String::from("aurorae"))), &locale), String::from("Debe ser menor que \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Le(String::from("aurorae"))), &locale), String::from("Debe ser menor o igual a \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Btwn(String::from("aurorae"), String::from("crespúculum"))), &locale), String::from("Debe estar entre \"aurorae\" y \"crespúculum\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Debe ser igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Debe ser diferente de \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Debe ser mayor que \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Debe ser mayor o igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Debe ser menor que \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Debe ser menor o igual a \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Str(String::from("aurorae"))), Operand::Value(OperandValue::Str(String::from("crespúculum"))))), &locale), String::from("Debe estar entre \"aurorae\" y \"crespúculum\""));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(10)), &locale), String::from("La cantidad de bytes debe ser igual a 10"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(11)), &locale), String::from("La cantidad de bytes debe ser diferente de 11"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Gt(12)), &locale), String::from("La cantidad de bytes debe ser mayor que 12"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ge(13)), &locale), String::from("La cantidad de bytes debe ser mayor o igual a 13"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Lt(14)), &locale), String::from("La cantidad de bytes debe ser menor que 14"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Le(15)), &locale), String::from("La cantidad de bytes debe ser menor o igual a 15"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Btwn(16, 17)), &locale), String::from("La cantidad de bytes debe estar entre 16 y 17"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(10)))), &locale), String::from("La cantidad de bytes debe ser igual a 10"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(11)))), &locale), String::from("La cantidad de bytes debe ser diferente de 11"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(12)))), &locale), String::from("La cantidad de bytes debe ser mayor que 12"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(13)))), &locale), String::from("La cantidad de bytes debe ser mayor o igual a 13"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(14)))), &locale), String::from("La cantidad de bytes debe ser menor que 14"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(15)))), &locale), String::from("La cantidad de bytes debe ser menor o igual a 15"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(16)), Operand::Value(OperandValue::USize(17)))), &locale), String::from("La cantidad de bytes debe estar entre 16 y 17"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Eq(18)), &locale), String::from("La cantidad de caracteres debe ser igual a 18"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ne(19)), &locale), String::from("La cantidad de caracteres debe ser diferente de 19"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Gt(20)), &locale), String::from("La cantidad de caracteres debe ser mayor que 20"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ge(21)), &locale), String::from("La cantidad de caracteres debe ser mayor o igual a 21"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Lt(22)), &locale), String::from("La cantidad de caracteres debe ser menor que 22"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Le(23)), &locale), String::from("La cantidad de caracteres debe ser menor o igual a 23"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Btwn(24, 25)), &locale), String::from("La cantidad de caracteres debe estar entre 24 y 25"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Eq(Operand::Value(OperandValue::USize(18)))), &locale), String::from("La cantidad de caracteres debe ser igual a 18"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ne(Operand::Value(OperandValue::USize(19)))), &locale), String::from("La cantidad de caracteres debe ser diferente de 19"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Gt(Operand::Value(OperandValue::USize(20)))), &locale), String::from("La cantidad de caracteres debe ser mayor que 20"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ge(Operand::Value(OperandValue::USize(21)))), &locale), String::from("La cantidad de caracteres debe ser mayor o igual a 21"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Lt(Operand::Value(OperandValue::USize(22)))), &locale), String::from("La cantidad de caracteres debe ser menor que 22"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Le(Operand::Value(OperandValue::USize(23)))), &locale), String::from("La cantidad de caracteres debe ser menor o igual a 23"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Btwn(Operand::Value(OperandValue::USize(24)), Operand::Value(OperandValue::USize(25)))), &locale), String::from("La cantidad de caracteres debe estar entre 24 y 25"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Eq(26)), &locale), String::from("La cantidad de grafemas debe ser igual a 26"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ne(27)), &locale), String::from("La cantidad de grafemas debe ser diferente de 27"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Gt(28)), &locale), String::from("La cantidad de grafemas debe ser mayor que 28"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ge(29)), &locale), String::from("La cantidad de grafemas debe ser mayor o igual a 29"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Lt(30)), &locale), String::from("La cantidad de grafemas debe ser menor que 30"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Le(31)), &locale), String::from("La cantidad de grafemas debe ser menor o igual a 31"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Btwn(32, 33)), &locale), String::from("La cantidad de grafemas debe estar entre 32 y 33"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Eq(Operand::Value(OperandValue::USize(26)))), &locale), String::from("La cantidad de grafemas debe ser igual a 26"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ne(Operand::Value(OperandValue::USize(27)))), &locale), String::from("La cantidad de grafemas debe ser diferente de 27"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Gt(Operand::Value(OperandValue::USize(28)))), &locale), String::from("La cantidad de grafemas debe ser mayor que 28"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ge(Operand::Value(OperandValue::USize(29)))), &locale), String::from("La cantidad de grafemas debe ser mayor o igual a 29"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Lt(Operand::Value(OperandValue::USize(30)))), &locale), String::from("La cantidad de grafemas debe ser menor que 30"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Le(Operand::Value(OperandValue::USize(31)))), &locale), String::from("La cantidad de grafemas debe ser menor o igual a 31"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Btwn(Operand::Value(OperandValue::USize(32)), Operand::Value(OperandValue::USize(33)))), &locale), String::from("La cantidad de grafemas debe estar entre 32 y 33"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Eq(42)), &locale), String::from("La cantidad de caracteres en minúsculas debe ser igual a 42"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ne(43)), &locale), String::from("La cantidad de caracteres en minúsculas debe ser diferente de 43"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Gt(44)), &locale), String::from("La cantidad de caracteres en minúsculas debe ser mayor que 44"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ge(45)), &locale), String::from("La cantidad de caracteres en minúsculas debe ser mayor o igual a 45"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Lt(46)), &locale), String::from("La cantidad de caracteres en minúsculas debe ser menor que 46"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Le(47)), &locale), String::from("La cantidad de caracteres en minúsculas debe ser menor o igual a 47"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Btwn(48, 49)), &locale), String::from("La cantidad de caracteres en minúsculas debe estar entre 48 y 49"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(42)))), &locale), String::from("La cantidad de caracteres en minúsculas debe ser igual a 42"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(43)))), &locale), String::from("La cantidad de caracteres en minúsculas debe ser diferente de 43"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(44)))), &locale), String::from("La cantidad de caracteres en minúsculas debe ser mayor que 44"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(45)))), &locale), String::from("La cantidad de caracteres en minúsculas debe ser mayor o igual a 45"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(46)))), &locale), String::from("La cantidad de caracteres en minúsculas debe ser menor que 46"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Le(Operand::Value(OperandValue::USize(47)))), &locale), String::from("La cantidad de caracteres en minúsculas debe ser menor o igual a 47"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(48)), Operand::Value(OperandValue::USize(49)))), &locale), String::from("La cantidad de caracteres en minúsculas debe estar entre 48 y 49"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Eq(34)), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser igual a 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ne(35)), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser diferente de 35"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Gt(36)), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser mayor que 36"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ge(37)), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser mayor o igual a 37"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Lt(38)), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser menor que 38"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Le(39)), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser menor o igual a 39"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Btwn(40, 41)), &locale), String::from("La cantidad de caracteres en mayúsculas debe estar entre 40 y 41"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(34)))), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser igual a 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(35)))), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser diferente de 35"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(36)))), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser mayor que 36"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(37)))), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser mayor o igual a 37"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(38)))), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser menor que 38"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Le(Operand::Value(OperandValue::USize(39)))), &locale), String::from("La cantidad de caracteres en mayúsculas debe ser menor o igual a 39"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(40)), Operand::Value(OperandValue::USize(41)))), &locale), String::from("La cantidad de caracteres en mayúsculas debe estar entre 40 y 41"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Eq(50)), &locale), String::from("La cantidad de números debe ser igual a 50"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ne(51)), &locale), String::from("La cantidad de números debe ser diferente de 51"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Gt(52)), &locale), String::from("La cantidad de números debe ser mayor que 52"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ge(53)), &locale), String::from("La cantidad de números debe ser mayor o igual a 53"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Lt(54)), &locale), String::from("La cantidad de números debe ser menor que 54"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Le(55)), &locale), String::from("La cantidad de números debe ser menor o igual a 55"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Btwn(56, 57)), &locale), String::from("La cantidad de números debe estar entre 56 y 57"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Eq(Operand::Value(OperandValue::USize(50)))), &locale), String::from("La cantidad de números debe ser igual a 50"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ne(Operand::Value(OperandValue::USize(51)))), &locale), String::from("La cantidad de números debe ser diferente de 51"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Gt(Operand::Value(OperandValue::USize(52)))), &locale), String::from("La cantidad de números debe ser mayor que 52"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ge(Operand::Value(OperandValue::USize(53)))), &locale), String::from("La cantidad de números debe ser mayor o igual a 53"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Lt(Operand::Value(OperandValue::USize(54)))), &locale), String::from("La cantidad de números debe ser menor que 54"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Le(Operand::Value(OperandValue::USize(55)))), &locale), String::from("La cantidad de números debe ser menor o igual a 55"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Btwn(Operand::Value(OperandValue::USize(56)), Operand::Value(OperandValue::USize(57)))), &locale), String::from("La cantidad de números debe estar entre 56 y 57"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Eq(58)), &locale), String::from("La cantidad de símbolos debe ser igual a 58"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ne(59)), &locale), String::from("La cantidad de símbolos debe ser diferente de 59"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Gt(60)), &locale), String::from("La cantidad de símbolos debe ser mayor que 60"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ge(61)), &locale), String::from("La cantidad de símbolos debe ser mayor o igual a 61"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Lt(62)), &locale), String::from("La cantidad de símbolos debe ser menor que 62"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Le(63)), &locale), String::from("La cantidad de símbolos debe ser menor o igual a 63"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Btwn(64, 65)), &locale), String::from("La cantidad de símbolos debe estar entre 64 y 65"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Eq(Operand::Value(OperandValue::USize(58)))), &locale), String::from("La cantidad de símbolos debe ser igual a 58"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ne(Operand::Value(OperandValue::USize(59)))), &locale), String::from("La cantidad de símbolos debe ser diferente de 59"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Gt(Operand::Value(OperandValue::USize(60)))), &locale), String::from("La cantidad de símbolos debe ser mayor que 60"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ge(Operand::Value(OperandValue::USize(61)))), &locale), String::from("La cantidad de símbolos debe ser mayor o igual a 61"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Lt(Operand::Value(OperandValue::USize(62)))), &locale), String::from("La cantidad de símbolos debe ser menor que 62"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Le(Operand::Value(OperandValue::USize(63)))), &locale), String::from("La cantidad de símbolos debe ser menor o igual a 63"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Btwn(Operand::Value(OperandValue::USize(64)), Operand::Value(OperandValue::USize(65)))), &locale), String::from("La cantidad de símbolos debe estar entre 64 y 65"));
     }
 
     #[test]
     fn test_locale_en_long() {
         let locale = locale_en_long();
         assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), String::from("Is required"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumU, &locale), String::from("Must be an unsigned integer"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumI, &locale), String::from("Must be an integer"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumF, &locale), String::from("Must be a float"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::U64, &locale), String::from("Must be an unsigned integer"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::I64, &locale), String::from("Must be an integer"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::F64, &locale), String::from("Must be a float"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Bool, &locale), String::from("Must be a boolean"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Str, &locale), String::from("Must be a string"));
         assert_eq!(validation_err_to_locale(&ValidationErr::Email, &locale), String::from("Must be an e-mail"));
@@ -813,95 +806,100 @@ mod test {
         assert_eq!(validation_err_to_locale(&ValidationErr::Time, &locale), String::from("Must be a time"));
         assert_eq!(validation_err_to_locale(&ValidationErr::DateTime, &locale), String::from("Must be a date and time"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Eq(34)), &locale), String::from("Must be equals to 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Ne(34)), &locale), String::from("Must be different from 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Gt(34)), &locale), String::from("Must be greater than 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Ge(34)), &locale), String::from("Must be greater than or equals to 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Lt(34)), &locale), String::from("Must be smaller than 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Le(34)), &locale), String::from("Must be smaller than or equals to 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::U64Operation(Operation::Btwn(34, 43)), &locale), String::from("Must be between 34 and 43"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Must be equals to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Must be different from 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Must be greater than 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Must be greater than or equals to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Must be smaller than 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::U64(34)))), &locale), String::from("Must be smaller than or equals to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::U64(34)), Operand::Value(OperandValue::U64(43)))), &locale), String::from("Must be between 34 and 43"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Eq(-4)), &locale), String::from("Must be equals to -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Ne(-4)), &locale), String::from("Must be different from -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Gt(-4)), &locale), String::from("Must be greater than -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Ge(-4)), &locale), String::from("Must be greater than or equals to -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Lt(-4)), &locale), String::from("Must be smaller than -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Le(-4)), &locale), String::from("Must be smaller than or equals to -4"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::I64Operation(Operation::Btwn(-4, 4)), &locale), String::from("Must be between -4 and 4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Must be equals to -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Must be different from -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Must be greater than -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Must be greater than or equals to -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Must be smaller than -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-4)))), &locale), String::from("Must be smaller than or equals to -4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(-4)), Operand::Value(OperandValue::I64(4)))), &locale), String::from("Must be between -4 and 4"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Eq(-4.6)), &locale), String::from("Must be equals to -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Ne(-4.6)), &locale), String::from("Must be different from -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Gt(-4.6)), &locale), String::from("Must be greater than -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Ge(-4.6)), &locale), String::from("Must be greater than or equals to -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Lt(-4.6)), &locale), String::from("Must be smaller than -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Le(-4.6)), &locale), String::from("Must be smaller than or equals to -4.6"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::F64Operation(Operation::Btwn(-4.6, -2.4)), &locale), String::from("Must be between -4.6 and -2.4"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Must be equals to -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Must be different from -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Must be greater than -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Must be greater than or equals to -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Must be smaller than -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::F64(-4.6)))), &locale), String::from("Must be smaller than or equals to -4.6"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::F64(-4.6)), Operand::Value(OperandValue::F64(-2.4)))), &locale), String::from("Must be between -4.6 and -2.4"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::BoolOperation(OperationEq::Eq(false)), &locale), String::from("Must be equals to false"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BoolOperation(OperationEq::Ne(false)), &locale), String::from("Must be different from false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Must be equals to false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Must be different from false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Must be greater than false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Must be greater than or equals to false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Must be smaller than false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false)))), &locale), String::from("Must be smaller than or equals to false"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true)))), &locale), String::from("Must be between false and true"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Eq(String::from("aurorae"))), &locale), String::from("Must be equals to \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Ne(String::from("aurorae"))), &locale), String::from("Must be different from \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Gt(String::from("aurorae"))), &locale), String::from("Must be greater than \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Ge(String::from("aurorae"))), &locale), String::from("Must be greater than or equals to \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Lt(String::from("aurorae"))), &locale), String::from("Must be smaller than \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Le(String::from("aurorae"))), &locale), String::from("Must be smaller than or equals to \"aurorae\""));
-        assert_eq!(validation_err_to_locale(&ValidationErr::StringOperation(Operation::Btwn(String::from("aurorae"), String::from("crespúculum"))), &locale), String::from("Must be between \"aurorae\" and \"crespúculum\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Must be equals to \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Must be different from \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Must be greater than \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Must be greater than or equals to \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Must be smaller than \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str(String::from("aurorae"))))), &locale), String::from("Must be smaller than or equals to \"aurorae\""));
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Str(String::from("aurorae"))), Operand::Value(OperandValue::Str(String::from("crespúculum"))))), &locale), String::from("Must be between \"aurorae\" and \"crespúculum\""));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(10)), &locale), String::from("The length of bytes must be equals to 10"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(11)), &locale), String::from("The length of bytes must be different from 11"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Gt(12)), &locale), String::from("The length of bytes must be greater than 12"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ge(13)), &locale), String::from("The length of bytes must be greater than or equals to 13"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Lt(14)), &locale), String::from("The length of bytes must be smaller than 14"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Le(15)), &locale), String::from("The length of bytes must be smaller than or equals to 15"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Btwn(16, 17)), &locale), String::from("The length of bytes must be between 16 and 17"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(10)))), &locale), String::from("The length of bytes must be equals to 10"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(11)))), &locale), String::from("The length of bytes must be different from 11"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(12)))), &locale), String::from("The length of bytes must be greater than 12"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(13)))), &locale), String::from("The length of bytes must be greater than or equals to 13"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(14)))), &locale), String::from("The length of bytes must be smaller than 14"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(15)))), &locale), String::from("The length of bytes must be smaller than or equals to 15"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(16)), Operand::Value(OperandValue::USize(17)))), &locale), String::from("The length of bytes must be between 16 and 17"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Eq(18)), &locale), String::from("The length of characters must be equals to 18"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ne(19)), &locale), String::from("The length of characters must be different from 19"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Gt(20)), &locale), String::from("The length of characters must be greater than 20"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ge(21)), &locale), String::from("The length of characters must be greater than or equals to 21"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Lt(22)), &locale), String::from("The length of characters must be smaller than 22"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Le(23)), &locale), String::from("The length of characters must be smaller than or equals to 23"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Btwn(24, 25)), &locale), String::from("The length of characters must be between 24 and 25"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Eq(Operand::Value(OperandValue::USize(18)))), &locale), String::from("The length of characters must be equals to 18"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ne(Operand::Value(OperandValue::USize(19)))), &locale), String::from("The length of characters must be different from 19"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Gt(Operand::Value(OperandValue::USize(20)))), &locale), String::from("The length of characters must be greater than 20"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Ge(Operand::Value(OperandValue::USize(21)))), &locale), String::from("The length of characters must be greater than or equals to 21"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Lt(Operand::Value(OperandValue::USize(22)))), &locale), String::from("The length of characters must be smaller than 22"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Le(Operand::Value(OperandValue::USize(23)))), &locale), String::from("The length of characters must be smaller than or equals to 23"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::CharsLen(Operation::Btwn(Operand::Value(OperandValue::USize(24)), Operand::Value(OperandValue::USize(25)))), &locale), String::from("The length of characters must be between 24 and 25"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Eq(26)), &locale), String::from("The length of graphemes must be equals to 26"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ne(27)), &locale), String::from("The length of graphemes must be different from 27"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Gt(28)), &locale), String::from("The length of graphemes must be greater than 28"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ge(29)), &locale), String::from("The length of graphemes must be greater than or equals to 29"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Lt(30)), &locale), String::from("The length of graphemes must be smaller than 30"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Le(31)), &locale), String::from("The length of graphemes must be smaller than or equals to 31"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Btwn(32, 33)), &locale), String::from("The length of graphemes must be between 32 and 33"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Eq(Operand::Value(OperandValue::USize(26)))), &locale), String::from("The length of graphemes must be equals to 26"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ne(Operand::Value(OperandValue::USize(27)))), &locale), String::from("The length of graphemes must be different from 27"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Gt(Operand::Value(OperandValue::USize(28)))), &locale), String::from("The length of graphemes must be greater than 28"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Ge(Operand::Value(OperandValue::USize(29)))), &locale), String::from("The length of graphemes must be greater than or equals to 29"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Lt(Operand::Value(OperandValue::USize(30)))), &locale), String::from("The length of graphemes must be smaller than 30"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Le(Operand::Value(OperandValue::USize(31)))), &locale), String::from("The length of graphemes must be smaller than or equals to 31"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::GraphemesLen(Operation::Btwn(Operand::Value(OperandValue::USize(32)), Operand::Value(OperandValue::USize(33)))), &locale), String::from("The length of graphemes must be between 32 and 33"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Eq(42)), &locale), String::from("The length of lowercase characters must be equals to 42"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ne(43)), &locale), String::from("The length of lowercase characters must be different from 43"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Gt(44)), &locale), String::from("The length of lowercase characters must be greater than 44"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ge(45)), &locale), String::from("The length of lowercase characters must be greater than or equals to 45"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Lt(46)), &locale), String::from("The length of lowercase characters must be smaller than 46"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Le(47)), &locale), String::from("The length of lowercase characters must be smaller than or equals to 47"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Btwn(48, 49)), &locale), String::from("The length of lowercase characters must be between 48 and 49"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(42)))), &locale), String::from("The length of lowercase characters must be equals to 42"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(43)))), &locale), String::from("The length of lowercase characters must be different from 43"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(44)))), &locale), String::from("The length of lowercase characters must be greater than 44"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(45)))), &locale), String::from("The length of lowercase characters must be greater than or equals to 45"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(46)))), &locale), String::from("The length of lowercase characters must be smaller than 46"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Le(Operand::Value(OperandValue::USize(47)))), &locale), String::from("The length of lowercase characters must be smaller than or equals to 47"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::LowercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(48)), Operand::Value(OperandValue::USize(49)))), &locale), String::from("The length of lowercase characters must be between 48 and 49"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Eq(34)), &locale), String::from("The length of uppercase characters must be equals to 34"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ne(35)), &locale), String::from("The length of uppercase characters must be different from 35"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Gt(36)), &locale), String::from("The length of uppercase characters must be greater than 36"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ge(37)), &locale), String::from("The length of uppercase characters must be greater than or equals to 37"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Lt(38)), &locale), String::from("The length of uppercase characters must be smaller than 38"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Le(39)), &locale), String::from("The length of uppercase characters must be smaller than or equals to 39"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Btwn(40, 41)), &locale), String::from("The length of uppercase characters must be between 40 and 41"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(34)))), &locale), String::from("The length of uppercase characters must be equals to 34"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(35)))), &locale), String::from("The length of uppercase characters must be different from 35"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(36)))), &locale), String::from("The length of uppercase characters must be greater than 36"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(37)))), &locale), String::from("The length of uppercase characters must be greater than or equals to 37"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(38)))), &locale), String::from("The length of uppercase characters must be smaller than 38"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Le(Operand::Value(OperandValue::USize(39)))), &locale), String::from("The length of uppercase characters must be smaller than or equals to 39"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::UppercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(40)), Operand::Value(OperandValue::USize(41)))), &locale), String::from("The length of uppercase characters must be between 40 and 41"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Eq(50)), &locale), String::from("The length of numbers must be equals to 50"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ne(51)), &locale), String::from("The length of numbers must be different from 51"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Gt(52)), &locale), String::from("The length of numbers must be greater than 52"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ge(53)), &locale), String::from("The length of numbers must be greater than or equals to 53"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Lt(54)), &locale), String::from("The length of numbers must be smaller than 54"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Le(55)), &locale), String::from("The length of numbers must be smaller than or equals to 55"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Btwn(56, 57)), &locale), String::from("The length of numbers must be between 56 and 57"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Eq(Operand::Value(OperandValue::USize(50)))), &locale), String::from("The length of numbers must be equals to 50"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ne(Operand::Value(OperandValue::USize(51)))), &locale), String::from("The length of numbers must be different from 51"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Gt(Operand::Value(OperandValue::USize(52)))), &locale), String::from("The length of numbers must be greater than 52"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Ge(Operand::Value(OperandValue::USize(53)))), &locale), String::from("The length of numbers must be greater than or equals to 53"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Lt(Operand::Value(OperandValue::USize(54)))), &locale), String::from("The length of numbers must be smaller than 54"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Le(Operand::Value(OperandValue::USize(55)))), &locale), String::from("The length of numbers must be smaller than or equals to 55"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::NumbersLen(Operation::Btwn(Operand::Value(OperandValue::USize(56)), Operand::Value(OperandValue::USize(57)))), &locale), String::from("The length of numbers must be between 56 and 57"));
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Eq(58)), &locale), String::from("The length of symbols must be equals to 58"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ne(59)), &locale), String::from("The length of symbols must be different from 59"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Gt(60)), &locale), String::from("The length of symbols must be greater than 60"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ge(61)), &locale), String::from("The length of symbols must be greater than or equals to 61"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Lt(62)), &locale), String::from("The length of symbols must be smaller than 62"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Le(63)), &locale), String::from("The length of symbols must be smaller than or equals to 63"));
-        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Btwn(64, 65)), &locale), String::from("The length of symbols must be between 64 and 65"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Eq(Operand::Value(OperandValue::USize(58)))), &locale), String::from("The length of symbols must be equals to 58"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ne(Operand::Value(OperandValue::USize(59)))), &locale), String::from("The length of symbols must be different from 59"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Gt(Operand::Value(OperandValue::USize(60)))), &locale), String::from("The length of symbols must be greater than 60"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Ge(Operand::Value(OperandValue::USize(61)))), &locale), String::from("The length of symbols must be greater than or equals to 61"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Lt(Operand::Value(OperandValue::USize(62)))), &locale), String::from("The length of symbols must be smaller than 62"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Le(Operand::Value(OperandValue::USize(63)))), &locale), String::from("The length of symbols must be smaller than or equals to 63"));
+        assert_eq!(validation_err_to_locale(&ValidationErr::SymbolsLen(Operation::Btwn(Operand::Value(OperandValue::USize(64)), Operand::Value(OperandValue::USize(65)))), &locale), String::from("The length of symbols must be between 64 and 65"));
     }
 }
