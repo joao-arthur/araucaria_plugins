@@ -33,12 +33,12 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
                     base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
                 }
             }
-            // if let Some(lowercase_len_operation) = &validation.lowercase_len {
-            //     let len = 0;
-            //     if let Some(Err(())) = compare(lowercase_len_operation, &OperandValue::USize(len)) {
-            //         base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
-            //     }
-            // }
+            if let Some(lowercase_len_operation) = &validation.lowercase_len {
+                let len = str_value.chars().filter(|c| c.is_alphabetic() && c.is_lowercase()).count();
+                if let Some(Err(())) = compare(lowercase_len_operation, &OperandValue::USize(len)) {
+                    base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
+                }
+            }
             // if let Some(uppercase_len_operation) = &validation.uppercase_len {
             //     let len = 0;
             //     if let Some(Err(())) = compare(uppercase_len_operation, &OperandValue::USize(len)) {
