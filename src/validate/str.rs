@@ -51,12 +51,12 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
                     base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
                 }
             }
-            // if let Some(symbols_len_operation) = &validation.symbols_len {
-            //     let len = 0;
-            //     if let Some(Err(())) = compare(symbols_len_operation, &OperandValue::USize(len)) {
-            //         base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
-            //     }
-            // }
+            if let Some(symbols_len_operation) = &validation.symbols_len {
+                let len = str_value.chars().filter(|c| c.is_ascii_punctuation()).count();
+                if let Some(Err(())) = compare(symbols_len_operation, &OperandValue::USize(len)) {
+                    base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
+                }
+            }
         }
         Value::None => {
             if validation.required {
