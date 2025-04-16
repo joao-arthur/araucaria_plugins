@@ -127,113 +127,154 @@ mod test {
 
     #[test]
     fn test_validate_bytes_len_latin() {
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(15), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(15))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(16), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(17), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(17))))])));
+        let value = Value::Str(String::from("veni, vidi, vici"));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(15), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(15))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(16), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(17), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(17))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(15), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(16), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(16))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(17), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(15), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(16), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(16))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(17), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(14), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(15), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(16), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(16))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(17), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(17))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(14), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(15), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(16), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(16))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(17), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(17))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(15), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(16), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(17), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(17))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(18), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(18))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(15), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(16), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(17), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(17))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(18), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(18))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(15), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(15))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(16), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(16))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(17), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(18), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(15), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(15))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(16), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(16))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(17), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(18), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(14), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(14))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(15), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(15))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(16), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(17), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(14), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(14))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(15), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(15))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(16), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(17), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(13, 15), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(13)), Operand::Value(OperandValue::USize(15))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(14, 16), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(15, 17), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(16, 18), &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(17, 19), &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(17)), Operand::Value(OperandValue::USize(19))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(13, 15), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(13)), Operand::Value(OperandValue::USize(15))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(14, 16), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(15, 17), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(16, 18), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(17, 19), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(17)), Operand::Value(OperandValue::USize(19))))])));
     }
 
     #[test]
     fn test_validate_bytes_len_greek() {
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(30), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(30))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(31), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(32), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(32))))])));
+        let value = Value::Str(String::from("ὅσον ζῇς, φαίνου"));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(30), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(30))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(31), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(32), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(32))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(30), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(31), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(31))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(32), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(30), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(31), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(31))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(32), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(29), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(30), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(31), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(31))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(32), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(32))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(29), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(30), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(31), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(31))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(32), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(32))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(30), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(31), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(32), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(32))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(33), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(33))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(30), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(31), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(32), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(32))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(33), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(33))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(30), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(30))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(31), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(31))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(32), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(33), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(30), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(30))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(31), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(31))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(32), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(33), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(29), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(29))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(30), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(30))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(31), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(32), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(29), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(29))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(30), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(30))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(31), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(32), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(28, 30), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(28)), Operand::Value(OperandValue::USize(30))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(29, 31), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(30, 32), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(31, 33), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(32, 34), &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(32)), Operand::Value(OperandValue::USize(34))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(28, 30), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(28)), Operand::Value(OperandValue::USize(30))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(29, 31), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(30, 32), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(31, 33), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(32, 34), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(32)), Operand::Value(OperandValue::USize(34))))])));
     }
 
     #[test]
     fn test_validate_bytes_len_cyrillic() {
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(22), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(22))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(23), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(24), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(24))))])));
+        let value = Value::Str(String::from("группа крови"));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(22), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(22))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(23), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(24), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(24))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(22), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(23), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(23))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(24), &Value::Str(String::from("группа крови"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(22), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(23), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(23))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(24), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(21), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(22), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(23), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(23))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(24), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(24))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(21), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(22), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(23), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(23))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(24), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(24))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(22), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(23), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(24), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(24))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(25), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(25))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(22), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(23), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(24), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(24))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(25), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(25))))])));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(22), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(22))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(23), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(23))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(24), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(25), &Value::Str(String::from("группа крови"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(22), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(22))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(23), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(23))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(24), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(25), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(21), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(21))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(22), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(22))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(23), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(24), &Value::Str(String::from("группа крови"))), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(21), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(21))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(22), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(22))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(23), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(24), &value), Ok(()));
 
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(20, 22), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(20)), Operand::Value(OperandValue::USize(22))))])));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(21, 23), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(22, 24), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(23, 25), &Value::Str(String::from("группа крови"))), Ok(()));
-        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(24, 26), &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(24)), Operand::Value(OperandValue::USize(26))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(20, 22), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(20)), Operand::Value(OperandValue::USize(22))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(21, 23), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(22, 24), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(23, 25), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(24, 26), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(24)), Operand::Value(OperandValue::USize(26))))])));
+    }
+
+    #[test]
+    fn test_validate_bytes_len_sanskrit() {
+        let value = Value::Str(String::from("ओंकार"));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(14), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(14))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(15), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_eq(16), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(16))))])));
+
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(14), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(15), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(15))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ne(16), &value), Ok(()));
+
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(13), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(14), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(15), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(15))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_gt(16), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(16))))])));
+
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(14), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(15), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(16), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(16))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_ge(17), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(17))))])));
+
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(14), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(14))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(15), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(15))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(16), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_lt(17), &value), Ok(()));
+
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(13), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(13))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(14), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(14))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(15), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_le(16), &value), Ok(()));
+
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(12, 14), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(12)), Operand::Value(OperandValue::USize(14))))])));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(13, 15), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(14, 16), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(15, 17), &value), Ok(()));
+        assert_eq!(validate_str(&StrValidation::default().bytes_len_btwn(16, 18), &value), Err(SchemaErr::validation([ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(16)), Operand::Value(OperandValue::USize(18))))])));
     }
 
     #[test]
