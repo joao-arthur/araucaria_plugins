@@ -6,6 +6,34 @@ use araucaria::{
 };
 use unicode_segmentation::UnicodeSegmentation;
 
+fn bytes_len(str_value: &String) -> usize {
+    str_value.len()
+}
+
+fn chars_len(str_value: &String) -> usize {
+    str_value.chars().count()
+}
+
+fn graphemes_len(str_value: &String) -> usize {
+    str_value.graphemes(true).collect::<Vec<&str>>().len()
+}
+
+fn lowercase_len(str_value: &String) -> usize {
+    str_value.chars().filter(|c| c.is_lowercase()).count()
+}
+
+fn uppercase_len(str_value: &String) -> usize {
+    str_value.chars().filter(|c| c.is_uppercase()).count()
+}
+
+fn numbers_len(str_value: &String) -> usize {
+    str_value.chars().filter(|c| c.is_ascii_digit()).count()
+}
+
+fn symbols_len(str_value: &String) -> usize {
+    str_value.chars().filter(|c| c.is_ascii_punctuation()).count()
+}
+
 pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
@@ -16,43 +44,43 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
                 }
             }
             if let Some(bytes_len_operation) = &validation.bytes_len {
-                let len = str_value.len();
+                let len = bytes_len(&str_value);
                 if let Some(Err(())) = compare(bytes_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
                 }
             }
             if let Some(chars_len_operation) = &validation.chars_len {
-                let len = str_value.chars().count();
+                let len = chars_len(&str_value);
                 if let Some(Err(())) = compare(chars_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
                 }
             }
             if let Some(graphemes_len_operation) = &validation.graphemes_len {
-                let len = str_value.graphemes(true).collect::<Vec<&str>>().len();
+                let len = graphemes_len(&str_value);
                 if let Some(Err(())) = compare(graphemes_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
                 }
             }
             if let Some(lowercase_len_operation) = &validation.lowercase_len {
-                let len = str_value.chars().filter(|c| c.is_lowercase()).count();
+                let len = lowercase_len(&str_value);
                 if let Some(Err(())) = compare(lowercase_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
                 }
             }
             if let Some(uppercase_len_operation) = &validation.uppercase_len {
-                let len = str_value.chars().filter(|c| c.is_uppercase()).count();
+                let len = uppercase_len(&str_value);
                 if let Some(Err(())) = compare(uppercase_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
                 }
             }
             if let Some(numbers_len_operation) = &validation.numbers_len {
-                let len = str_value.chars().filter(|c| c.is_ascii_digit()).count();
+                let len = numbers_len(&str_value);
                 if let Some(Err(())) = compare(numbers_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
                 }
             }
             if let Some(symbols_len_operation) = &validation.symbols_len {
-                let len = str_value.chars().filter(|c| c.is_ascii_punctuation()).count();
+                let len = symbols_len(&str_value);
                 if let Some(Err(())) = compare(symbols_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
                 }
@@ -89,7 +117,7 @@ mod test {
         value::{stub::num_u_stub, Value},
     };
 
-    use super::{validate_str, StrValidation};
+    use super::{validate_str, StrValidation, bytes_len, chars_len, graphemes_len, lowercase_len, uppercase_len,numbers_len, symbols_len};
 
     #[test]
     fn test_validate_str_default() {
@@ -503,5 +531,89 @@ mod test {
         assert_eq!(validate_str(&StrValidation::default().chars_len_btwn(7, 9), &value), Ok(()));
         assert_eq!(validate_str(&StrValidation::default().chars_len_btwn(8, 10), &value), Ok(()));
         assert_eq!(validate_str(&StrValidation::default().chars_len_btwn(9, 11), &value), Err(SchemaErr::validation([ValidationErr::CharsLen(Operation::Btwn(Operand::Value(OperandValue::USize(9)), Operand::Value(OperandValue::USize(11))))])));
+    }
+
+    #[test]
+    fn test_bytes_len() {
+        assert_eq!(bytes_len(&String::from("veni, vidi, vici")), 16);
+        assert_eq!(bytes_len(&String::from("ὅσον ζῇς, φαίνου")), 31);
+        assert_eq!(bytes_len(&String::from("группа крови")), 23);
+        assert_eq!(bytes_len(&String::from("ओंकार")), 15);
+        assert_eq!(bytes_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 29);
+        assert_eq!(bytes_len(&String::from("👩‍👩‍👧‍👧")), 25);
+        assert_eq!(bytes_len(&String::from("👩‍👩‍👧")), 18);
+    }
+
+    #[test]
+    fn test_chars_len() {
+        assert_eq!(chars_len(&String::from("veni, vidi, vici")), 16);
+        assert_eq!(chars_len(&String::from("ὅσον ζῇς, φαίνου")), 16);
+        assert_eq!(chars_len(&String::from("группа крови")), 12);
+        assert_eq!(chars_len(&String::from("ओंकार")), 5);
+        assert_eq!(chars_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 8);
+        assert_eq!(chars_len(&String::from("👩‍👩‍👧‍👧")), 7);
+        assert_eq!(chars_len(&String::from("👩‍👩‍👧")), 5);
+    }
+
+    #[test]
+    fn test_graphemes_len() {
+        assert_eq!(graphemes_len(&String::from("veni, vidi, vici")), 16);
+        assert_eq!(graphemes_len(&String::from("ὅσον ζῇς, φαίνου")), 16);
+        assert_eq!(graphemes_len(&String::from("группа крови")), 12);
+        assert_eq!(graphemes_len(&String::from("ओंकार")), 3);
+        assert_eq!(graphemes_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 8);
+        assert_eq!(graphemes_len(&String::from("👩‍👩‍👧‍👧")), 1);
+        assert_eq!(graphemes_len(&String::from("👩‍👩‍👧")), 1);
+    }
+
+    #[test]
+    fn test_lowercase_len() {
+        assert_eq!(lowercase_len(&String::from("veni, vidi, vici")), 12);
+        assert_eq!(lowercase_len(&String::from("VENI, VIDI, VICI")), 0);
+        assert_eq!(lowercase_len(&String::from("ὅσον ζῇς, φαίνου")), 13);
+        assert_eq!(lowercase_len(&String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ")), 0);
+        assert_eq!(lowercase_len(&String::from("группа крови")), 11);
+        assert_eq!(lowercase_len(&String::from("ГРУППА КРОВИ")), 0);
+        assert_eq!(lowercase_len(&String::from("ओंकार")), 0);
+        assert_eq!(lowercase_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 0);
+        assert_eq!(lowercase_len(&String::from("👩‍👩‍👧‍👧")), 0);
+    }
+
+    #[test]
+    fn test_uppercase_len() {
+        assert_eq!(uppercase_len(&String::from("veni, vidi, vici")), 0);
+        assert_eq!(uppercase_len(&String::from("VENI, VIDI, VICI")), 12);
+        assert_eq!(uppercase_len(&String::from("ὅσον ζῇς, φαίνου")), 0);
+        assert_eq!(uppercase_len(&String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ")), 14);
+        assert_eq!(uppercase_len(&String::from("группа крови")), 0);
+        assert_eq!(uppercase_len(&String::from("ГРУППА КРОВИ")), 11);
+        assert_eq!(uppercase_len(&String::from("ओंकार")), 0);
+        assert_eq!(uppercase_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 0);
+        assert_eq!(uppercase_len(&String::from("👩‍👩‍👧‍👧")), 0);
+    }
+
+    #[test]
+    fn test_numbers_len() {
+        assert_eq!(numbers_len(&String::from("veni, vidi, vici")), 0);
+        assert_eq!(numbers_len(&String::from("ὅσον ζῇς, φαίνου")), 0);
+        assert_eq!(numbers_len(&String::from("группа крови")), 0);
+        assert_eq!(numbers_len(&String::from("ओंकार")), 0);
+        assert_eq!(numbers_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 0);
+        assert_eq!(numbers_len(&String::from("👩‍👩‍👧‍👧")), 0);
+        assert_eq!(numbers_len(&String::from("0123456789")), 10);
+    }
+
+    #[test]
+    fn test_symbols_len() {
+        assert_eq!(symbols_len(&String::from("veni, vidi, vici")), 2);
+        assert_eq!(symbols_len(&String::from("ὅσον ζῇς, φαίνου")), 1);
+        assert_eq!(symbols_len(&String::from("группа крови")), 0);
+        assert_eq!(symbols_len(&String::from("ओंकार")), 0);
+        assert_eq!(symbols_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 0);
+        assert_eq!(symbols_len(&String::from("👩‍👩‍👧‍👧")), 0);
+        assert_eq!(symbols_len(&String::from("!\"#$%&'()*+,-./")), 15);
+        assert_eq!(symbols_len(&String::from(":;<=>?@")), 7);
+        assert_eq!(symbols_len(&String::from("[\\]^_`")), 6);
+        assert_eq!(symbols_len(&String::from("{|}~")), 4);
     }
 }
