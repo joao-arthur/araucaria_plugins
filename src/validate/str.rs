@@ -198,6 +198,66 @@ mod test {
     }
 
     #[test]
+    fn test_validate_str_gt() {
+        let v = StrValidation::default().gt(String::from("j"));
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str(String::from("j")))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("a"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("j"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("z"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_str_ge() {
+        let v = StrValidation::default().ge(String::from("j"));
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str(String::from("j")))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("a"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("j"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("z"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_str_lt() {
+        let v = StrValidation::default().lt(String::from("j"));
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str(String::from("j")))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("a"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("j"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("z"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_str_le() {
+        let v = StrValidation::default().le(String::from("j"));
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str(String::from("j")))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("a"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("j"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("z"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_str_btwn() {
+        let v = StrValidation::default().btwn(String::from("f"), String::from("l"));
+        let op_err = ValidationErr::Operation(Operation::Btwn(
+            Operand::Value(OperandValue::Str(String::from("f"))),
+            Operand::Value(OperandValue::Str(String::from("l"))),
+        ));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("e"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("f"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("i"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("l"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("m"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
     fn test_validate_bytes_len_eq() {
         let v = StrValidation::default().bytes_len_eq(16);
         let op_err = ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(16))));
