@@ -44,43 +44,43 @@ pub fn validate_str(validation: &StrValidation, value: &Value) -> Result<(), Sch
                 }
             }
             if let Some(bytes_len_operation) = &validation.bytes_len {
-                let len = bytes_len(&str_value);
+                let len = bytes_len(str_value);
                 if let Some(Err(())) = compare(bytes_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
                 }
             }
             if let Some(chars_len_operation) = &validation.chars_len {
-                let len = chars_len(&str_value);
+                let len = chars_len(str_value);
                 if let Some(Err(())) = compare(chars_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
                 }
             }
             if let Some(graphemes_len_operation) = &validation.graphemes_len {
-                let len = graphemes_len(&str_value);
+                let len = graphemes_len(str_value);
                 if let Some(Err(())) = compare(graphemes_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
                 }
             }
             if let Some(lowercase_len_operation) = &validation.lowercase_len {
-                let len = lowercase_len(&str_value);
+                let len = lowercase_len(str_value);
                 if let Some(Err(())) = compare(lowercase_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
                 }
             }
             if let Some(uppercase_len_operation) = &validation.uppercase_len {
-                let len = uppercase_len(&str_value);
+                let len = uppercase_len(str_value);
                 if let Some(Err(())) = compare(uppercase_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
                 }
             }
             if let Some(numbers_len_operation) = &validation.numbers_len {
-                let len = numbers_len(&str_value);
+                let len = numbers_len(str_value);
                 if let Some(Err(())) = compare(numbers_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
                 }
             }
             if let Some(symbols_len_operation) = &validation.symbols_len {
-                let len = symbols_len(&str_value);
+                let len = symbols_len(str_value);
                 if let Some(Err(())) = compare(symbols_len_operation, &OperandValue::USize(len)) {
                     base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
                 }

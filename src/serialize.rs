@@ -90,7 +90,7 @@ pub fn map_value(value: araucaria::value::Value) -> Value {
         araucaria::value::Value::Bool(value) => Value::Bool(value),
         araucaria::value::Value::Str(value) => Value::Str(value),
         araucaria::value::Value::Arr(value) => Value::Arr(value.into_iter().map(map_value).collect()),
-        araucaria::value::Value::Obj(value) => Value::Obj(value.into_iter().map(|(k, v)| (String::from(k.clone()), map_value(v))).collect()),
+        araucaria::value::Value::Obj(value) => Value::Obj(value.into_iter().map(|(k, v)| (k.clone(), map_value(v))).collect()),
     }
 }
 
@@ -151,7 +151,7 @@ pub fn map_schema_err(value: araucaria::error::SchemaErr) -> SchemaErr {
     match value {
         araucaria::error::SchemaErr::Validation(value) => SchemaErr::Validation(value.into_iter().map(map_err).collect()),
         araucaria::error::SchemaErr::Obj(value) => {
-            SchemaErr::Obj(value.into_iter().map(|(k, v)| (String::from(k.clone()), map_schema_err(v))).collect())
+            SchemaErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), map_schema_err(v))).collect())
         }
     }
 }

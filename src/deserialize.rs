@@ -29,11 +29,11 @@ pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Vali
             if let Some(num) = num.as_f64() {
                 return Value::F64(num);
             }
-            return Value::None;
+            Value::None
         }
         serde_json::Value::Bool(bool) => Value::Bool(*bool),
         serde_json::Value::String(str) => Value::Str(str.clone()),
-        serde_json::Value::Array(arr) => Value::Arr(arr.into_iter().map(|item| value_from_json_value(item, None)).collect()),
+        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| value_from_json_value(item, None)).collect()),
         serde_json::Value::Object(obj) => {
             let mut result: HashMap<String, Value> = HashMap::new();
             for (key, item) in obj {
