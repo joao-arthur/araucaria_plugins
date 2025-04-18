@@ -2,18 +2,20 @@ use std::collections::HashMap;
 
 use araucaria::{error::SchemaErr, validation::Validation, value::Value};
 use bool::validate_bool;
+use date::validate_date;
 use email::validate_email;
 use num_f::validate_num_f;
 use num_i::validate_num_i;
 use num_u::validate_num_u;
 use str::validate_str;
 
-pub mod bool;
-pub mod email;
-pub mod num_f;
-pub mod num_i;
-pub mod num_u;
-pub mod str;
+mod bool;
+mod date;
+mod email;
+mod num_f;
+mod num_i;
+mod num_u;
+mod str;
 
 pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
     match validation {
@@ -22,9 +24,9 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
         Validation::F64(v) => validate_num_f(v, value),
         Validation::Bool(v) => validate_bool(v, value),
         Validation::Str(v) => validate_str(v, value),
-        Validation::Date(v) => Ok(()),
+        Validation::Date(v) => validate_date(v, value),
         Validation::Time(v) => Ok(()),
-        Validation::DateTime(V) => Ok(()),
+        Validation::DateTime(v) => Ok(()),
         Validation::Email(v) => validate_email(v, value),
         Validation::Obj(v) => match value {
             Value::Obj(value) => {
