@@ -658,6 +658,84 @@ mod test {
     }
 
     #[test]
+    fn test_validate_numbers_len_eq() {
+        let v = StrValidation::default().numbers_len_eq(2);
+        let op_err = ValidationErr::NumbersLen(Operation::Eq(Operand::Value(OperandValue::USize(2))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("1"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("22"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("333"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_numbers_len_ne() {
+        let v = StrValidation::default().numbers_len_ne(2);
+        let op_err = ValidationErr::NumbersLen(Operation::Ne(Operand::Value(OperandValue::USize(2))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("1"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("22"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("333"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_numbers_len_gt() {
+        let v = StrValidation::default().numbers_len_gt(2);
+        let op_err = ValidationErr::NumbersLen(Operation::Gt(Operand::Value(OperandValue::USize(2))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("1"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("22"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("333"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_numbers_len_ge() {
+        let v = StrValidation::default().numbers_len_ge(2);
+        let op_err = ValidationErr::NumbersLen(Operation::Ge(Operand::Value(OperandValue::USize(2))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("1"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("22"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("333"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_numbers_len_lt() {
+        let v = StrValidation::default().numbers_len_lt(2);
+        let op_err = ValidationErr::NumbersLen(Operation::Lt(Operand::Value(OperandValue::USize(2))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("1"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("22"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("333"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_numbers_len_le() {
+        let v = StrValidation::default().numbers_len_le(2);
+        let op_err = ValidationErr::NumbersLen(Operation::Le(Operand::Value(OperandValue::USize(2))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("1"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("22"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("333"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_numbers_len_btwn() {
+        let v = StrValidation::default().numbers_len_btwn(2, 3);
+        let op_err = ValidationErr::NumbersLen(Operation::Btwn(Operand::Value(OperandValue::USize(2)), Operand::Value(OperandValue::USize(3))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("1"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("22"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("333"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("4444"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
     fn test_bytes_len() {
         assert_eq!(bytes_len(&String::from("veni, vidi, vici")), 16);
         assert_eq!(bytes_len(&String::from("ὅσον ζῇς, φαίνου")), 31);
