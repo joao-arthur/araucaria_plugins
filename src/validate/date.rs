@@ -173,7 +173,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_email_invalid_format() {
+    fn test_validate_date_invalid_format() {
         let v = DateValidation::default();
         assert_eq!(validate_date(&v, &Value::from("10-10-2026")), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::from("10-2026-10")), Err(SchemaErr::validation([ValidationErr::Date])));
@@ -184,33 +184,10 @@ mod test {
     }
 
     #[test]
-    fn test_validate_email_invalid_date() {
+    fn test_validate_date_invalid_date() {
         // TODO
     }
 
-    /*
-       #[test]
-       fn test_validate_date_date_ok() {
-           assert_eq!(validate_date(&Field::of(Val::None)), Ok(()));
-           assert_eq!(validate_date(&Field::of(Val::Str(String::from("2026-10-28")))), Ok(()));
-       }
-
-       #[test]
-       fn test_validate_date_date_type_err() {
-           assert_eq!(validate_date(&f_num_u_stub()), Err(V::Date));
-           assert_eq!(validate_date(&f_num_i_stub()), Err(V::Date));
-           assert_eq!(validate_date(&f_num_f_stub()), Err(V::Date));
-           assert_eq!(validate_date(&f_bool_stub()), Err(V::Date));
-           assert_eq!(validate_date(&f_arr_stub()), Err(V::Date));
-           assert_eq!(validate_date(&f_obj_stub()), Err(V::Date));
-       }
-
-       #[test]
-       fn test_validate_date_date_required() {
-           assert_eq!(validate_date(&Field::default()), Ok(()));
-           assert_eq!(validate_date(&Field::required()), Err(V::Date));
-       }
-    */
     #[test]
     fn test_parse_date() {
         assert_eq!(parse_date(&String::from("2029-12-31")), Ok(InternalDT(2029, 12, 31)));
