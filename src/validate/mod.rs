@@ -33,7 +33,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
                     .clone()
                     .into_iter()
                     .map(|(k, v)| (k.clone(), validate(&v, value.get(&k).unwrap_or(&Value::None))))
-                    .filter(|(k, v)| v.is_err())
+                    .filter(|(_k, v)| v.is_err())
                     .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
                 if result.is_empty() {
@@ -48,7 +48,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
                     .clone()
                     .into_iter()
                     .map(|(k, v)| (k.clone(), validate(&v, &Value::None)))
-                    .filter(|(k, v)| v.is_err())
+                    .filter(|(_k, v)| v.is_err())
                     .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
                 if result.is_empty() {
@@ -63,7 +63,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
                     .clone()
                     .into_iter()
                     .map(|(k, v)| (k.clone(), validate(&v, &Value::None)))
-                    .filter(|(k, v)| v.is_err())
+                    .filter(|(_k, v)| v.is_err())
                     .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
                 if result.is_empty() {
