@@ -581,6 +581,83 @@ mod test {
     }
 
     #[test]
+    fn test_validate_uppercase_len_eq() {
+        let v = StrValidation::default().uppercase_len_eq(12);
+        let op_err = ValidationErr::UppercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("VENI, VIDI, VICI"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ГРУППА КРОВИ"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_uppercase_len_ne() {
+        let v = StrValidation::default().uppercase_len_ne(12);
+        let op_err = ValidationErr::UppercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("VENI, VIDI, VICI"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ГРУППА КРОВИ"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_uppercase_len_gt() {
+        let v = StrValidation::default().uppercase_len_gt(12);
+        let op_err = ValidationErr::UppercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ГРУППА КРОВИ"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("VENI, VIDI, VICI"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_uppercase_len_ge() {
+        let v = StrValidation::default().uppercase_len_ge(12);
+        let op_err = ValidationErr::UppercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ГРУППА КРОВИ"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("VENI, VIDI, VICI"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_uppercase_len_lt() {
+        let v = StrValidation::default().uppercase_len_lt(12);
+        let op_err = ValidationErr::UppercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ГРУППА КРОВИ"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("VENI, VIDI, VICI"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_uppercase_len_le() {
+        let v = StrValidation::default().uppercase_len_le(12);
+        let op_err = ValidationErr::UppercaseLen(Operation::Le(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ГРУППА КРОВИ"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("VENI, VIDI, VICI"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_uppercase_len_btwn() {
+        let v = StrValidation::default().uppercase_len_btwn(11, 12);
+        let op_err = ValidationErr::UppercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(11)), Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ГРУППА КРОВИ"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("VENI, VIDI, VICI"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
     fn test_bytes_len() {
         assert_eq!(bytes_len(&String::from("veni, vidi, vici")), 16);
         assert_eq!(bytes_len(&String::from("ὅσον ζῇς, φαίνου")), 31);
