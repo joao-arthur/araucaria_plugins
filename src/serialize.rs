@@ -150,9 +150,7 @@ pub fn map_err(validation_err: araucaria::error::ValidationErr) -> ValidationErr
 pub fn map_schema_err(value: araucaria::error::SchemaErr) -> SchemaErr {
     match value {
         araucaria::error::SchemaErr::Validation(value) => SchemaErr::Validation(value.into_iter().map(map_err).collect()),
-        araucaria::error::SchemaErr::Obj(value) => {
-            SchemaErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), map_schema_err(v))).collect())
-        }
+        araucaria::error::SchemaErr::Obj(value) => SchemaErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), map_schema_err(v))).collect()),
     }
 }
 

@@ -504,12 +504,93 @@ mod test {
     }
 
     #[test]
+    fn test_validate_lowercase_len_eq() {
+        let v = StrValidation::default().lowercase_len_eq(12);
+        let op_err = ValidationErr::LowercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_lowercase_len_ne() {
+        let v = StrValidation::default().lowercase_len_ne(12);
+        let op_err = ValidationErr::LowercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_lowercase_len_gt() {
+        let v = StrValidation::default().lowercase_len_gt(12);
+        let op_err = ValidationErr::LowercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_lowercase_len_ge() {
+        let v = StrValidation::default().lowercase_len_ge(12);
+        let op_err = ValidationErr::LowercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_lowercase_len_lt() {
+        let v = StrValidation::default().lowercase_len_lt(12);
+        let op_err = ValidationErr::LowercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_lowercase_len_le() {
+        let v = StrValidation::default().lowercase_len_le(12);
+        let op_err = ValidationErr::LowercaseLen(Operation::Le(Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_lowercase_len_btwn() {
+        let v = StrValidation::default().lowercase_len_btwn(11, 12);
+        let op_err = ValidationErr::LowercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(11)), Operand::Value(OperandValue::USize(12))));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("группа крови"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("veni, vidi, vici"))), Ok(()));
+        assert_eq!(validate_str(&v, &Value::Str(String::from("ὅσον ζῇς, φαίνου"))), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &num_u_stub()), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
     fn test_bytes_len() {
         assert_eq!(bytes_len(&String::from("veni, vidi, vici")), 16);
         assert_eq!(bytes_len(&String::from("ὅσον ζῇς, φαίνου")), 31);
         assert_eq!(bytes_len(&String::from("группа крови")), 23);
         assert_eq!(bytes_len(&String::from("ओंकार")), 15);
         assert_eq!(bytes_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 29);
+    }
+
+    #[test]
+    fn test_bytes_len_emoji() {
         assert_eq!(bytes_len(&String::from("👩‍👩‍👧‍👧")), 25);
         assert_eq!(bytes_len(&String::from("👩‍👩‍👧")), 18);
     }
@@ -521,6 +602,10 @@ mod test {
         assert_eq!(chars_len(&String::from("группа крови")), 12);
         assert_eq!(chars_len(&String::from("ओंकार")), 5);
         assert_eq!(chars_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 8);
+    }
+
+    #[test]
+    fn test_chars_len_emoji() {
         assert_eq!(chars_len(&String::from("👩‍👩‍👧‍👧")), 7);
         assert_eq!(chars_len(&String::from("👩‍👩‍👧")), 5);
     }
@@ -532,34 +617,56 @@ mod test {
         assert_eq!(graphemes_len(&String::from("группа крови")), 12);
         assert_eq!(graphemes_len(&String::from("ओंकार")), 3);
         assert_eq!(graphemes_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 8);
+    }
+
+    #[test]
+    fn test_graphemes_len_emoji() {
         assert_eq!(graphemes_len(&String::from("👩‍👩‍👧‍👧")), 1);
         assert_eq!(graphemes_len(&String::from("👩‍👩‍👧")), 1);
     }
 
     #[test]
-    fn test_lowercase_len() {
-        assert_eq!(lowercase_len(&String::from("veni, vidi, vici")), 12);
-        assert_eq!(lowercase_len(&String::from("VENI, VIDI, VICI")), 0);
-        assert_eq!(lowercase_len(&String::from("ὅσον ζῇς, φαίνου")), 13);
-        assert_eq!(lowercase_len(&String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ")), 0);
+    fn test_lowercase_len_lowercase() {
         assert_eq!(lowercase_len(&String::from("группа крови")), 11);
-        assert_eq!(lowercase_len(&String::from("ГРУППА КРОВИ")), 0);
-        assert_eq!(lowercase_len(&String::from("ओंकार")), 0);
-        assert_eq!(lowercase_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 0);
-        assert_eq!(lowercase_len(&String::from("👩‍👩‍👧‍👧")), 0);
+        assert_eq!(lowercase_len(&String::from("veni, vidi, vici")), 12);
+        assert_eq!(lowercase_len(&String::from("ὅσον ζῇς, φαίνου")), 13);
     }
 
     #[test]
-    fn test_uppercase_len() {
-        assert_eq!(uppercase_len(&String::from("veni, vidi, vici")), 0);
-        assert_eq!(uppercase_len(&String::from("VENI, VIDI, VICI")), 12);
-        assert_eq!(uppercase_len(&String::from("ὅσον ζῇς, φαίνου")), 0);
-        assert_eq!(uppercase_len(&String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ")), 14);
+    fn test_lowercase_len_uppercase() {
+        assert_eq!(lowercase_len(&String::from("ГРУППА КРОВИ")), 0);
+        assert_eq!(lowercase_len(&String::from("VENI, VIDI, VICI")), 0);
+        assert_eq!(lowercase_len(&String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ")), 0);
+    }
+
+    #[test]
+    fn test_lowercase_len_not_applyable() {
+        assert_eq!(lowercase_len(&String::from("👩‍👩‍👧‍👧")), 0);
+        assert_eq!(lowercase_len(&String::from("👩‍👩‍👧")), 0);
+        assert_eq!(lowercase_len(&String::from("ओंकार")), 0);
+        assert_eq!(lowercase_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 0);
+    }
+
+    #[test]
+    fn test_uppercase_len_lowercase() {
         assert_eq!(uppercase_len(&String::from("группа крови")), 0);
+        assert_eq!(uppercase_len(&String::from("veni, vidi, vici")), 0);
+        assert_eq!(uppercase_len(&String::from("ὅσον ζῇς, φαίνου")), 0);
+    }
+
+    #[test]
+    fn test_uppercase_len_uppercase() {
         assert_eq!(uppercase_len(&String::from("ГРУППА КРОВИ")), 11);
+        assert_eq!(uppercase_len(&String::from("VENI, VIDI, VICI")), 12);
+        assert_eq!(uppercase_len(&String::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ")), 14);
+    }
+
+    #[test]
+    fn test_uppercase_len_not_applyable() {
+        assert_eq!(uppercase_len(&String::from("👩‍👩‍👧‍👧")), 0);
+        assert_eq!(uppercase_len(&String::from("👩‍👩‍👧")), 0);
         assert_eq!(uppercase_len(&String::from("ओंकार")), 0);
         assert_eq!(uppercase_len(&String::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕")), 0);
-        assert_eq!(uppercase_len(&String::from("👩‍👩‍👧‍👧")), 0);
     }
 
     #[test]
