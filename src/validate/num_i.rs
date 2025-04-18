@@ -43,10 +43,11 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
+        validation::num_i::NumIValidation,
         value::{stub::bool_stub, Value},
     };
 
-    use super::{validate_num_i, NumIValidation};
+    use super::validate_num_i;
 
     #[test]
     fn test_validate_num_i_default() {
@@ -67,65 +68,72 @@ mod test {
     #[test]
     fn test_validate_num_i_eq() {
         let v = NumIValidation::default().eq(-42);
+        let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-42))));
         assert_eq!(validate_num_i(&v, &Value::I64(-42)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::I64(-7)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-42))))])));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-42))))])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-42))))])));
+        assert_eq!(validate_num_i(&v, &Value::I64(-7)), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_num_i_ne() {
         let v = NumIValidation::default().ne(-22);
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-22))));
         assert_eq!(validate_num_i(&v, &Value::I64(-42)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::I64(-22)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-22))))])));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-22))))])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-22))))])));
+        assert_eq!(validate_num_i(&v, &Value::I64(-22)), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_num_i_gt() {
         let v = NumIValidation::default().gt(-2);
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-2))));
         assert_eq!(validate_num_i(&v, &Value::I64(-1)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::I64(-2)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-2))))])));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-2))))])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-2))))])));
+        assert_eq!(validate_num_i(&v, &Value::I64(-2)), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_num_i_lt() {
         let v = NumIValidation::default().lt(-5);
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-5))));
         assert_eq!(validate_num_i(&v, &Value::I64(-6)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::I64(-5)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-5))))])));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-5))))])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-5))))])));
+        assert_eq!(validate_num_i(&v, &Value::I64(-5)), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_num_i_ge() {
         let v = NumIValidation::default().ge(-2);
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-2))));
         assert_eq!(validate_num_i(&v, &Value::I64(-2)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::I64(-3)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-2))))])));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-2))))])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-2))))])));
+        assert_eq!(validate_num_i(&v, &Value::I64(-3)), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_num_i_le() {
         let v = NumIValidation::default().le(-5);
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-5))));
         assert_eq!(validate_num_i(&v, &Value::I64(-5)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::I64(-4)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-5))))])));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-5))))])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-5))))])));
+        assert_eq!(validate_num_i(&v, &Value::I64(-4)), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_num_u_btwn() {
         let v = NumIValidation::default().btwn(5, 6);
-        assert_eq!(validate_num_i(&v, &Value::I64(4)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(5)), Operand::Value(OperandValue::I64(6))))])));
+        let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(5)), Operand::Value(OperandValue::I64(6))));
+        assert_eq!(validate_num_i(&v, &Value::I64(4)), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_num_i(&v, &Value::I64(5)), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(6)), Ok(()));
-        assert_eq!(validate_num_i(&v, &Value::I64(7)), Err(SchemaErr::validation([ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(5)), Operand::Value(OperandValue::I64(6))))])));
-        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(5)), Operand::Value(OperandValue::I64(6))))])));
-        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(5)), Operand::Value(OperandValue::I64(6))))])));
+        assert_eq!(validate_num_i(&v, &Value::I64(7)), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &bool_stub()), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
     }
 }

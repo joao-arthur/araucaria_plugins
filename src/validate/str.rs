@@ -156,10 +156,11 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
+        validation::str::StrValidation,
         value::{stub::num_u_stub, Value},
     };
 
-    use super::{bytes_len, chars_len, graphemes_len, lowercase_len, numbers_len, symbols_len, uppercase_len, validate_str, StrValidation};
+    use super::{bytes_len, chars_len, graphemes_len, lowercase_len, numbers_len, symbols_len, uppercase_len, validate_str};
 
     #[test]
     fn test_validate_str_default() {
