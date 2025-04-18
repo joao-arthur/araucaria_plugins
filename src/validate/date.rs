@@ -9,17 +9,17 @@ use araucaria::{
 use regex::Regex;
 
 #[derive(Debug, PartialEq)]
-struct InternalDT(pub u32, pub u8, pub u8);
+struct InternalDt(pub u32, pub u8, pub u8);
 
 static DT_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^([0-9]{4})-([0-9]{2})-([0-9]{2})$").unwrap());
 
-pub fn parse_date(s: &str) -> Result<InternalDT, ()> {
+fn parse_date(s: &str) -> Result<InternalDt, ()> {
     if let Some(caps) = DT_REGEX.captures(s) {
         let c: (&str, [&str; 3]) = caps.extract();
         let yyyy = c.1[0].parse::<u32>().unwrap();
         let mm = c.1[1].parse::<u8>().unwrap();
         let dd = c.1[2].parse::<u8>().unwrap();
-        return Ok(InternalDT(yyyy, mm, dd));
+        return Ok(InternalDt(yyyy, mm, dd));
     } else {
         return Err(());
     }
@@ -67,10 +67,11 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
+        validation::date::DateValidation,
         value::{stub::num_u_stub, Value},
     };
 
-    use super::{parse_date, validate_date, DateValidation, InternalDT};
+    use super::{parse_date, validate_date, InternalDt};
 
     #[test]
     fn test_validate_date_default() {
@@ -190,6 +191,6 @@ mod test {
 
     #[test]
     fn test_parse_date() {
-        assert_eq!(parse_date(&String::from("2029-12-31")), Ok(InternalDT(2029, 12, 31)));
+        assert_eq!(parse_date(&String::from("2029-12-31")), Ok(InternalDt(2029, 12, 31)));
     }
 }

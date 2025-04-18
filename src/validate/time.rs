@@ -9,16 +9,16 @@ use araucaria::{
 use regex::Regex;
 
 #[derive(Debug, PartialEq)]
-struct InternalTM(pub u8, pub u8);
+struct InternalTm(pub u8, pub u8);
 
 static TM_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^([0-9]{2}):([0-9]{2})$").unwrap());
 
-pub fn parse_time(s: &str) -> Result<InternalTM, ()> {
+fn parse_time(s: &str) -> Result<InternalTm, ()> {
     if let Some(caps) = TM_REGEX.captures(s) {
         let c: (&str, [&str; 2]) = caps.extract();
         let h = c.1[0].parse::<u8>().map_err(|_| ())?;
         let m = c.1[1].parse::<u8>().map_err(|_| ())?;
-        return Ok(InternalTM(h, m));
+        return Ok(InternalTm(h, m));
     } else {
         return Err(());
     }
@@ -66,10 +66,11 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
+        validation::time::TimeValidation,
         value::{stub::num_u_stub, Value},
     };
 
-    use super::{parse_time, validate_time, InternalTM, TimeValidation};
+    use super::{parse_time, validate_time, InternalTm};
 
     #[test]
     fn test_validate_date_default() {
@@ -83,7 +84,6 @@ mod test {
     #[test]
     fn test_validate_date_optional() {
         let v = TimeValidation::default().optional();
-        assert_eq!(validate_time(&v, &Value::Str(String::from("11:27"))), Ok(()));
         assert_eq!(validate_time(&v, &Value::Str(String::from("11:27"))), Ok(()));
         assert_eq!(validate_time(&v, &Value::Str(String::from("not a time"))), Err(SchemaErr::validation([ValidationErr::Time])));
         assert_eq!(validate_time(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Time])));
@@ -189,6 +189,6 @@ mod test {
 
     #[test]
     fn test_parse_time() {
-        assert_eq!(parse_time(&String::from("06:11")), Ok(InternalTM(06, 11)));
+        assert_eq!(parse_time(&String::from("06:11")), Ok(InternalTm(06, 11)));
     }
 }

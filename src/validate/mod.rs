@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use araucaria::{error::SchemaErr, validation::Validation, value::Value};
 use bool::validate_bool;
 use date::validate_date;
+use datetime::validate_date_time;
 use email::validate_email;
 use num_f::validate_num_f;
 use num_i::validate_num_i;
@@ -12,6 +13,7 @@ use time::validate_time;
 
 mod bool;
 mod date;
+mod datetime;
 mod email;
 mod num_f;
 mod num_i;
@@ -28,7 +30,7 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
         Validation::Str(v) => validate_str(v, value),
         Validation::Date(v) => validate_date(v, value),
         Validation::Time(v) => validate_time(v, value),
-        Validation::DateTime(v) => Ok(()),
+        Validation::DateTime(v) => validate_date_time(v, value),
         Validation::Email(v) => validate_email(v, value),
         Validation::Obj(v) => match value {
             Value::Obj(value) => {
@@ -90,12 +92,12 @@ mod test {
         operation::{Operand, OperandValue, Operation},
         validation::{
             bool::BoolValidation, date::DateValidation, datetime::DateTimeValidation, email::EmailValidation, num_f::NumFValidation,
-            num_i::NumIValidation, num_u::NumUValidation, str::StrValidation, time::TimeValidation, ObjValidation,
+            num_i::NumIValidation, num_u::NumUValidation, str::StrValidation, time::TimeValidation, ObjValidation, Validation,
         },
         value::Value,
     };
 
-    use super::{validate, Validation};
+    use super::validate;
 
     #[test]
     fn test_validate_primite_types() {
