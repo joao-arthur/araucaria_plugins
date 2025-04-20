@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize, Serializer};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use araucaria::{
     error::{SchemaErr, ValidationErr},
@@ -78,7 +78,7 @@ pub struct Locale {
 #[derive(Debug, PartialEq, Clone, Deserialize)]
 pub enum SchemaLocalizedErr {
     Arr(Vec<String>),
-    Obj(HashMap<String, SchemaLocalizedErr>),
+    Obj(BTreeMap<String, SchemaLocalizedErr>),
 }
 
 impl Serialize for SchemaLocalizedErr {
@@ -97,7 +97,7 @@ pub fn schema_err_to_locale(err: &SchemaErr, locale: &Locale) -> SchemaLocalized
     match err {
         SchemaErr::Validation(arr) => SchemaLocalizedErr::Arr(arr.iter().map(|item| validation_err_to_locale(item, locale)).collect()),
         SchemaErr::Obj(obj) => {
-            let mut result: HashMap<String, SchemaLocalizedErr> = HashMap::new();
+            let mut result: BTreeMap<String, SchemaLocalizedErr> = BTreeMap::new();
             for (key, item) in obj {
                 result.insert(key.clone(), schema_err_to_locale(item, locale));
             }
@@ -432,7 +432,7 @@ pub fn locale_en_long() -> Locale {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
+    use std::collections::{BTreeMap, HashMap};
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
@@ -493,7 +493,7 @@ mod test {
                 ])),
                 &locale
             ),
-            SchemaLocalizedErr::Obj(HashMap::from([
+            SchemaLocalizedErr::Obj(BTreeMap::from([
                 (
                     String::from("name"),
                     SchemaLocalizedErr::Arr(vec![
@@ -529,7 +529,7 @@ mod test {
             ]))
         );
         assert_eq!(
-            serde_json::to_string(&SchemaLocalizedErr::Obj(HashMap::from([
+            serde_json::to_string(&SchemaLocalizedErr::Obj(BTreeMap::from([
                 (
                     String::from("name"),
                     SchemaLocalizedErr::Arr(vec![
@@ -565,7 +565,7 @@ mod test {
             ])))
             .unwrap(),
             String::from(
-                r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"],"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""],"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""],"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""]}"#
+                r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"],"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""],"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""],"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""]}"#
             )
         );
     }
