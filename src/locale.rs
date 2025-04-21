@@ -432,7 +432,7 @@ pub fn locale_en_long() -> Locale {
 
 #[cfg(test)]
 mod test {
-    use std::collections::{BTreeMap, HashMap};
+    use std::collections::BTreeMap;
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
@@ -457,7 +457,7 @@ mod test {
         );
         assert_eq!(
             schema_err_to_locale(
-                &SchemaErr::Obj(HashMap::from([
+                &SchemaErr::Obj(BTreeMap::from([
                     (
                         String::from("name"),
                         SchemaErr::Validation(vec![

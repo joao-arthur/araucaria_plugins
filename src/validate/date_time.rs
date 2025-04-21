@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{compare, OperandValue},
-    validation::datetime::DateTimeValidation,
+    validation::date_time::DateTimeValidation,
     value::Value,
 };
 use regex::Regex;
@@ -69,7 +69,7 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::datetime::DateTimeValidation,
+        validation::date_time::DateTimeValidation,
         value::{stub::num_u_stub, Value},
     };
 

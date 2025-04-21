@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use araucaria::{validation::Validation, value::Value};
 
@@ -35,7 +35,7 @@ pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Vali
         serde_json::Value::String(str) => Value::Str(str.clone()),
         serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| value_from_json_value(item, None)).collect()),
         serde_json::Value::Object(obj) => {
-            let mut result: HashMap<String, Value> = HashMap::new();
+            let mut result: BTreeMap<String, Value> = BTreeMap::new();
             for (key, item) in obj {
                 if let Some(Validation::Obj(obj_validation)) = validation {
                     let fff = key.clone();
@@ -52,7 +52,7 @@ pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Vali
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     use araucaria::{
         validation::{num_f::NumFValidation, num_i::NumIValidation, num_u::NumUValidation, ObjValidation, Validation},
@@ -156,7 +156,7 @@ mod test {
 
     #[test]
     fn test_value_from_json_value_without_same_validation() {
-        let validation = Validation::Obj(ObjValidation::default().validation(HashMap::from([
+        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             (String::from("num_u"), Validation::U64(NumUValidation::default())),
             (String::from("num_i"), Validation::I64(NumIValidation::default())),
             (String::from("num_f"), Validation::F64(NumFValidation::default())),
@@ -178,7 +178,7 @@ mod test {
 
     #[test]
     fn test_value_from_json_value_num_u() {
-        let validation = Validation::Obj(ObjValidation::default().validation(HashMap::from([
+        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             (String::from("num_1"), Validation::U64(NumUValidation::default())),
             (String::from("num_2"), Validation::U64(NumUValidation::default())),
             (String::from("num_3"), Validation::U64(NumUValidation::default())),
@@ -200,7 +200,7 @@ mod test {
 
     #[test]
     fn test_value_from_json_value_num_i() {
-        let validation = Validation::Obj(ObjValidation::default().validation(HashMap::from([
+        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             (String::from("num_1"), Validation::I64(NumIValidation::default())),
             (String::from("num_2"), Validation::I64(NumIValidation::default())),
             (String::from("num_3"), Validation::I64(NumIValidation::default())),
@@ -222,7 +222,7 @@ mod test {
 
     #[test]
     fn test_value_from_json_value_num_f() {
-        let validation = Validation::Obj(ObjValidation::default().validation(HashMap::from([
+        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             (String::from("num_1"), Validation::F64(NumFValidation::default())),
             (String::from("num_2"), Validation::F64(NumFValidation::default())),
             (String::from("num_3"), Validation::F64(NumFValidation::default())),
@@ -245,20 +245,20 @@ mod test {
     #[test]
     fn test_value_from_json_value_nested_obj() {
         let validation =
-            Validation::Obj(ObjValidation::default().validation(HashMap::from([(
+            Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
                 String::from("lvl_1"),
-                Validation::Obj(ObjValidation::default().validation(HashMap::from(
+                Validation::Obj(ObjValidation::default().validation(BTreeMap::from(
                     [
                         (
                             String::from("lvl_2"),
                             Validation::Obj(
                                 ObjValidation::default().validation(
-                                    HashMap::from(
+                                    BTreeMap::from(
                                         [
                                             (
                                                 String::from("lvl_3"),
                                                 Validation::Obj(
-                                                    ObjValidation::default().validation(HashMap::from([(
+                                                    ObjValidation::default().validation(BTreeMap::from([(
                                                         String::from("num"),
                                                         Validation::I64(NumIValidation::default()),
                                                     )])),

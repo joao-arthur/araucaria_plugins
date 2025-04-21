@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Serialize, Serializer};
 
@@ -11,7 +11,7 @@ pub enum Value {
     Bool(bool),
     Str(String),
     Arr(Vec<Value>),
-    Obj(HashMap<String, Value>),
+    Obj(BTreeMap<String, Value>),
 }
 
 #[derive(Debug, PartialEq, Clone, Serialize)]
@@ -66,7 +66,7 @@ pub enum ValidationErr {
 #[derive(Debug, PartialEq, Clone)]
 pub enum SchemaErr {
     Validation(Vec<ValidationErr>),
-    Obj(HashMap<String, SchemaErr>),
+    Obj(BTreeMap<String, SchemaErr>),
 }
 
 impl Serialize for SchemaErr {
@@ -156,23 +156,30 @@ pub fn map_schema_err(value: araucaria::error::SchemaErr) -> SchemaErr {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     use super::{Operand, OperandValue, Operation, SchemaErr, ValidationErr};
 
     #[test]
     fn test_serialize() {
         assert_eq!(
-            serde_json::to_string(&SchemaErr::Obj(HashMap::from([(
-                String::from("is"),
-                SchemaErr::Validation(vec![
-                    ValidationErr::Required,
-                    ValidationErr::Bool,
-                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
-                ])
-            )])))
+            serde_json::to_string(&SchemaErr::Obj(BTreeMap::from([
+                (
+                    String::from("bool"),
+                    SchemaErr::Validation(vec![
+                        ValidationErr::Required,
+                        ValidationErr::Bool,
+                        ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
+                    ]),
+                ),
+                (String::from("u64"), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::U64,]),),
+                (String::from("i64"), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::I64,]),),
+                (String::from("f64"), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::F64,]),),
+            ])))
             .unwrap(),
-            String::from(r#"{"is":["Required","Bool",{"Operation":{"Eq":{"Value":{"Bool":false}}}}]}"#)
+            String::from(
+                r#"{"bool":["Required","Bool",{"Operation":{"Eq":{"Value":{"Bool":false}}}}],"f64":["Required","F64"],"i64":["Required","I64"],"u64":["Required","U64"]}"#
+            )
         );
     }
 }
