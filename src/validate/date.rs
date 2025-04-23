@@ -19,19 +19,19 @@ fn parse_date(s: &str) -> Result<InternalDt, ()> {
         let yyyy = c.1[0].parse::<u32>().unwrap();
         let mm = c.1[1].parse::<u8>().unwrap();
         let dd = c.1[2].parse::<u8>().unwrap();
-        return Ok(InternalDt(yyyy, mm, dd));
+        Ok(InternalDt(yyyy, mm, dd))
     } else {
-        return Err(());
+        Err(())
     }
 }
 
-pub fn validate_date(validation: &DateValidation, value: &Value) -> Result<(), SchemaErr> {
+pub fn validate_date(validation: &DateValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
-            if let Ok(_) = parse_date(str_value) {
+            if parse_date(str_value).is_ok() {
                 if let Some(operation) = &validation.operation {
-                    if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone())) {
+                    if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone()), root) {
                         base.push(ValidationErr::Operation(operation.clone()));
                     }
                 }

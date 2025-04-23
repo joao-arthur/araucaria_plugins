@@ -18,9 +18,9 @@ fn parse_time(s: &str) -> Result<InternalTm, ()> {
         let c: (&str, [&str; 2]) = caps.extract();
         let h = c.1[0].parse::<u8>().map_err(|_| ())?;
         let m = c.1[1].parse::<u8>().map_err(|_| ())?;
-        return Ok(InternalTm(h, m));
+        Ok(InternalTm(h, m))
     } else {
-        return Err(());
+        Err(())
     }
 }
 
@@ -28,7 +28,7 @@ pub fn validate_time(validation: &TimeValidation, value: &Value) -> Result<(), S
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
-            if let Ok(_) = parse_time(str_value) {
+            if parse_time(str_value).is_ok() {
                 if let Some(operation) = &validation.operation {
                     if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone())) {
                         base.push(ValidationErr::Operation(operation.clone()));
@@ -189,6 +189,6 @@ mod test {
 
     #[test]
     fn test_parse_time() {
-        assert_eq!(parse_time(&String::from("06:11")), Ok(InternalTm(06, 11)));
+        assert_eq!(parse_time(&String::from("06:11")), Ok(InternalTm(6, 11)));
     }
 }

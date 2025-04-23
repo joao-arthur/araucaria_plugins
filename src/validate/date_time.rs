@@ -21,9 +21,9 @@ fn parse_date_time(s: &str) -> Result<InternalDtTm, ()> {
         let dd = c.1[2].parse::<u16>().map_err(|_| ())?;
         let h = c.1[3].parse::<u8>().map_err(|_| ())?;
         let m = c.1[4].parse::<u8>().map_err(|_| ())?;
-        return Ok(InternalDtTm(yyyy, mm, dd, h, m));
+        Ok(InternalDtTm(yyyy, mm, dd, h, m))
     } else {
-        return Err(());
+        Err(())
     }
 }
 
@@ -31,7 +31,7 @@ pub fn validate_date_time(validation: &DateTimeValidation, value: &Value) -> Res
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
-            if let Ok(_) = parse_date_time(str_value) {
+            if parse_date_time(str_value).is_ok() {
                 if let Some(operation) = &validation.operation {
                     if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone())) {
                         base.push(ValidationErr::Operation(operation.clone()));
@@ -235,6 +235,6 @@ mod test {
 
     #[test]
     fn test_parse_iso() {
-        assert_eq!(parse_date_time(&String::from("2029-12-31T06:11Z")), Ok(InternalDtTm(2029, 12, 31, 06, 11)));
+        assert_eq!(parse_date_time(&String::from("2029-12-31T06:11Z")), Ok(InternalDtTm(2029, 12, 31, 6, 11)));
     }
 }
