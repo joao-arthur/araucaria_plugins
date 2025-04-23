@@ -23,11 +23,7 @@ pub fn validate_email(validation: &EmailValidation, value: &Value) -> Result<(),
             base.push(ValidationErr::Email);
         }
     }
-    if !base.is_empty() {
-        Err(SchemaErr::Validation(base))
-    } else {
-        Ok(())
-    }
+    if !base.is_empty() { Err(SchemaErr::Validation(base)) } else { Ok(()) }
 }
 
 #[cfg(test)]
@@ -35,7 +31,7 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         validation::email::EmailValidation,
-        value::{stub::num_u_stub, Value},
+        value::{Value, stub::num_u_stub},
     };
 
     use super::validate_email;

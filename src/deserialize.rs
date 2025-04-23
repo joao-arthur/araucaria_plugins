@@ -55,7 +55,7 @@ mod test {
     use std::collections::BTreeMap;
 
     use araucaria::{
-        validation::{num_f::NumFValidation, num_i::NumIValidation, num_u::NumUValidation, ObjValidation, Validation},
+        validation::{ObjValidation, Validation, num_f::NumFValidation, num_i::NumIValidation, num_u::NumUValidation},
         value::Value,
     };
 

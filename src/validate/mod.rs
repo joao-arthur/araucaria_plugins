@@ -21,16 +21,16 @@ mod num_u;
 mod str;
 mod time;
 
-pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
+pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     match validation {
-        Validation::U64(v) => validate_num_u(v, value),
-        Validation::I64(v) => validate_num_i(v, value),
-        Validation::F64(v) => validate_num_f(v, value),
-        Validation::Bool(v) => validate_bool(v, value),
-        Validation::Str(v) => validate_str(v, value),
-        Validation::Date(v) => validate_date(v, value),
-        Validation::Time(v) => validate_time(v, value),
-        Validation::DateTime(v) => validate_date_time(v, value),
+        Validation::U64(v) => validate_num_u(v, value, root),
+        Validation::I64(v) => validate_num_i(v, value, root),
+        Validation::F64(v) => validate_num_f(v, value, root),
+        Validation::Bool(v) => validate_bool(v, value, root),
+        Validation::Str(v) => validate_str(v, value, root),
+        Validation::Date(v) => validate_date(v, value, root),
+        Validation::Time(v) => validate_time(v, value, root),
+        Validation::DateTime(v) => validate_date_time(v, value, root),
         Validation::Email(v) => validate_email(v, value),
         Validation::Obj(v) => match value {
             Value::Obj(value) => {
@@ -38,45 +38,33 @@ pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr>
                     .validation
                     .clone()
                     .into_iter()
-                    .map(|(k, v)| (k.clone(), validate(&v, value.get(&k).unwrap_or(&Value::None))))
+                    .map(|(k, v)| (k.clone(), validate(&v, value.get(&k).unwrap_or(&Value::None), root)))
                     .filter(|(_k, v)| v.is_err())
                     .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
-                if result.is_empty() {
-                    Ok(())
-                } else {
-                    Err(SchemaErr::Obj(result))
-                }
+                if result.is_empty() { Ok(()) } else { Err(SchemaErr::Obj(result)) }
             }
             Value::None => {
                 let result: BTreeMap<String, SchemaErr> = v
                     .validation
                     .clone()
                     .into_iter()
-                    .map(|(k, v)| (k.clone(), validate(&v, &Value::None)))
+                    .map(|(k, v)| (k.clone(), validate(&v, &Value::None, root)))
                     .filter(|(_k, v)| v.is_err())
                     .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
-                if result.is_empty() {
-                    Ok(())
-                } else {
-                    Err(SchemaErr::Obj(result))
-                }
+                if result.is_empty() { Ok(()) } else { Err(SchemaErr::Obj(result)) }
             }
             _ => {
                 let result: BTreeMap<String, SchemaErr> = v
                     .validation
                     .clone()
                     .into_iter()
-                    .map(|(k, v)| (k.clone(), validate(&v, &Value::None)))
+                    .map(|(k, v)| (k.clone(), validate(&v, &Value::None, root)))
                     .filter(|(_k, v)| v.is_err())
                     .map(|(k, v)| (k, v.unwrap_err()))
                     .collect();
-                if result.is_empty() {
-                    Ok(())
-                } else {
-                    Err(SchemaErr::Obj(result))
-                }
+                if result.is_empty() { Ok(()) } else { Err(SchemaErr::Obj(result)) }
             }
         },
         Validation::Enum(v) => Ok(()),
@@ -92,8 +80,8 @@ mod test {
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
         validation::{
-            bool::BoolValidation, date::DateValidation, date_time::DateTimeValidation, email::EmailValidation, num_f::NumFValidation,
-            num_i::NumIValidation, num_u::NumUValidation, str::StrValidation, time::TimeValidation, ObjValidation, Validation,
+            ObjValidation, Validation, bool::BoolValidation, date::DateValidation, date_time::DateTimeValidation, email::EmailValidation,
+            num_f::NumFValidation, num_i::NumIValidation, num_u::NumUValidation, str::StrValidation, time::TimeValidation,
         },
         value::Value,
     };
@@ -102,35 +90,45 @@ mod test {
 
     #[test]
     fn test_validate_primite_types() {
-        assert_eq!(validate(&Validation::U64(NumUValidation::default().eq(1917)), &Value::U64(1917)), Ok(()));
-        assert_eq!(validate(&Validation::I64(NumIValidation::default().eq(-800)), &Value::I64(-800)), Ok(()));
-        assert_eq!(validate(&Validation::F64(NumFValidation::default().eq(1.5)), &Value::F64(1.5)), Ok(()));
-        assert_eq!(validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false)), Ok(()));
-        assert_eq!(validate(&Validation::Str(StrValidation::default().eq(String::from("Gladius"))), &Value::Str(String::from("Gladius"))), Ok(()));
+        let root = Value::None;
+        assert_eq!(validate(&Validation::U64(NumUValidation::default().eq(1917)), &Value::U64(1917), &root), Ok(()));
+        assert_eq!(validate(&Validation::I64(NumIValidation::default().eq(-800)), &Value::I64(-800), &root), Ok(()));
+        assert_eq!(validate(&Validation::F64(NumFValidation::default().eq(1.5)), &Value::F64(1.5), &root), Ok(()));
+        assert_eq!(validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false), &root), Ok(()));
         assert_eq!(
-            validate(&Validation::Date(DateValidation::default().eq(String::from("2015-12-28"))), &Value::Str(String::from("2015-12-28"))),
+            validate(&Validation::Str(StrValidation::default().eq(String::from("Gladius"))), &Value::Str(String::from("Gladius")), &root),
             Ok(())
         );
-        assert_eq!(validate(&Validation::Time(TimeValidation::default().eq(String::from("20:38"))), &Value::Str(String::from("20:38"))), Ok(()));
+        assert_eq!(
+            validate(&Validation::Date(DateValidation::default().eq(String::from("2015-12-28"))), &Value::Str(String::from("2015-12-28")), &root),
+            Ok(())
+        );
+        assert_eq!(
+            validate(&Validation::Time(TimeValidation::default().eq(String::from("20:38"))), &Value::Str(String::from("20:38")), &root),
+            Ok(())
+        );
         assert_eq!(
             validate(
                 &Validation::DateTime(DateTimeValidation::default().eq(String::from("2015-12-28T20:38Z"))),
-                &Value::Str(String::from("2015-12-28T20:38Z"))
+                &Value::Str(String::from("2015-12-28T20:38Z")),
+                &root
             ),
             Ok(())
         );
-        assert_eq!(validate(&Validation::Email(EmailValidation::default()), &Value::Str(String::from("bruno@gmail.com"))), Ok(()));
+        assert_eq!(validate(&Validation::Email(EmailValidation::default()), &Value::Str(String::from("bruno@gmail.com")), &root), Ok(()));
     }
 
     #[test]
     fn test_obj_ok() {
+        let root = Value::None;
         assert_eq!(
             validate(
                 &Validation::Obj(
                     ObjValidation::default()
                         .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
-                &Value::Obj(BTreeMap::from([(String::from("is"), Value::Bool(false))]))
+                &Value::Obj(BTreeMap::from([(String::from("is"), Value::Bool(false))])),
+                &root
             ),
             Ok(())
         );
@@ -138,13 +136,15 @@ mod test {
 
     #[test]
     fn test_obj_err() {
+        let root = Value::None;
         assert_eq!(
             validate(
                 &Validation::Obj(
                     ObjValidation::default()
                         .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
-                &Value::None
+                &Value::None,
+                &root
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
@@ -161,7 +161,8 @@ mod test {
                     ObjValidation::default()
                         .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
-                &Value::None
+                &Value::None,
+                &root
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),
@@ -178,7 +179,8 @@ mod test {
                     ObjValidation::default()
                         .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
-                &Value::Bool(false)
+                &Value::Bool(false),
+                &root
             ),
             Err(SchemaErr::obj([(
                 String::from("is"),

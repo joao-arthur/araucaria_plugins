@@ -439,7 +439,7 @@ mod test {
         operation::{Operand, OperandValue, Operation},
     };
 
-    use super::{locale_en_long, locale_es_long, locale_pt_long, schema_err_to_locale, validation_err_to_locale, SchemaLocalizedErr};
+    use super::{SchemaLocalizedErr, locale_en_long, locale_es_long, locale_pt_long, schema_err_to_locale, validation_err_to_locale};
 
     #[test]
     fn test_schema_err_to_locale() {
