@@ -180,7 +180,7 @@ mod test {
     fn test_validate_str_eq() {
         let v = StrValidation::default().eq("Cogito ergo sum".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("Cogito ergo sum".into()))));
+        let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("Cogito ergo sum"))));
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &root), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &root), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
@@ -191,7 +191,7 @@ mod test {
     fn test_validate_str_ne() {
         let v = StrValidation::default().ne("Cogito ergo sum".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str("Cogito ergo sum".into()))));
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("Cogito ergo sum"))));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &root), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &root), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
@@ -202,7 +202,7 @@ mod test {
     fn test_validate_str_gt() {
         let v = StrValidation::default().gt("j".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str("j".into()))));
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("j"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &root), Ok(()));
@@ -214,7 +214,7 @@ mod test {
     fn test_validate_str_ge() {
         let v = StrValidation::default().ge("j".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str("j".into()))));
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("j"), &root), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &root), Ok(()));
@@ -226,7 +226,7 @@ mod test {
     fn test_validate_str_lt() {
         let v = StrValidation::default().lt("j".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str("j".into()))));
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &root), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("j"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &root), Err(SchemaErr::validation([op_err.clone()])));
@@ -238,7 +238,7 @@ mod test {
     fn test_validate_str_le() {
         let v = StrValidation::default().le("j".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str("j".into()))));
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &root), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("j"), &root), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &root), Err(SchemaErr::validation([op_err.clone()])));
@@ -250,8 +250,7 @@ mod test {
     fn test_validate_str_btwn() {
         let v = StrValidation::default().btwn("f".into(), "l".into());
         let root = Value::None;
-        let op_err =
-            ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Str("f".into())), Operand::Value(OperandValue::Str("l".into()))));
+        let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::from("f")), Operand::Value(OperandValue::from("l"))));
         assert_eq!(validate_str(&v, &Value::from("e"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("f"), &root), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("i"), &root), Ok(()));

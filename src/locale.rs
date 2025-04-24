@@ -463,7 +463,7 @@ mod test {
                         SchemaErr::Validation(vec![
                             ValidationErr::Required,
                             ValidationErr::Str,
-                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("Paul McCartney".into()))))
+                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("Paul McCartney"))))
                         ])
                     ),
                     (
@@ -471,7 +471,7 @@ mod test {
                         SchemaErr::Validation(vec![
                             ValidationErr::Required,
                             ValidationErr::Str,
-                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("1942-06-18".into()))))
+                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("1942-06-18"))))
                         ])
                     ),
                     (
@@ -487,7 +487,7 @@ mod test {
                         SchemaErr::Validation(vec![
                             ValidationErr::Required,
                             ValidationErr::Str,
-                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("The Beatles".into()))))
+                            ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("The Beatles"))))
                         ])
                     ),
                 ])),
@@ -573,13 +573,13 @@ mod test {
         assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false)))), &locale), "Deve ser menor ou igual a false".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true)))), &locale), "Deve estar entre false e true".to_string());
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Deve ser igual a \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Deve ser diferente de \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Deve ser maior que \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Deve ser maior ou igual a \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Deve ser menor que \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Deve ser menor ou igual a \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Str("aurorae".into())), Operand::Value(OperandValue::Str("crespúculum".into())))), &locale), "Deve estar entre \"aurorae\" e \"crespúculum\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("aurorae")))), &locale), "Deve ser igual a \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("aurorae")))), &locale), "Deve ser diferente de \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("aurorae")))), &locale), "Deve ser maior que \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("aurorae")))), &locale), "Deve ser maior ou igual a \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("aurorae")))), &locale), "Deve ser menor que \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("aurorae")))), &locale), "Deve ser menor ou igual a \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::from("aurorae")), Operand::Value(OperandValue::from("crespúculum")))), &locale), "Deve estar entre \"aurorae\" e \"crespúculum\"".to_string());
 
         assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(10)))), &locale), "A quantidade de bytes deve ser igual a 10".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(11)))), &locale), "A quantidade de bytes deve ser diferente de 11".to_string());
@@ -684,13 +684,13 @@ mod test {
         assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false)))), &locale), "Debe ser menor o igual a false".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true)))), &locale), "Debe estar entre false y true".to_string());
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Debe ser igual a \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Debe ser diferente de \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Debe ser mayor que \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Debe ser mayor o igual a \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Debe ser menor que \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Debe ser menor o igual a \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Str("aurorae".into())), Operand::Value(OperandValue::Str("crespúculum".into())))), &locale), "Debe estar entre \"aurorae\" y \"crespúculum\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("aurorae")))), &locale), "Debe ser igual a \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("aurorae")))), &locale), "Debe ser diferente de \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("aurorae")))), &locale), "Debe ser mayor que \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("aurorae")))), &locale), "Debe ser mayor o igual a \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("aurorae")))), &locale), "Debe ser menor que \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("aurorae")))), &locale), "Debe ser menor o igual a \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::from("aurorae")), Operand::Value(OperandValue::from("crespúculum")))), &locale), "Debe estar entre \"aurorae\" y \"crespúculum\"".to_string());
 
         assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(10)))), &locale), "La cantidad de bytes debe ser igual a 10".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(11)))), &locale), "La cantidad de bytes debe ser diferente de 11".to_string());
@@ -795,13 +795,13 @@ mod test {
         assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false)))), &locale), "Must be smaller than or equals to false".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true)))), &locale), "Must be between false and true".to_string());
 
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Must be equals to \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Must be different from \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Must be greater than \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Must be greater than or equals to \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Must be smaller than \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str("aurorae".into())))), &locale), "Must be smaller than or equals to \"aurorae\"".to_string());
-        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Str("aurorae".into())), Operand::Value(OperandValue::Str("crespúculum".into())))), &locale), "Must be between \"aurorae\" and \"crespúculum\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("aurorae")))), &locale), "Must be equals to \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("aurorae")))), &locale), "Must be different from \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("aurorae")))), &locale), "Must be greater than \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("aurorae")))), &locale), "Must be greater than or equals to \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("aurorae")))), &locale), "Must be smaller than \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("aurorae")))), &locale), "Must be smaller than or equals to \"aurorae\"".to_string());
+        assert_eq!(validation_err_to_locale(&ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::from("aurorae")), Operand::Value(OperandValue::from("crespúculum")))), &locale), "Must be between \"aurorae\" and \"crespúculum\"".to_string());
 
         assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(10)))), &locale), "The length of bytes must be equals to 10".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(11)))), &locale), "The length of bytes must be different from 11".to_string());

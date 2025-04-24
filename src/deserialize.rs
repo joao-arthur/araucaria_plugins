@@ -143,7 +143,7 @@ mod test {
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, None),
-            Value::from([("num_u".into(), Value::U64(192_168)), ("num_i".into(), Value::I64(-192_168)), ("num_f".into(), Value::F64(-192.5)),])
+            Value::from([("num_u".into(), Value::U64(192_168)), ("num_i".into(), Value::I64(-192_168)), ("num_f".into(), Value::F64(-192.5))])
         );
     }
 
@@ -161,7 +161,7 @@ mod test {
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, Some(&validation)),
-            Value::from([("num_u".into(), Value::U64(192_168)), ("num_i".into(), Value::I64(-192_168)), ("num_f".into(), Value::F64(-192.5)),])
+            Value::from([("num_u".into(), Value::U64(192_168)), ("num_i".into(), Value::I64(-192_168)), ("num_f".into(), Value::F64(-192.5))])
         );
     }
 
@@ -179,7 +179,7 @@ mod test {
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, Some(&validation)),
-            Value::from([("num_1".into(), Value::U64(192_168)), ("num_2".into(), Value::I64(-192_168)), ("num_3".into(), Value::F64(-192.5)),])
+            Value::from([("num_1".into(), Value::U64(192_168)), ("num_2".into(), Value::I64(-192_168)), ("num_3".into(), Value::F64(-192.5))])
         );
     }
 
@@ -197,7 +197,7 @@ mod test {
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, Some(&validation)),
-            Value::from([("num_1".into(), Value::I64(192_168)), ("num_2".into(), Value::I64(-192_168)), ("num_3".into(), Value::F64(-192.5)),])
+            Value::from([("num_1".into(), Value::I64(192_168)), ("num_2".into(), Value::I64(-192_168)), ("num_3".into(), Value::F64(-192.5))])
         );
     }
 
@@ -215,7 +215,7 @@ mod test {
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, Some(&validation)),
-            Value::from([("num_1".into(), Value::F64(192_168.0)), ("num_2".into(), Value::F64(-192_168.0)), ("num_3".into(), Value::F64(-192.5)),])
+            Value::from([("num_1".into(), Value::F64(192_168.0)), ("num_2".into(), Value::F64(-192_168.0)), ("num_3".into(), Value::F64(-192.5))])
         );
     }
 
