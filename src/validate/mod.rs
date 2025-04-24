@@ -95,27 +95,14 @@ mod test {
         assert_eq!(validate(&Validation::I64(NumIValidation::default().eq(-800)), &Value::I64(-800), &root), Ok(()));
         assert_eq!(validate(&Validation::F64(NumFValidation::default().eq(1.5)), &Value::F64(1.5), &root), Ok(()));
         assert_eq!(validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false), &root), Ok(()));
+        assert_eq!(validate(&Validation::Str(StrValidation::default().eq("Gladius".into())), &Value::from("Gladius"), &root), Ok(()));
+        assert_eq!(validate(&Validation::Date(DateValidation::default().eq("2015-12-28".into())), &Value::from("2015-12-28"), &root), Ok(()));
+        assert_eq!(validate(&Validation::Time(TimeValidation::default().eq("20:38".into())), &Value::from("20:38"), &root), Ok(()));
         assert_eq!(
-            validate(&Validation::Str(StrValidation::default().eq(String::from("Gladius"))), &Value::Str(String::from("Gladius")), &root),
+            validate(&Validation::DateTime(DateTimeValidation::default().eq("2015-12-28T20:38Z".into())), &Value::from("2015-12-28T20:38Z"), &root),
             Ok(())
         );
-        assert_eq!(
-            validate(&Validation::Date(DateValidation::default().eq(String::from("2015-12-28"))), &Value::Str(String::from("2015-12-28")), &root),
-            Ok(())
-        );
-        assert_eq!(
-            validate(&Validation::Time(TimeValidation::default().eq(String::from("20:38"))), &Value::Str(String::from("20:38")), &root),
-            Ok(())
-        );
-        assert_eq!(
-            validate(
-                &Validation::DateTime(DateTimeValidation::default().eq(String::from("2015-12-28T20:38Z"))),
-                &Value::Str(String::from("2015-12-28T20:38Z")),
-                &root
-            ),
-            Ok(())
-        );
-        assert_eq!(validate(&Validation::Email(EmailValidation::default()), &Value::Str(String::from("bruno@gmail.com")), &root), Ok(()));
+        assert_eq!(validate(&Validation::Email(EmailValidation::default()), &Value::from("bruno@gmail.com"), &root), Ok(()));
     }
 
     #[test]
@@ -124,10 +111,9 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(
-                    ObjValidation::default()
-                        .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
+                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
-                &Value::Obj(BTreeMap::from([(String::from("is"), Value::Bool(false))])),
+                &Value::Obj(BTreeMap::from([("is".into(), Value::Bool(false))])),
                 &root
             ),
             Ok(())
@@ -140,14 +126,13 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(
-                    ObjValidation::default()
-                        .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
+                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
                 &Value::None,
                 &root
             ),
             Err(SchemaErr::obj([(
-                String::from("is"),
+                "is".into(),
                 SchemaErr::Validation(vec![
                     ValidationErr::Required,
                     ValidationErr::Bool,
@@ -158,14 +143,13 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(
-                    ObjValidation::default()
-                        .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
+                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
                 &Value::None,
                 &root
             ),
             Err(SchemaErr::obj([(
-                String::from("is"),
+                "is".into(),
                 SchemaErr::Validation(vec![
                     ValidationErr::Required,
                     ValidationErr::Bool,
@@ -176,14 +160,13 @@ mod test {
         assert_eq!(
             validate(
                 &Validation::Obj(
-                    ObjValidation::default()
-                        .validation(BTreeMap::from([(String::from("is"), Validation::Bool(BoolValidation::default().eq(false)))]))
+                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
                 ),
                 &Value::Bool(false),
                 &root
             ),
             Err(SchemaErr::obj([(
-                String::from("is"),
+                "is".into(),
                 SchemaErr::Validation(vec![
                     ValidationErr::Required,
                     ValidationErr::Bool,

@@ -73,8 +73,8 @@ mod test {
     fn test_validate_date_default() {
         let v = DateValidation::default();
         let root = Value::None;
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("not a date")), &root), Err(SchemaErr::validation([ValidationErr::Date])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("not a date"), &root), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::None, &root), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date])));
         assert_eq!(validate_date(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Date])));
     }
@@ -83,20 +83,20 @@ mod test {
     fn test_validate_date_optional() {
         let v = DateValidation::default().optional();
         let root = Value::None;
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("not a date")), &root), Err(SchemaErr::validation([ValidationErr::Date])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("not a date"), &root), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::None, &root), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Date])));
     }
 
     #[test]
     fn test_validate_date_eq() {
-        let v = DateValidation::default().eq(String::from("2026-10-28"));
+        let v = DateValidation::default().eq("2026-10-28".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str(String::from("2026-10-28")))));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2025-04-18")), &root), Err(SchemaErr::validation([op_err.clone()])));
+        let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Str("2026-10-28".into()))));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2025-04-18"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
             validate_date(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
@@ -106,11 +106,11 @@ mod test {
 
     #[test]
     fn test_validate_date_ne() {
-        let v = DateValidation::default().ne(String::from("2026-10-28"));
+        let v = DateValidation::default().ne("2026-10-28".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str(String::from("2026-10-28")))));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2025-04-18")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Err(SchemaErr::validation([op_err.clone()])));
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Str("2026-10-28".into()))));
+        assert_eq!(validate_date(&v, &Value::from("2025-04-18"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
             validate_date(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
@@ -120,12 +120,12 @@ mod test {
 
     #[test]
     fn test_validate_date_gt() {
-        let v = DateValidation::default().gt(String::from("2026-10-28"));
+        let v = DateValidation::default().gt("2026-10-28".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str(String::from("2026-10-28")))));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-27")), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-29")), &root), Ok(()));
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Str("2026-10-28".into()))));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-29"), &root), Ok(()));
         assert_eq!(
             validate_date(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
@@ -135,12 +135,12 @@ mod test {
 
     #[test]
     fn test_validate_date_ge() {
-        let v = DateValidation::default().ge(String::from("2026-10-28"));
+        let v = DateValidation::default().ge("2026-10-28".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str(String::from("2026-10-28")))));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-27")), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-29")), &root), Ok(()));
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Str("2026-10-28".into()))));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-29"), &root), Ok(()));
         assert_eq!(
             validate_date(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
@@ -150,12 +150,12 @@ mod test {
 
     #[test]
     fn test_validate_date_lt() {
-        let v = DateValidation::default().lt(String::from("2026-10-28"));
+        let v = DateValidation::default().lt("2026-10-28".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str(String::from("2026-10-28")))));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-27")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-29")), &root), Err(SchemaErr::validation([op_err.clone()])));
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Str("2026-10-28".into()))));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-29"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
             validate_date(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
@@ -165,12 +165,12 @@ mod test {
 
     #[test]
     fn test_validate_date_le() {
-        let v = DateValidation::default().le(String::from("2026-10-28"));
+        let v = DateValidation::default().le("2026-10-28".into());
         let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str(String::from("2026-10-28")))));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-27")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-28")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-29")), &root), Err(SchemaErr::validation([op_err.clone()])));
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Str("2026-10-28".into()))));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-29"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
             validate_date(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
@@ -180,18 +180,18 @@ mod test {
 
     #[test]
     fn test_validate_date_btwn() {
-        let v = DateValidation::default().btwn(String::from("2026-10-01"), String::from("2026-10-31"));
+        let v = DateValidation::default().btwn("2026-10-01".into(), "2026-10-31".into());
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Btwn(
-            Operand::Value(OperandValue::Str(String::from("2026-10-01"))),
-            Operand::Value(OperandValue::Str(String::from("2026-10-31"))),
+            Operand::Value(OperandValue::Str("2026-10-01".into())),
+            Operand::Value(OperandValue::Str("2026-10-31".into())),
         ));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-09-30")), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-01")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-02")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-30")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-10-31")), &root), Ok(()));
-        assert_eq!(validate_date(&v, &Value::Str(String::from("2026-11-01")), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2026-09-30"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-01"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-02"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-30"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-31"), &root), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-11-01"), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
             validate_date(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
@@ -218,6 +218,6 @@ mod test {
 
     #[test]
     fn test_parse_date() {
-        assert_eq!(parse_date(&String::from("2029-12-31")), Ok(InternalDt(2029, 12, 31)));
+        assert_eq!(parse_date("2029-12-31".into()), Ok(InternalDt(2029, 12, 31)));
     }
 }

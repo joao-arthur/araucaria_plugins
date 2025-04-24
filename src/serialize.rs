@@ -165,21 +165,19 @@ mod test {
         assert_eq!(
             serde_json::to_string(&SchemaErr::Obj(BTreeMap::from([
                 (
-                    String::from("bool"),
+                    "bool".into(),
                     SchemaErr::Validation(vec![
                         ValidationErr::Required,
                         ValidationErr::Bool,
                         ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
                     ]),
                 ),
-                (String::from("u64"), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::U64,]),),
-                (String::from("i64"), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::I64,]),),
-                (String::from("f64"), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::F64,]),),
+                ("u64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::U64])),
+                ("i64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::I64])),
+                ("f64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::F64])),
             ])))
             .unwrap(),
-            String::from(
-                r#"{"bool":["Required","Bool",{"Operation":{"Eq":{"Value":{"Bool":false}}}}],"f64":["Required","F64"],"i64":["Required","I64"],"u64":["Required","U64"]}"#
-            )
+            r#"{"bool":["Required","Bool",{"Operation":{"Eq":{"Value":{"Bool":false}}}}],"f64":["Required","F64"],"i64":["Required","I64"],"u64":["Required","U64"]}"#.to_string()
         );
     }
 }
