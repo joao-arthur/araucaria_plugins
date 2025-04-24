@@ -64,7 +64,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_num_f_eq() {
+    fn test_validate_num_f_eq_value() {
         let v = NumFValidation::default().eq(-42.5);
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::F64(-42.5))));
@@ -78,7 +78,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_num_f_ne() {
+    fn test_validate_num_f_ne_value() {
         let v = NumFValidation::default().ne(-22.5);
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::F64(-22.5))));
@@ -92,7 +92,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_num_f_gt() {
+    fn test_validate_num_f_gt_value() {
         let v = NumFValidation::default().gt(-2.5);
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::F64(-2.5))));
@@ -106,21 +106,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_num_f_lt() {
-        let v = NumFValidation::default().lt(-5.5);
-        let root = Value::None;
-        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::F64(-5.5))));
-        assert_eq!(validate_num_f(&v, &Value::F64(-6.5), &root), Ok(()));
-        assert_eq!(validate_num_f(&v, &Value::F64(-5.5), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_num_f(&v, &Value::None, &root),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
-        );
-        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
-    }
-
-    #[test]
-    fn test_validate_num_f_ge() {
+    fn test_validate_num_f_ge_value() {
         let v = NumFValidation::default().ge(-2.5);
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::F64(-2.5))));
@@ -134,7 +120,21 @@ mod test {
     }
 
     #[test]
-    fn test_validate_num_f_le() {
+    fn test_validate_num_f_lt_value() {
+        let v = NumFValidation::default().lt(-5.5);
+        let root = Value::None;
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::F64(-5.5))));
+        assert_eq!(validate_num_f(&v, &Value::F64(-6.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(-5.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_f_le_value() {
         let v = NumFValidation::default().le(-5.5);
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::F64(-5.5))));
@@ -148,7 +148,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_num_f_btwn() {
+    fn test_validate_num_f_btwn_value() {
         let v = NumFValidation::default().btwn(5.0, 6.0);
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::F64(5.0)), Operand::Value(OperandValue::F64(6.0))));
