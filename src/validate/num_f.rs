@@ -36,6 +36,8 @@ pub fn validate_num_f(validation: &NumFValidation, value: &Value, root: &Value) 
 
 #[cfg(test)]
 mod test {
+    use std::collections::BTreeMap;
+
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
@@ -156,6 +158,171 @@ mod test {
         assert_eq!(validate_num_f(&v, &Value::F64(5.0), &root), Ok(()));
         assert_eq!(validate_num_f(&v, &Value::F64(6.0), &root), Ok(()));
         assert_eq!(validate_num_f(&v, &Value::F64(7.0), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_eq_field() {
+        let v = NumFValidation::default().eq_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(12.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(22.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(32.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(42.5))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_f(&v, &Value::F64(41.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_f(&v, &Value::F64(42.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(43.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_ne_field() {
+        let v = NumFValidation::default().ne_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(12.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(22.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(32.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(42.5))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_f(&v, &Value::F64(41.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(42.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_f(&v, &Value::F64(43.5), &root), Ok(()));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_gt_field() {
+        let v = NumFValidation::default().gt_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(12.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(22.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(32.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(42.5))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_f(&v, &Value::F64(41.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_f(&v, &Value::F64(42.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_f(&v, &Value::F64(43.5), &root), Ok(()));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_ge_field() {
+        let v = NumFValidation::default().ge_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(12.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(22.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(32.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(42.5))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_f(&v, &Value::F64(41.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_f(&v, &Value::F64(42.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(43.5), &root), Ok(()));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_lt_field() {
+        let v = NumFValidation::default().lt_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(12.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(22.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(32.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(42.5))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_f(&v, &Value::F64(41.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(42.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_f(&v, &Value::F64(43.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_le_field() {
+        let v = NumFValidation::default().le_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(12.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(22.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(32.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(42.5))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_f(&v, &Value::F64(41.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(42.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(43.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_f(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_f(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::F64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_btwn_field() {
+        let v = NumFValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(12.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(22.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(32.5))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::F64(42.5))])),
+            ]),
+        )]));
+        let op_err =
+            ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_f(&v, &Value::F64(31.5), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_f(&v, &Value::F64(32.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(33.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(41.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(42.5), &root), Ok(()));
+        assert_eq!(validate_num_f(&v, &Value::F64(43.5), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
             validate_num_f(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::F64, op_err.clone()]))
