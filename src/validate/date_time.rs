@@ -62,7 +62,7 @@ pub fn validate_date_time(validation: &DateTimeValidation, value: &Value, root: 
 
 #[cfg(test)]
 mod test {
-    use std::collections::BTreeMap;
+    use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
@@ -73,334 +73,272 @@ mod test {
 
     use super::{InternalDtTm, parse_date_time, validate_date_time};
 
+    static ROOT: LazyLock<Value> = LazyLock::new(|| {
+        Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
+            ]),
+        )]))
+    });
+
     #[test]
     fn test_validate_date_default() {
         let v = DateTimeValidation::default();
-        let root = Value::None;
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("not a date and time"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::None, &root), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("not a date and time"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
     }
 
     #[test]
     fn test_validate_date_optional() {
         let v = DateTimeValidation::default().optional();
-        let root = Value::None;
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("not a date and time"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::None, &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("not a date and time"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
     }
 
     #[test]
     fn test_validate_date_eq_value() {
         let v = DateTimeValidation::default().eq("2026-10-28T11:27Z".into());
-        let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("2026-10-28T11:27Z"))));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2025-04-18T23:18Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2025-04-18T23:18Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_ne_value() {
         let v = DateTimeValidation::default().ne("2026-10-28T11:27Z".into());
-        let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("2026-10-28T11:27Z"))));
-        assert_eq!(validate_date_time(&v, &Value::from("2025-04-18T23:18Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2025-04-18T23:18Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_gt_value() {
         let v = DateTimeValidation::default().gt("2026-10-28T11:27Z".into());
-        let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("2026-10-28T11:27Z"))));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &root), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &ROOT), Ok(()));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_ge_value() {
         let v = DateTimeValidation::default().ge("2026-10-28T11:27Z".into());
-        let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("2026-10-28T11:27Z"))));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &root), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &ROOT), Ok(()));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_lt_value() {
         let v = DateTimeValidation::default().lt("2026-10-28T11:27Z".into());
-        let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("2026-10-28T11:27Z"))));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_le_value() {
         let v = DateTimeValidation::default().le("2026-10-28T11:27Z".into());
-        let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("2026-10-28T11:27Z"))));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-27T01:29Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:26Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:28Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-29T03:47Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_btwn_value() {
         let v = DateTimeValidation::default().btwn("2026-10-01T00:00Z".into(), "2026-10-31T23:59Z".into());
-        let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Btwn(
             Operand::Value(OperandValue::from("2026-10-01T00:00Z")),
             Operand::Value(OperandValue::from("2026-10-31T23:59Z")),
         ));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-09-30T23:59Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-01T00:00Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-01T00:01Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-02T04:21Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-30T16:51Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-31T23:59Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-11-01T01:01Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-09-30T23:59Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-01T00:00Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-01T00:01Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-02T04:21Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-30T16:51Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-31T23:59Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-11-01T01:01Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_time_eq_field() {
         let v = DateTimeValidation::default().eq_field("values.3.value".into());
-        let root = Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
-        )]));
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_time_ne_field() {
         let v = DateTimeValidation::default().ne_field("values.3.value".into());
-        let root = Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
-        )]));
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &root), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &ROOT), Ok(()));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_time_gt_field() {
         let v = DateTimeValidation::default().gt_field("values.3.value".into());
-        let root = Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
-        )]));
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &root), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &ROOT), Ok(()));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_time_ge_field() {
         let v = DateTimeValidation::default().ge_field("values.3.value".into());
-        let root = Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
-        )]));
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &root), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &ROOT), Ok(()));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_time_lt_field() {
         let v = DateTimeValidation::default().lt_field("values.3.value".into());
-        let root = Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
-        )]));
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_time_le_field() {
         let v = DateTimeValidation::default().le_field("values.3.value".into());
-        let root = Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
-        )]));
         let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_time_btwn_field() {
         let v = DateTimeValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
-        let root = Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2025-05-05T22:03Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-07-10T04:31Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2027-09-15T09:48Z"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
-        )]));
-        let op_err = ValidationErr::Operation(Operation::Btwn(
-            Operand::FieldPath("values.2.value".into()),
-            Operand::FieldPath("values.3.value".into()),
-        ));
-        assert_eq!(validate_date_time(&v, &Value::from("2027-09-14T09:47Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::from("2027-09-15T09:48Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2027-09-16T09:49Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &root), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        let op_err =
+            ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_date_time(&v, &Value::from("2027-09-14T09:47Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2027-09-15T09:48Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2027-09-16T09:49Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-19T11:26Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Ok(()));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-21T11:28Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
-            validate_date_time(&v, &Value::None, &root),
+            validate_date_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()]))
         );
-        assert_eq!(validate_date_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime, op_err.clone()])));
     }
 
     #[test]
     fn test_validate_date_invalid_format() {
         let v = DateTimeValidation::default();
         let root = Value::None;
-        assert_eq!(validate_date_time(&v, &Value::from("10-10-2026"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("10-2026-10"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026/10/28"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("28/10/2026"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("20261028"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("28102026"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("10-10-2026"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("10-2026-10"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026/10/28"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("28/10/2026"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("20261028"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("28102026"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
 
-        assert_eq!(validate_date_time(&v, &Value::from("10:27:23.235"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("10:27:24"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("1061"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("106"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("10"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("1"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("10:27:23.235"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("10:27:24"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("1061"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("106"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("10"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
 
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T10:27:29Z"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T10:27:29.973Z"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("10-2026-28T10:27:29.973Z"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
-        assert_eq!(validate_date_time(&v, &Value::from("28-10-2026T10:27:29.973Z"), &root), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T10:27:29Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T10:27:29.973Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("10-2026-28T10:27:29.973Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("28-10-2026T10:27:29.973Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
     }
 
     #[test]
