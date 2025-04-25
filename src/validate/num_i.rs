@@ -36,6 +36,8 @@ pub fn validate_num_i(validation: &NumIValidation, value: &Value, root: &Value) 
 
 #[cfg(test)]
 mod test {
+    use std::collections::BTreeMap;
+
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
@@ -148,7 +150,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_num_u_btwn_value() {
+    fn test_validate_num_i_btwn_value() {
         let v = NumIValidation::default().btwn(5, 6);
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(5)), Operand::Value(OperandValue::I64(6))));
@@ -156,6 +158,171 @@ mod test {
         assert_eq!(validate_num_i(&v, &Value::I64(5), &root), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(6), &root), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(7), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_i(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_i(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_eq_field() {
+        let v = NumIValidation::default().eq_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(12))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(22))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(32))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(42))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_i(&v, &Value::I64(41), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::I64(42), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(43), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_i(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_i(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_ne_field() {
+        let v = NumIValidation::default().ne_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(12))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(22))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(32))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(42))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_i(&v, &Value::I64(41), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(42), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::I64(43), &root), Ok(()));
+        assert_eq!(
+            validate_num_i(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_i(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_gt_field() {
+        let v = NumIValidation::default().gt_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(12))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(22))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(32))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(42))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_i(&v, &Value::I64(41), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::I64(42), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::I64(43), &root), Ok(()));
+        assert_eq!(
+            validate_num_i(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_i(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_ge_field() {
+        let v = NumIValidation::default().ge_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(12))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(22))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(32))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(42))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_i(&v, &Value::I64(41), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::I64(42), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(43), &root), Ok(()));
+        assert_eq!(
+            validate_num_i(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_i(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_lt_field() {
+        let v = NumIValidation::default().lt_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(12))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(22))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(32))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(42))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_i(&v, &Value::I64(41), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(42), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::I64(43), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_i(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_i(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_le_field() {
+        let v = NumIValidation::default().le_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(12))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(22))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(32))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(42))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_i(&v, &Value::I64(41), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(42), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(43), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_num_i(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
+        );
+        assert_eq!(validate_num_i(&v, &bool_stub(), &root), Err(SchemaErr::validation([ValidationErr::I64, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_num_i_btwn_field() {
+        let v = NumIValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(12))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(22))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(32))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::I64(42))])),
+            ]),
+        )]));
+        let op_err =
+            ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_num_i(&v, &Value::I64(31), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_num_i(&v, &Value::I64(32), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(33), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(41), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(42), &root), Ok(()));
+        assert_eq!(validate_num_i(&v, &Value::I64(43), &root), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(
             validate_num_i(&v, &Value::None, &root),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()]))
