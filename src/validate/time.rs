@@ -59,6 +59,8 @@ pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value) -
 
 #[cfg(test)]
 mod test {
+    use std::collections::BTreeMap;
+
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
@@ -89,7 +91,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_eq() {
+    fn test_validate_date_eq_value() {
         let v = TimeValidation::default().eq("11:27".into());
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("11:27"))));
@@ -103,7 +105,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ne() {
+    fn test_validate_date_ne_value() {
         let v = TimeValidation::default().ne("11:27".into());
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("11:27"))));
@@ -117,7 +119,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_gt() {
+    fn test_validate_date_gt_value() {
         let v = TimeValidation::default().gt("11:27".into());
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("11:27"))));
@@ -132,7 +134,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ge() {
+    fn test_validate_date_ge_value() {
         let v = TimeValidation::default().ge("11:27".into());
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("11:27"))));
@@ -147,7 +149,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_lt() {
+    fn test_validate_date_lt_value() {
         let v = TimeValidation::default().lt("11:27".into());
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("11:27"))));
@@ -162,7 +164,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_le() {
+    fn test_validate_date_le_value() {
         let v = TimeValidation::default().le("11:27".into());
         let root = Value::None;
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("11:27"))));
@@ -177,7 +179,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_btwn() {
+    fn test_validate_date_btwn_value() {
         let v = TimeValidation::default().btwn("09:00".into(), "09:59".into());
         let root = Value::None;
         let op_err =
@@ -194,6 +196,175 @@ mod test {
         );
         assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
+
+
+    #[test]
+    fn test_validate_time_eq_field() {
+        let v = TimeValidation::default().eq_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("22:03"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("04:31"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("09:48"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_time(&v, &Value::from("11:26"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:28"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_time(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
+        );
+        assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_time_ne_field() {
+        let v = TimeValidation::default().ne_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("22:03"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("04:31"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("09:48"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_time(&v, &Value::from("11:26"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("11:28"), &root), Ok(()));
+        assert_eq!(
+            validate_time(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
+        );
+        assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_time_gt_field() {
+        let v = TimeValidation::default().gt_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("22:03"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("04:31"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("09:48"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_time(&v, &Value::from("11:26"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("11:28"), &root), Ok(()));
+        assert_eq!(
+            validate_time(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
+        );
+        assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_time_ge_field() {
+        let v = TimeValidation::default().ge_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("22:03"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("04:31"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("09:48"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_time(&v, &Value::from("11:26"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:28"), &root), Ok(()));
+        assert_eq!(
+            validate_time(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
+        );
+        assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_time_lt_field() {
+        let v = TimeValidation::default().lt_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("22:03"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("04:31"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("09:48"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_time(&v, &Value::from("11:26"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("11:28"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_time(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
+        );
+        assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_time_le_field() {
+        let v = TimeValidation::default().le_field("values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("22:03"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("04:31"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("09:48"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
+        assert_eq!(validate_time(&v, &Value::from("11:26"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:28"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_time(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
+        );
+        assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_time_btwn_field() {
+        let v = TimeValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
+        let root = Value::Obj(BTreeMap::from([(
+            "values".into(),
+            Value::Arr(vec![
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("22:03"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("04:31"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("09:48"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
+            ]),
+        )]));
+        let op_err = ValidationErr::Operation(Operation::Btwn(
+            Operand::FieldPath("values.2.value".into()),
+            Operand::FieldPath("values.3.value".into()),
+        ));
+        assert_eq!(validate_time(&v, &Value::from("09:47"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("09:48"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("09:49"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:26"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &root), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:28"), &root), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(
+            validate_time(&v, &Value::None, &root),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
+        );
+        assert_eq!(validate_time(&v, &num_u_stub(), &root), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+    }
+
 
     #[test]
     fn test_validate_time_invalid_format() {
