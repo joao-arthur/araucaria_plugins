@@ -8,9 +8,11 @@ use araucaria::{
 
 pub struct Locale {
     required: String,
-    num_u: String,
-    num_i: String,
-    num_f: String,
+    u64: String,
+    i64: String,
+    f64: String,
+    usize: String,
+    isize: String,
     bool: String,
     str: String,
     email: String,
@@ -112,6 +114,7 @@ pub fn operand_value_to_string(value: &OperandValue) -> String {
         OperandValue::I64(val) => val.to_string(),
         OperandValue::F64(val) => val.to_string(),
         OperandValue::USize(val) => val.to_string(),
+        OperandValue::ISize(val) => val.to_string(),
         OperandValue::Bool(val) => val.to_string(),
         OperandValue::Str(val) => "\"".to_string() + val + "\"",
     }
@@ -127,9 +130,11 @@ pub fn operand_to_string(operand: &Operand) -> String {
 pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> String {
     match error {
         ValidationErr::Required => locale.required.clone(),
-        ValidationErr::U64 => locale.num_u.clone(),
-        ValidationErr::I64 => locale.num_i.clone(),
-        ValidationErr::F64 => locale.num_f.clone(),
+        ValidationErr::U64 => locale.u64.clone(),
+        ValidationErr::I64 => locale.i64.clone(),
+        ValidationErr::F64 => locale.f64.clone(),
+        ValidationErr::USize => locale.usize.clone(),
+        ValidationErr::ISize => locale.isize.clone(),
         ValidationErr::Bool => locale.bool.clone(),
         ValidationErr::Str => locale.str.clone(),
         ValidationErr::Email => locale.email.clone(),
@@ -220,9 +225,11 @@ pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> Strin
 pub fn locale_pt_long() -> Locale {
     Locale {
         required: "É obrigatório".into(),
-        num_u: "Deve ser um número inteiro sem sinal".into(),
-        num_i: "Deve ser um número inteiro".into(),
-        num_f: "Deve ser um número com ponto flutuante".into(),
+        u64: "Deve ser um número inteiro sem sinal".into(),
+        i64: "Deve ser um número inteiro".into(),
+        f64: "Deve ser um número com ponto flutuante".into(),
+        usize: "".into(),
+        isize: "".into(),
         bool: "Deve ser um booleano".into(),
         str: "Deve ser uma string".into(),
         email: "Deve ser um e-mail".into(),
@@ -291,9 +298,11 @@ pub fn locale_pt_long() -> Locale {
 pub fn locale_es_long() -> Locale {
     Locale {
         required: "Se requiere".into(),
-        num_u: "Debe ser un número entero sin signo".into(),
-        num_i: "Debe ser un número entero".into(),
-        num_f: "Debe ser un número de punto flotante".into(),
+        u64: "Debe ser un número entero sin signo".into(),
+        i64: "Debe ser un número entero".into(),
+        f64: "Debe ser un número de punto flotante".into(),
+        usize: "".into(),
+        isize: "".into(),
         bool: "Debe ser un booleano".into(),
         str: "Debe ser una cadena".into(),
         email: "Debe ser un correo electrónico".into(),
@@ -362,9 +371,11 @@ pub fn locale_es_long() -> Locale {
 pub fn locale_en_long() -> Locale {
     Locale {
         required: "Is required".into(),
-        num_u: "Must be an unsigned integer".into(),
-        num_i: "Must be an integer".into(),
-        num_f: "Must be a float".into(),
+        u64: "Must be an unsigned integer".into(),
+        i64: "Must be an integer".into(),
+        f64: "Must be a float".into(),
+        usize: "".into(),
+        isize: "".into(),
         bool: "Must be a boolean".into(),
         str: "Must be a string".into(),
         email: "Must be an e-mail".into(),

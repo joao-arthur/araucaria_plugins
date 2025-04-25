@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
-    validation::date::DateValidation,
+    validation::DateValidation,
     value::Value,
 };
 use regex::Regex;
@@ -65,8 +65,8 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::date::DateValidation,
-        value::{Value, stub::num_u_stub},
+        validation::DateValidation,
+        value::{Value, stub::u64_stub},
     };
 
     use super::{InternalDt, parse_date, validate_date};
@@ -89,7 +89,7 @@ mod test {
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Ok(()));
         assert_eq!(validate_date(&v, &Value::from("not a date"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date])));
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
     }
 
     #[test]
@@ -99,7 +99,7 @@ mod test {
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Ok(()));
         assert_eq!(validate_date(&v, &Value::from("not a date"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
     }
 
     #[test]
@@ -112,7 +112,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -125,7 +125,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -139,7 +139,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -153,7 +153,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -167,7 +167,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -181,7 +181,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -201,7 +201,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -215,7 +215,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -229,7 +229,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -243,7 +243,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -257,7 +257,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -271,7 +271,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -285,7 +285,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]
@@ -303,7 +303,7 @@ mod test {
             validate_date(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()]))
         );
-        assert_eq!(validate_date(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
 
     #[test]

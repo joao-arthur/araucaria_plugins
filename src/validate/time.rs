@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
-    validation::time::TimeValidation,
+    validation::TimeValidation,
     value::Value,
 };
 use regex::Regex;
@@ -64,8 +64,8 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::time::TimeValidation,
-        value::{Value, stub::num_u_stub},
+        validation::TimeValidation,
+        value::{Value, stub::u64_stub},
     };
 
     use super::{InternalTm, parse_time, validate_time};
@@ -88,7 +88,7 @@ mod test {
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
         assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time])));
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
     }
 
     #[test]
@@ -97,7 +97,7 @@ mod test {
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
         assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
     }
 
     #[test]
@@ -110,7 +110,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -123,7 +123,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -137,7 +137,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -151,7 +151,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -165,7 +165,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -179,7 +179,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -197,7 +197,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -211,7 +211,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -225,7 +225,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -239,7 +239,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -253,7 +253,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -267,7 +267,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -281,7 +281,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]
@@ -299,7 +299,7 @@ mod test {
             validate_time(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()]))
         );
-        assert_eq!(validate_time(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Time, op_err.clone()])));
     }
 
     #[test]

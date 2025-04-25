@@ -55,7 +55,7 @@ mod test {
     use std::collections::BTreeMap;
 
     use araucaria::{
-        validation::{ObjValidation, Validation, num_f::NumFValidation, num_i::NumIValidation, num_u::NumUValidation},
+        validation::{F64Validation, I64Validation, ObjValidation, U64Validation, Validation},
         value::Value,
     };
 
@@ -150,9 +150,9 @@ mod test {
     #[test]
     fn test_value_from_json_value_without_same_validation() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("num_u".into(), Validation::U64(NumUValidation::default())),
-            ("num_i".into(), Validation::I64(NumIValidation::default())),
-            ("num_f".into(), Validation::F64(NumFValidation::default())),
+            ("num_u".into(), Validation::U64(U64Validation::default())),
+            ("num_i".into(), Validation::I64(I64Validation::default())),
+            ("num_f".into(), Validation::F64(F64Validation::default())),
         ])));
         let mut map = serde_json::Map::new();
         map.insert("num_u".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
@@ -168,9 +168,9 @@ mod test {
     #[test]
     fn test_value_from_json_value_num_u() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("num_1".into(), Validation::U64(NumUValidation::default())),
-            ("num_2".into(), Validation::U64(NumUValidation::default())),
-            ("num_3".into(), Validation::U64(NumUValidation::default())),
+            ("num_1".into(), Validation::U64(U64Validation::default())),
+            ("num_2".into(), Validation::U64(U64Validation::default())),
+            ("num_3".into(), Validation::U64(U64Validation::default())),
         ])));
         let mut map = serde_json::Map::new();
         map.insert("num_1".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
@@ -186,9 +186,9 @@ mod test {
     #[test]
     fn test_value_from_json_value_num_i() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("num_1".into(), Validation::I64(NumIValidation::default())),
-            ("num_2".into(), Validation::I64(NumIValidation::default())),
-            ("num_3".into(), Validation::I64(NumIValidation::default())),
+            ("num_1".into(), Validation::I64(I64Validation::default())),
+            ("num_2".into(), Validation::I64(I64Validation::default())),
+            ("num_3".into(), Validation::I64(I64Validation::default())),
         ])));
         let mut map = serde_json::Map::new();
         map.insert("num_1".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
@@ -204,9 +204,9 @@ mod test {
     #[test]
     fn test_value_from_json_value_num_f() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("num_1".into(), Validation::F64(NumFValidation::default())),
-            ("num_2".into(), Validation::F64(NumFValidation::default())),
-            ("num_3".into(), Validation::F64(NumFValidation::default())),
+            ("num_1".into(), Validation::F64(F64Validation::default())),
+            ("num_2".into(), Validation::F64(F64Validation::default())),
+            ("num_3".into(), Validation::F64(F64Validation::default())),
         ])));
         let mut map = serde_json::Map::new();
         map.insert("num_1".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
@@ -230,13 +230,13 @@ mod test {
                         (
                             "lvl_3".into(),
                             Validation::Obj(
-                                ObjValidation::default().validation(BTreeMap::from([("num".into(), Validation::I64(NumIValidation::default()))])),
+                                ObjValidation::default().validation(BTreeMap::from([("num".into(), Validation::I64(I64Validation::default()))])),
                             ),
                         ),
-                        ("num".into(), Validation::U64(NumUValidation::default())),
+                        ("num".into(), Validation::U64(U64Validation::default())),
                     ]))),
                 ),
-                ("num".into(), Validation::I64(NumIValidation::default())),
+                ("num".into(), Validation::I64(I64Validation::default())),
             ]))),
         )])));
 

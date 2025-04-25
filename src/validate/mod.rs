@@ -26,6 +26,8 @@ pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<
         Validation::U64(v) => validate_num_u(v, value, root),
         Validation::I64(v) => validate_num_i(v, value, root),
         Validation::F64(v) => validate_num_f(v, value, root),
+        Validation::USize(v) => Ok(()), //validate_num_f(v, value, root),
+        Validation::ISize(v) => Ok(()), //validate_num_f(v, value, root),
         Validation::Bool(v) => validate_bool(v, value, root),
         Validation::Str(v) => validate_str(v, value, root),
         Validation::Date(v) => validate_date(v, value, root),
@@ -80,8 +82,8 @@ mod test {
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
         validation::{
-            ObjValidation, Validation, bool::BoolValidation, date::DateValidation, date_time::DateTimeValidation, email::EmailValidation,
-            num_f::NumFValidation, num_i::NumIValidation, num_u::NumUValidation, str::StrValidation, time::TimeValidation,
+            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, F64Validation, I64Validation, ObjValidation, StrValidation,
+            TimeValidation, U64Validation, Validation,
         },
         value::Value,
     };
@@ -91,9 +93,9 @@ mod test {
     #[test]
     fn test_validate_primite_types() {
         let root = Value::None;
-        assert_eq!(validate(&Validation::U64(NumUValidation::default().eq(1917)), &Value::U64(1917), &root), Ok(()));
-        assert_eq!(validate(&Validation::I64(NumIValidation::default().eq(-800)), &Value::I64(-800), &root), Ok(()));
-        assert_eq!(validate(&Validation::F64(NumFValidation::default().eq(1.5)), &Value::F64(1.5), &root), Ok(()));
+        assert_eq!(validate(&Validation::U64(U64Validation::default().eq(1917)), &Value::U64(1917), &root), Ok(()));
+        assert_eq!(validate(&Validation::I64(I64Validation::default().eq(-800)), &Value::I64(-800), &root), Ok(()));
+        assert_eq!(validate(&Validation::F64(F64Validation::default().eq(1.5)), &Value::F64(1.5), &root), Ok(()));
         assert_eq!(validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false), &root), Ok(()));
         assert_eq!(validate(&Validation::Str(StrValidation::default().eq("Gladius".into())), &Value::from("Gladius"), &root), Ok(()));
         assert_eq!(validate(&Validation::Date(DateValidation::default().eq("2015-12-28".into())), &Value::from("2015-12-28"), &root), Ok(()));

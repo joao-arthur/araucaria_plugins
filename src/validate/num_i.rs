@@ -1,11 +1,11 @@
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
-    validation::num_i::NumIValidation,
+    validation::I64Validation,
     value::Value,
 };
 
-pub fn validate_num_i(validation: &NumIValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_num_i(validation: &I64Validation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::I64(i64_value) => {
@@ -41,7 +41,7 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::num_i::NumIValidation,
+        validation::I64Validation,
         value::{Value, stub::bool_stub},
     };
 
@@ -61,7 +61,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_default() {
-        let v = NumIValidation::default();
+        let v = I64Validation::default();
         assert_eq!(validate_num_i(&v, &Value::I64(-42), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64])));
         assert_eq!(validate_num_i(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::I64])));
@@ -69,7 +69,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_optional() {
-        let v = NumIValidation::default().optional();
+        let v = I64Validation::default().optional();
         assert_eq!(validate_num_i(&v, &Value::I64(-42), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::I64])));
         assert_eq!(validate_num_i(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::I64])));
@@ -77,7 +77,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_eq_value() {
-        let v = NumIValidation::default().eq(-42);
+        let v = I64Validation::default().eq(-42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-42))));
         assert_eq!(validate_num_i(&v, &Value::I64(-42), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(-7), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -90,7 +90,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_ne_value() {
-        let v = NumIValidation::default().ne(-22);
+        let v = I64Validation::default().ne(-22);
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-22))));
         assert_eq!(validate_num_i(&v, &Value::I64(-42), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(-22), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -103,7 +103,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_gt_value() {
-        let v = NumIValidation::default().gt(-2);
+        let v = I64Validation::default().gt(-2);
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::I64(-2))));
         assert_eq!(validate_num_i(&v, &Value::I64(-1), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(-2), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -116,7 +116,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_ge_value() {
-        let v = NumIValidation::default().ge(-2);
+        let v = I64Validation::default().ge(-2);
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::I64(-2))));
         assert_eq!(validate_num_i(&v, &Value::I64(-2), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(-3), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -129,7 +129,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_lt_value() {
-        let v = NumIValidation::default().lt(-5);
+        let v = I64Validation::default().lt(-5);
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::I64(-5))));
         assert_eq!(validate_num_i(&v, &Value::I64(-6), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(-5), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -142,7 +142,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_le_value() {
-        let v = NumIValidation::default().le(-5);
+        let v = I64Validation::default().le(-5);
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::I64(-5))));
         assert_eq!(validate_num_i(&v, &Value::I64(-5), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(-4), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -155,7 +155,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_btwn_value() {
-        let v = NumIValidation::default().btwn(5, 6);
+        let v = I64Validation::default().btwn(5, 6);
         let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::I64(5)), Operand::Value(OperandValue::I64(6))));
         assert_eq!(validate_num_i(&v, &Value::I64(4), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_num_i(&v, &Value::I64(5), &ROOT), Ok(()));
@@ -170,7 +170,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_eq_field() {
-        let v = NumIValidation::default().eq_field("values.3.value".into());
+        let v = I64Validation::default().eq_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_num_i(&v, &Value::I64(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_num_i(&v, &Value::I64(42), &ROOT), Ok(()));
@@ -184,7 +184,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_ne_field() {
-        let v = NumIValidation::default().ne_field("values.3.value".into());
+        let v = I64Validation::default().ne_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_num_i(&v, &Value::I64(41), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -198,7 +198,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_gt_field() {
-        let v = NumIValidation::default().gt_field("values.3.value".into());
+        let v = I64Validation::default().gt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_num_i(&v, &Value::I64(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_num_i(&v, &Value::I64(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -212,7 +212,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_ge_field() {
-        let v = NumIValidation::default().ge_field("values.3.value".into());
+        let v = I64Validation::default().ge_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_num_i(&v, &Value::I64(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_num_i(&v, &Value::I64(42), &ROOT), Ok(()));
@@ -226,7 +226,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_lt_field() {
-        let v = NumIValidation::default().lt_field("values.3.value".into());
+        let v = I64Validation::default().lt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_num_i(&v, &Value::I64(41), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -240,7 +240,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_le_field() {
-        let v = NumIValidation::default().le_field("values.3.value".into());
+        let v = I64Validation::default().le_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_num_i(&v, &Value::I64(41), &ROOT), Ok(()));
         assert_eq!(validate_num_i(&v, &Value::I64(42), &ROOT), Ok(()));
@@ -254,7 +254,7 @@ mod test {
 
     #[test]
     fn test_validate_num_i_btwn_field() {
-        let v = NumIValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
+        let v = I64Validation::default().btwn_field("values.2.value".into(), "values.3.value".into());
         let op_err =
             ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_num_i(&v, &Value::I64(31), &ROOT), Err(SchemaErr::validation([op_err.clone()])));

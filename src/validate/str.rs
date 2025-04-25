@@ -1,7 +1,7 @@
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
-    validation::str::StrValidation,
+    validation::StrValidation,
     value::Value,
 };
 use unicode_segmentation::UnicodeSegmentation;
@@ -154,8 +154,8 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::str::StrValidation,
-        value::{Value, stub::num_u_stub},
+        validation::StrValidation,
+        value::{Value, stub::u64_stub},
     };
 
     use super::{bytes_len, chars_len, graphemes_len, lowercase_len, numbers_len, symbols_len, uppercase_len, validate_str};
@@ -177,7 +177,7 @@ mod test {
         let v = StrValidation::default();
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str])));
     }
 
     #[test]
@@ -185,7 +185,7 @@ mod test {
         let v = StrValidation::default().optional();
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Str])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str])));
     }
 
     #[test]
@@ -195,7 +195,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -205,7 +205,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -216,7 +216,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -227,7 +227,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -238,7 +238,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -249,7 +249,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -262,7 +262,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("l"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("m"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -273,7 +273,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -284,7 +284,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -295,7 +295,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -306,7 +306,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -317,7 +317,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -328,7 +328,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -340,7 +340,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -352,7 +352,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -364,7 +364,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -375,7 +375,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -387,7 +387,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -399,7 +399,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -411,7 +411,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -424,7 +424,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -436,7 +436,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -448,7 +448,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -459,7 +459,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -471,7 +471,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -483,7 +483,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -495,7 +495,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -508,7 +508,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -519,7 +519,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -530,7 +530,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -541,7 +541,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -552,7 +552,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -563,7 +563,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -574,7 +574,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -585,7 +585,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -596,7 +596,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -607,7 +607,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -618,7 +618,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -629,7 +629,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -640,7 +640,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -651,7 +651,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -662,7 +662,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -673,7 +673,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("22"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -684,7 +684,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("22"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -695,7 +695,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("22"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -706,7 +706,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("22"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -717,7 +717,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("22"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -728,7 +728,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("22"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -740,7 +740,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("4444"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -751,7 +751,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("@#"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -762,7 +762,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("@#"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -773,7 +773,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("@#"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -784,7 +784,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("@#"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -795,7 +795,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("@#"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -806,7 +806,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("@#"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -818,7 +818,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("&*()"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -828,7 +828,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -838,7 +838,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -849,7 +849,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -860,7 +860,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -871,7 +871,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -882,7 +882,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]
@@ -896,7 +896,7 @@ mod test {
         assert_eq!(validate_str(&v, &Value::from("l"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("m"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
-        assert_eq!(validate_str(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
 
     #[test]

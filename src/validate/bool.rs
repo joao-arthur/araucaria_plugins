@@ -1,7 +1,7 @@
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
-    validation::bool::BoolValidation,
+    validation::BoolValidation,
     value::Value,
 };
 
@@ -41,8 +41,8 @@ mod test {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::bool::BoolValidation,
-        value::{Value, stub::num_u_stub},
+        validation::BoolValidation,
+        value::{Value, stub::u64_stub},
     };
 
     use super::validate_bool;
@@ -65,7 +65,7 @@ mod test {
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool])));
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
     }
 
     #[test]
@@ -74,7 +74,7 @@ mod test {
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
     }
 
     #[test]
@@ -87,7 +87,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -100,7 +100,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -113,7 +113,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -126,7 +126,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -139,7 +139,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -152,7 +152,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -166,7 +166,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -179,7 +179,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -192,7 +192,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -205,7 +205,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -218,7 +218,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -231,7 +231,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -244,7 +244,7 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 
     #[test]
@@ -258,6 +258,6 @@ mod test {
             validate_bool(&v, &Value::None, &ROOT),
             Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
         );
-        assert_eq!(validate_bool(&v, &num_u_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 }
