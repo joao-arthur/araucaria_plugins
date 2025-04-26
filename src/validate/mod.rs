@@ -1,25 +1,25 @@
 use std::collections::BTreeMap;
 
 use araucaria::{error::SchemaErr, validation::Validation, value::Value};
-use bool::validate_bool;
-use date::validate_date;
-use date_time::validate_date_time;
-use email::validate_email;
-use num_f::validate_num_f;
-use num_i::validate_num_i;
-use num_u::validate_num_u;
-use str::validate_str;
-use time::validate_time;
+use validate_bool::validate_bool;
+use validate_date::validate_date;
+use validate_date_time::validate_date_time;
+use validate_email::validate_email;
+use validate_num_f::validate_num_f;
+use validate_num_i::validate_num_i;
+use validate_num_u::validate_num_u;
+use validate_str::validate_str;
+use validate_time::validate_time;
 
-mod bool;
-mod date;
-mod date_time;
-mod email;
-mod num_f;
-mod num_i;
-mod num_u;
-mod str;
-mod time;
+mod validate_bool;
+mod validate_date;
+mod validate_date_time;
+mod validate_email;
+mod validate_num_f;
+mod validate_num_i;
+mod validate_num_u;
+mod validate_str;
+mod validate_time;
 
 pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     match validation {
