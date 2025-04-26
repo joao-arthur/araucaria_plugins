@@ -6,6 +6,7 @@ use araucaria::{
     validation::DateTimeValidation,
     value::Value,
 };
+use chrono::NaiveDate;
 use regex::Regex;
 
 #[derive(Debug, PartialEq)]
@@ -14,17 +15,18 @@ struct InternalDtTm(pub u32, pub u16, pub u16, pub u8, pub u8);
 static DT_TM_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})Z$").unwrap());
 
 fn parse_date_time(s: &str) -> Result<InternalDtTm, ()> {
-    if let Some(caps) = DT_TM_REGEX.captures(s) {
-        let c: (&str, [&str; 5]) = caps.extract();
-        let yyyy = c.1[0].parse::<u32>().map_err(|_| ())?;
-        let mm = c.1[1].parse::<u16>().map_err(|_| ())?;
-        let dd = c.1[2].parse::<u16>().map_err(|_| ())?;
-        let h = c.1[3].parse::<u8>().map_err(|_| ())?;
-        let m = c.1[4].parse::<u8>().map_err(|_| ())?;
-        Ok(InternalDtTm(yyyy, mm, dd, h, m))
-    } else {
-        Err(())
+    let caps = DT_TM_REGEX.captures(s).ok_or(())?;
+    let (_, [yyyy, mm, dd, h, m]) = caps.extract();
+    let yyyy = yyyy.parse::<u32>().map_err(|_| ())?;
+    let mm = mm.parse::<u16>().map_err(|_| ())?;
+    let dd = dd.parse::<u16>().map_err(|_| ())?;
+    let h = h.parse::<u8>().map_err(|_| ())?;
+    let m = m.parse::<u8>().map_err(|_| ())?;
+    NaiveDate::from_ymd_opt(yyyy as i32, mm.into(), dd.into()).ok_or(())?;
+    if h > 23 || m > 59 {
+        return Err(());
     }
+    Ok(InternalDtTm(yyyy, mm, dd, h, m))
 }
 
 pub fn validate_date_time(validation: &DateTimeValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
@@ -84,6 +86,46 @@ mod tests {
             ]),
         )]))
     });
+
+    #[test]
+    fn parse_date_time_ok() {
+        assert_eq!(parse_date_time("2029-12-31T06:11Z".into()), Ok(InternalDtTm(2029, 12, 31, 6, 11)));
+    }
+
+    #[test]
+    fn parse_date_time_invalid_format() {
+        assert_eq!(parse_date_time("10-10-2026"), Err(()));
+        assert_eq!(parse_date_time("10-2026-10"), Err(()));
+        assert_eq!(parse_date_time("2026/10/28"), Err(()));
+        assert_eq!(parse_date_time("28/10/2026"), Err(()));
+        assert_eq!(parse_date_time("20261028"), Err(()));
+        assert_eq!(parse_date_time("28102026"), Err(()));
+        assert_eq!(parse_date_time("10:27:23.235"), Err(()));
+        assert_eq!(parse_date_time("10:27:24"), Err(()));
+        assert_eq!(parse_date_time("1061"), Err(()));
+        assert_eq!(parse_date_time("106"), Err(()));
+        assert_eq!(parse_date_time("10"), Err(()));
+        assert_eq!(parse_date_time("1"), Err(()));
+        assert_eq!(parse_date_time("2026-10-28T10:27:29Z"), Err(()));
+        assert_eq!(parse_date_time("2026-10-28T10:27:29.973Z"), Err(()));
+        assert_eq!(parse_date_time("10-2026-28T10:27:29.973Z"), Err(()));
+        assert_eq!(parse_date_time("28-10-2026T10:27:29.973Z"), Err(()));
+    }
+
+    #[test]
+    fn parse_date_time_invalid_value() {
+        assert_eq!(parse_date_time("2029-12-00T20:42Z"), Err(()));
+        assert_eq!(parse_date_time("2029-11-31T20:42Z"), Err(()));
+        assert_eq!(parse_date_time("2029-12-32T20:42Z"), Err(()));
+        assert_eq!(parse_date_time("2029-00-26T20:42Z"), Err(()));
+        assert_eq!(parse_date_time("2029-13-26T20:42Z"), Err(()));
+        assert_eq!(parse_date_time("2029-17-83T20:42Z"), Err(()));
+        assert_eq!(parse_date_time("2024-04-26T24:00Z"), Err(()));
+        assert_eq!(parse_date_time("2024-04-26T00:60Z"), Err(()));
+        assert_eq!(parse_date_time("2024-04-26T24:20Z"), Err(()));
+        assert_eq!(parse_date_time("2024-04-26T04:99Z"), Err(()));
+        assert_eq!(parse_date_time("2024-04-26T72:93Z"), Err(()));
+    }
 
     #[test]
     fn validate_date_default() {
@@ -342,11 +384,17 @@ mod tests {
 
     #[test]
     fn validate_date_invalid_date_time() {
-        // TODO
-    }
-
-    #[test]
-    fn parse_iso() {
-        assert_eq!(parse_date_time("2029-12-31T06:11Z".into()), Ok(InternalDtTm(2029, 12, 31, 6, 11)));
+        let v = DateTimeValidation::default();
+        assert_eq!(validate_date_time(&v, &Value::from("2029-12-00T20:42Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2029-11-31T20:42Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2029-12-32T20:42Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2029-00-26T20:42Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2029-13-26T20:42Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2029-17-83T20:42Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2024-04-26T24:00Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2024-04-26T00:60Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2024-04-26T24:20Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2024-04-26T04:99Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
+        assert_eq!(validate_date_time(&v, &Value::from("2024-04-26T72:93Z"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
     }
 }

@@ -18,7 +18,10 @@ fn parse_time(s: &str) -> Result<InternalTm, ()> {
     let (_, [h, m]) = caps.extract();
     let h = h.parse::<u8>().map_err(|_| ())?;
     let m = m.parse::<u8>().map_err(|_| ())?;
-    if h <= 23 && m <= 59 { Ok(InternalTm(h, m)) } else { Err(()) }
+    if h > 23 || m > 59 {
+        return Err(());
+    }
+    Ok(InternalTm(h, m))
 }
 
 pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
