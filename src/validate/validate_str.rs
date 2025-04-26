@@ -1096,7 +1096,10 @@ mod test {
     #[test]
     fn test_validate_chars_len_btwn_field() {
         let v = StrValidation::default().chars_len_btwn_field("usize.values.nums.8".into(), "usize.values.nums.12".into());
-        let op_err = ValidationErr::CharsLen(Operation::Btwn(Operand::FieldPath("usize.values.nums.8".into()), Operand::FieldPath("usize.values.nums.12".into())));
+        let op_err = ValidationErr::CharsLen(Operation::Btwn(
+            Operand::FieldPath("usize.values.nums.8".into()),
+            Operand::FieldPath("usize.values.nums.12".into()),
+        ));
         assert_eq!(validate_str(&v, &Value::from("ओंकार"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
@@ -1180,7 +1183,10 @@ mod test {
     #[test]
     fn test_validate_graphemes_len_btwn_field() {
         let v = StrValidation::default().graphemes_len_btwn_field("usize.values.nums.8".into(), "usize.values.nums.12".into());
-        let op_err = ValidationErr::GraphemesLen(Operation::Btwn(Operand::FieldPath("usize.values.nums.8".into()), Operand::FieldPath("usize.values.nums.12".into())));
+        let op_err = ValidationErr::GraphemesLen(Operation::Btwn(
+            Operand::FieldPath("usize.values.nums.8".into()),
+            Operand::FieldPath("usize.values.nums.12".into()),
+        ));
         assert_eq!(validate_str(&v, &Value::from("ओंकार"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
@@ -1259,7 +1265,10 @@ mod test {
     #[test]
     fn test_validate_lowercase_len_btwn_field() {
         let v = StrValidation::default().lowercase_len_btwn_field("usize.values.nums.11".into(), "usize.values.nums.12".into());
-        let op_err = ValidationErr::LowercaseLen(Operation::Btwn(Operand::FieldPath("usize.values.nums.11".into()), Operand::FieldPath("usize.values.nums.12".into())));
+        let op_err = ValidationErr::LowercaseLen(Operation::Btwn(
+            Operand::FieldPath("usize.values.nums.11".into()),
+            Operand::FieldPath("usize.values.nums.12".into()),
+        ));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1336,7 +1345,10 @@ mod test {
     #[test]
     fn test_validate_uppercase_len_btwn_field() {
         let v = StrValidation::default().uppercase_len_btwn_field("usize.values.nums.11".into(), "usize.values.nums.12".into());
-        let op_err = ValidationErr::UppercaseLen(Operation::Btwn(Operand::FieldPath("usize.values.nums.11".into()), Operand::FieldPath("usize.values.nums.12".into())));
+        let op_err = ValidationErr::UppercaseLen(Operation::Btwn(
+            Operand::FieldPath("usize.values.nums.11".into()),
+            Operand::FieldPath("usize.values.nums.12".into()),
+        ));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1413,7 +1425,10 @@ mod test {
     #[test]
     fn test_validate_numbers_len_btwn_field() {
         let v = StrValidation::default().numbers_len_btwn_field("usize.values.nums.2".into(), "usize.values.nums.3".into());
-        let op_err = ValidationErr::NumbersLen(Operation::Btwn(Operand::FieldPath("usize.values.nums.2".into()), Operand::FieldPath("usize.values.nums.3".into())));
+        let op_err = ValidationErr::NumbersLen(Operation::Btwn(
+            Operand::FieldPath("usize.values.nums.2".into()),
+            Operand::FieldPath("usize.values.nums.3".into()),
+        ));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("22"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("333"), &ROOT), Ok(()));
@@ -1491,7 +1506,10 @@ mod test {
     #[test]
     fn test_validate_symbols_len_btwn_field() {
         let v = StrValidation::default().symbols_len_btwn_field("usize.values.nums.2".into(), "usize.values.nums.3".into());
-        let op_err = ValidationErr::SymbolsLen(Operation::Btwn(Operand::FieldPath("usize.values.nums.2".into()), Operand::FieldPath("usize.values.nums.3".into())));
+        let op_err = ValidationErr::SymbolsLen(Operation::Btwn(
+            Operand::FieldPath("usize.values.nums.2".into()),
+            Operand::FieldPath("usize.values.nums.3".into()),
+        ));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("@#"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("$%^"), &ROOT), Ok(()));
