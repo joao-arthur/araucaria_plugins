@@ -96,7 +96,8 @@ mod test {
 
     use araucaria::{
         validation::{
-            BoolValidation, EnumValidation, F64Validation, I64Validation, ISizeValidation, ObjValidation, U64Validation, USizeValidation, Validation,
+            BoolValidation, EnumValidation, F64Validation, I64Validation, ISizeValidation, ObjValidation, StrValidation, U64Validation,
+            USizeValidation, Validation,
         },
         value::Value,
     };
@@ -285,6 +286,12 @@ mod test {
         let v = Validation::Bool(BoolValidation::default());
         assert_eq!(value_from_json_and_schema(&serde_json::Value::Bool(false), &v), Value::Bool(false));
         assert_eq!(value_from_json_and_schema(&serde_json::Value::Bool(true), &v), Value::Bool(true));
+    }
+
+    #[test]
+    fn value_from_json_and_schema_string() {
+        let v = Validation::Str(StrValidation::default());
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::String("Naruto".into()), &v), Value::Str("Naruto".into()));
     }
 
     #[test]
