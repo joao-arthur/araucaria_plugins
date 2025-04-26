@@ -1,8 +1,36 @@
 use std::collections::BTreeMap;
 
-use araucaria::{validation::Validation, value::Value};
+use araucaria::{validation::{Validation, EnumValues}, value::Value};
 
-pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Validation>) -> Value {
+pub fn value_from_json_value(value: &serde_json::Value) -> Value {
+    match value {
+        serde_json::Value::Number(num) => {
+            if let Some(num) = num.as_u64() {
+                return Value::U64(num);
+            }
+            if let Some(num) = num.as_i64() {
+                return Value::I64(num);
+            }
+            if let Some(num) = num.as_f64() {
+                return Value::F64(num);
+            }
+            Value::None
+        }
+        serde_json::Value::Bool(bool) => Value::Bool(*bool),
+        serde_json::Value::String(str) => Value::Str(str.clone()),
+        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| value_from_json_value(item)).collect()),
+        serde_json::Value::Object(obj) => {
+            let mut result: BTreeMap<String, Value> = BTreeMap::new();
+            for (key, item) in obj {
+                result.insert(key.clone(), value_from_json_value(item));
+            }
+            Value::Obj(result)
+        }
+        serde_json::Value::Null => Value::None,
+    }
+}
+
+fn internal_value_from_json_value_and_schema(value: &serde_json::Value, validation: Option<&Validation>) -> Value {
     match value {
         serde_json::Value::Number(num) => {
             if let Some(Validation::U64(_)) = validation {
@@ -28,6 +56,30 @@ pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Vali
                 }
             }
             if let Some(Validation::ISize(_)) = validation {
+                if let Some(i64_num) = num.as_i64() {
+                    if let Ok(isize_num) = isize::try_from(i64_num) {
+                        return Value::ISize(isize_num);
+                    }
+                }
+            }
+            if let Some(Validation::Enum(v)) = validation {
+                match v.values {
+                    EnumValues::USize(_) => {
+                        if let Some(u64_num) = num.as_u64() {
+                            if let Ok(usize_num) = usize::try_from(u64_num) {
+                                return Value::USize(usize_num);
+                            }
+                        }
+                    }
+                    EnumValues::ISize(_) => {
+                        if let Some(i64_num) = num.as_i64() {
+                            if let Ok(isize_num) = isize::try_from(i64_num) {
+                                return Value::ISize(isize_num);
+                            }
+                        }
+                    }
+                    EnumValues::Str(_) => {return Value::None;}
+                }
                 if let Some(i64_num) = num.as_i64() {
                     if let Ok(isize_num) = isize::try_from(i64_num) {
                         return Value::ISize(isize_num);
@@ -62,6 +114,10 @@ pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Vali
         }
         serde_json::Value::Null => Value::None,
     }
+}
+
+pub fn value_from_json_value_and_schema(value: &serde_json::Value, validation: &Validation) -> Value {
+    internal_value_from_json_value_and_schema(value, Some(validation))
 }
 
 #[cfg(test)]
