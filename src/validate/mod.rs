@@ -5,29 +5,29 @@ use validate_bool::validate_bool;
 use validate_date::validate_date;
 use validate_date_time::validate_date_time;
 use validate_email::validate_email;
-use validate_num_f::validate_num_f;
-use validate_num_i::validate_num_i;
-use validate_num_u::validate_num_u;
+use validate_f64::validate_f64;
+use validate_i64::validate_i64;
 use validate_str::validate_str;
 use validate_time::validate_time;
+use validate_u64::validate_u64;
 
 mod validate_bool;
 mod validate_date;
 mod validate_date_time;
 mod validate_email;
-mod validate_num_f;
-mod validate_num_i;
-mod validate_num_u;
+mod validate_f64;
+mod validate_i64;
 mod validate_str;
 mod validate_time;
+mod validate_u64;
 
 pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     match validation {
-        Validation::U64(v) => validate_num_u(v, value, root),
-        Validation::I64(v) => validate_num_i(v, value, root),
-        Validation::F64(v) => validate_num_f(v, value, root),
-        Validation::USize(v) => Ok(()), //validate_num_f(v, value, root),
-        Validation::ISize(v) => Ok(()), //validate_num_f(v, value, root),
+        Validation::U64(v) => validate_u64(v, value, root),
+        Validation::I64(v) => validate_i64(v, value, root),
+        Validation::F64(v) => validate_f64(v, value, root),
+        Validation::USize(v) => Ok(()), //validate_f64(v, value, root),
+        Validation::ISize(v) => Ok(()), //validate_f64(v, value, root),
         Validation::Bool(v) => validate_bool(v, value, root),
         Validation::Str(v) => validate_str(v, value, root),
         Validation::Date(v) => validate_date(v, value, root),
