@@ -17,6 +17,7 @@ unicode-segmentation = "1.12.0"
 regex = "1.11.1"
 serde_json = "1.0.140"
 serde = "1.0.219"
+chrono = "0.4.40"
 
 [dev-dependencies]
 rocket = { version = "0.5.1", features = ["json"] }
