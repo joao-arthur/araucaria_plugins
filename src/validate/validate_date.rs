@@ -309,7 +309,6 @@ mod test {
     #[test]
     fn test_validate_date_invalid_format() {
         let v = DateValidation::default();
-        let root = Value::None;
         assert_eq!(validate_date(&v, &Value::from("10-10-2026"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::from("10-2026-10"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::from("2026/10/28"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));

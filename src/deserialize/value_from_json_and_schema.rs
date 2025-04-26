@@ -361,53 +361,90 @@ mod test {
     }
 
     #[test]
+    fn value_from_json_and_schema_arr() {
+        // TODO
+    }
+
+    #[test]
     fn test_value_from_json_nested_obj() {
+        let usize_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
+        let isize_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
+        let string_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
             "lvl_1".into(),
-            Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-                (
-                    "lvl_2".into(),
+            Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
+                "lvl_2".into(),
+                Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
+                    "lvl_3".into(),
                     Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-                        (
-                            "lvl_3".into(),
-                            Validation::Obj(
-                                ObjValidation::default().validation(BTreeMap::from([("num".into(), Validation::I64(I64Validation::default()))])),
-                            ),
-                        ),
-                        ("num".into(), Validation::U64(U64Validation::default())),
+                        ("u64".into(), Validation::U64(U64Validation::default())),
+                        ("i64".into(), Validation::I64(I64Validation::default())),
+                        ("f64".into(), Validation::F64(F64Validation::default())),
+                        ("usize".into(), Validation::USize(USizeValidation::default())),
+                        ("isize".into(), Validation::ISize(ISizeValidation::default())),
+                        ("bool".into(), Validation::Bool(BoolValidation::default())),
+                        ("str".into(), Validation::Str(StrValidation::default())),
+                        ("email".into(), Validation::Email(EmailValidation::default())),
+                        ("date".into(), Validation::Date(DateValidation::default())),
+                        ("time".into(), Validation::Time(TimeValidation::default())),
+                        ("datetime".into(), Validation::DateTime(DateTimeValidation::default())),
+                        ("enum_usize".into(), Validation::Enum(EnumValidation::from(usize_values))),
+                        ("enum_isize".into(), Validation::Enum(EnumValidation::from(isize_values))),
+                        ("enum_str".into(), Validation::Enum(EnumValidation::from(string_values))),
                     ]))),
-                ),
-                ("num".into(), Validation::I64(I64Validation::default())),
-            ]))),
+                )]))),
+            )]))),
         )])));
+        let value = Value::Obj(BTreeMap::from([(
+            "lvl_1".into(),
+            Value::Obj(BTreeMap::from([(
+                "lvl_2".into(),
+                Value::Obj(BTreeMap::from([(
+                    "lvl_3".into(),
+                    Value::Obj(BTreeMap::from([
+                        ("u64".into(), Value::U64(27)),
+                        ("i64".into(), Value::I64(-28)),
+                        ("f64".into(), Value::F64(-29.5)),
+                        ("usize".into(), Value::USize(30)),
+                        ("isize".into(), Value::ISize(-31)),
+                        ("bool".into(), Value::Bool(true)),
+                        ("str".into(), Value::Str("The king will come".into())),
+                        ("email".into(), Value::Str("plato@gmail.com".into())),
+                        ("date".into(), Value::Str("2025-04-26".into())),
+                        ("time".into(), Value::Str("18:27".into())),
+                        ("datetime".into(), Value::Str("2025-04-26T18:27Z".into())),
+                        ("enum_usize".into(), Value::USize(2)),
+                        ("enum_isize".into(), Value::ISize(-1)),
+                        ("enum_str".into(), Value::Str("MELON".into())),
+                    ])),
+                )])),
+            )])),
+        )]));
 
-        let mut map_level_3 = serde_json::Map::new();
-        map_level_3.insert("num".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
+        let mut json_map = serde_json::Map::new();
+        json_map.insert("u64".into(), serde_json::Value::Number(serde_json::Number::from_u128(27).unwrap()));
+        json_map.insert("i64".into(), serde_json::Value::Number(serde_json::Number::from_i128(-28).unwrap()));
+        json_map.insert("f64".into(), serde_json::Value::Number(serde_json::Number::from_f64(-29.5).unwrap()));
+        json_map.insert("usize".into(), serde_json::Value::Number(serde_json::Number::from_u128(30).unwrap()));
+        json_map.insert("isize".into(), serde_json::Value::Number(serde_json::Number::from_i128(-31).unwrap()));
+        json_map.insert("bool".into(), serde_json::Value::Bool(true));
+        json_map.insert("str".into(), serde_json::Value::String("The king will come".into()));
+        json_map.insert("email".into(), serde_json::Value::String("plato@gmail.com".into()));
+        json_map.insert("date".into(), serde_json::Value::String("2025-04-26".into()));
+        json_map.insert("time".into(), serde_json::Value::String("18:27".into()));
+        json_map.insert("datetime".into(), serde_json::Value::String("2025-04-26T18:27Z".into()));
+        json_map.insert("enum_usize".into(), serde_json::Value::Number(serde_json::Number::from_u128(2).unwrap()));
+        json_map.insert("enum_isize".into(), serde_json::Value::Number(serde_json::Number::from_i128(-1).unwrap()));
+        json_map.insert("enum_str".into(), serde_json::Value::String("MELON".into()));
+
         let mut map_level_2 = serde_json::Map::new();
-        map_level_2.insert("num".into(), serde_json::Value::Number(serde_json::Number::from_i128(-192_168).unwrap()));
-        map_level_2.insert("lvl_3".into(), serde_json::Value::Object(map_level_3));
+        map_level_2.insert("lvl_3".into(), serde_json::Value::Object(json_map));
         let mut map_level_1 = serde_json::Map::new();
-        map_level_1.insert("num".into(), serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap()));
         map_level_1.insert("lvl_2".into(), serde_json::Value::Object(map_level_2));
         let mut map = serde_json::Map::new();
         map.insert("lvl_1".into(), serde_json::Value::Object(map_level_1));
-        let value = serde_json::Value::Object(map);
+        let json_value = serde_json::Value::Object(map);
 
-        assert_eq!(
-            value_from_json_and_schema(&value, &validation),
-            Value::from([(
-                ("lvl_1".into()),
-                Value::from([
-                    (
-                        ("lvl_2".into()),
-                        Value::from([
-                            (("lvl_3".into()), Value::from([(("num".into()), Value::I64(192_168))])),
-                            (("num".into()), Value::I64(-192_168)),
-                        ])
-                    ),
-                    (("num".into()), Value::F64(-192.5)),
-                ])
-            )]),
-        );
+        assert_eq!(value_from_json_and_schema(&json_value, &validation), value);
     }
 }

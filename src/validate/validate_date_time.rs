@@ -320,7 +320,6 @@ mod test {
     #[test]
     fn test_validate_date_invalid_format() {
         let v = DateTimeValidation::default();
-        let root = Value::None;
         assert_eq!(validate_date_time(&v, &Value::from("10-10-2026"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
         assert_eq!(validate_date_time(&v, &Value::from("10-2026-10"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
         assert_eq!(validate_date_time(&v, &Value::from("2026/10/28"), &ROOT), Err(SchemaErr::validation([ValidationErr::DateTime])));
@@ -342,7 +341,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_invalid_date() {
+    fn test_validate_date_invalid_date_time() {
         // TODO
     }
 
