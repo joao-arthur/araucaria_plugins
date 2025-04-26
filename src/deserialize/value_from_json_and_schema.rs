@@ -292,6 +292,16 @@ mod test {
     fn value_from_json_and_schema_string() {
         let v = Validation::Str(StrValidation::default());
         assert_eq!(value_from_json_and_schema(&serde_json::Value::String("Naruto".into()), &v), Value::Str("Naruto".into()));
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::String("chuck@gmail.com".into()), &v), Value::Str("chuck@gmail.com".into()));
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::String("2025-04-26".into()), &v), Value::Str("2025-04-26".into()));
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::String("16:55".into()), &v), Value::Str("16:55".into()));
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::String("2025-04-26T16:55Z".into()), &v), Value::Str("2025-04-26T16:55Z".into()));
+    }
+
+    #[test]
+    fn value_from_json_and_schema_null() {
+        let v = Validation::U64(U64Validation::default());
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::Null, &v), Value::None);
     }
 
     #[test]
