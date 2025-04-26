@@ -53,9 +53,7 @@ fn internal_value_from_json_value_and_schema(value: &serde_json::Value, validati
                             }
                         }
                     }
-                    EnumValues::Str(_) => {
-                        return Value::None;
-                    }
+                    EnumValues::Str(_) => {}
                 }
             }
             if let Some(num) = num.as_u64() {
@@ -256,6 +254,26 @@ mod test {
 
         assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
         assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0)); // Not worth to fix
+        assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
+        assert_eq!(value_from_json_and_schema(&json_f64_neg_float, &v), Value::F64(-192.5));
+    }
+
+    #[test]
+    fn value_from_json_value_and_schema_enum_string() {
+        let enum_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
+        let v = Validation::Enum(EnumValidation::from(enum_values));
+        let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
+        let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
+        let json_i64_neg = serde_json::Value::Number(serde_json::Number::from_i128(-192).unwrap());
+        let json_f64_pos = serde_json::Value::Number(serde_json::Number::from_f64(192.0).unwrap());
+        let json_f64_neg = serde_json::Value::Number(serde_json::Number::from_f64(-192.0).unwrap());
+        let json_f64_pos_float = serde_json::Value::Number(serde_json::Number::from_f64(192.5).unwrap());
+        let json_f64_neg_float = serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap());
+        assert_eq!(value_from_json_and_schema(&json_u64, &v), Value::U64(192));
+        assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::U64(192));
+        assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::I64(-192));
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
+        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
         assert_eq!(value_from_json_and_schema(&json_f64_neg_float, &v), Value::F64(-192.5));
     }
