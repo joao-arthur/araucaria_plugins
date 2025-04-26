@@ -99,8 +99,9 @@ mod tests {
     }
 
     #[test]
-    fn parse_date_invalid_date() {
+    fn parse_date_invalid_value() {
         assert_eq!(parse_date("2029-12-00"), Err(()));
+        assert_eq!(parse_date("2029-11-31"), Err(()));
         assert_eq!(parse_date("2029-12-32"), Err(()));
         assert_eq!(parse_date("2029-00-26"), Err(()));
         assert_eq!(parse_date("2029-13-26"), Err(()));
@@ -342,7 +343,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_date_invalid_date() {
+    fn validate_date_invalid_value() {
         let v = DateValidation::default();
         assert_eq!(validate_date(&v, &Value::from("2029-12-00"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::from("2029-12-32"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));

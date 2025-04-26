@@ -14,14 +14,11 @@ struct InternalTm(pub u8, pub u8);
 static TM_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^([0-9]{2}):([0-9]{2})$").unwrap());
 
 fn parse_time(s: &str) -> Result<InternalTm, ()> {
-    if let Some(caps) = TM_REGEX.captures(s) {
-        let c: (&str, [&str; 2]) = caps.extract();
-        let h = c.1[0].parse::<u8>().map_err(|_| ())?;
-        let m = c.1[1].parse::<u8>().map_err(|_| ())?;
-        Ok(InternalTm(h, m))
-    } else {
-        Err(())
-    }
+    let caps = TM_REGEX.captures(s).ok_or(())?;
+    let (_, [h, m]) = caps.extract();
+    let h = h.parse::<u8>().map_err(|_| ())?;
+    let m = m.parse::<u8>().map_err(|_| ())?;
+    if h <= 23 && m <= 59 { Ok(InternalTm(h, m)) } else { Err(()) }
 }
 
 pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
@@ -81,6 +78,30 @@ mod tests {
             ]),
         )]))
     });
+
+    #[test]
+    fn parse_time_ok() {
+        assert_eq!(parse_time("06:11"), Ok(InternalTm(6, 11)));
+    }
+
+    #[test]
+    fn parse_time_invalid_format() {
+        assert_eq!(parse_time("10:27:23.235"), Err(()));
+        assert_eq!(parse_time("10:27:24"), Err(()));
+        assert_eq!(parse_time("1061"), Err(()));
+        assert_eq!(parse_time("106"), Err(()));
+        assert_eq!(parse_time("10"), Err(()));
+        assert_eq!(parse_time("1"), Err(()));
+    }
+
+    #[test]
+    fn parse_time_invalid_value() {
+        assert_eq!(parse_time("24:00"), Err(()));
+        assert_eq!(parse_time("00:60"), Err(()));
+        assert_eq!(parse_time("24:20"), Err(()));
+        assert_eq!(parse_time("04:99"), Err(()));
+        assert_eq!(parse_time("72:93"), Err(()));
+    }
 
     #[test]
     fn validate_date_default() {
@@ -314,12 +335,10 @@ mod tests {
     }
 
     #[test]
-    fn validate_time_invalid_date() {
-        // TODO
-    }
-
-    #[test]
-    fn parse_time_ok() {
-        assert_eq!(parse_time("06:11".into()), Ok(InternalTm(6, 11)));
+    fn validate_time_invalid_value() {
+        let v = TimeValidation::default();
+        assert_eq!(validate_time(&v, &Value::from("24:20"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
+        assert_eq!(validate_time(&v, &Value::from("04:99"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
+        assert_eq!(validate_time(&v, &Value::from("72:93"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
     }
 }
