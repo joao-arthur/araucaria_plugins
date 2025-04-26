@@ -10,6 +10,7 @@ use validate_i64::validate_i64;
 use validate_str::validate_str;
 use validate_time::validate_time;
 use validate_u64::validate_u64;
+use validate_usize::validate_usize;
 
 mod validate_bool;
 mod validate_date;
@@ -20,13 +21,14 @@ mod validate_i64;
 mod validate_str;
 mod validate_time;
 mod validate_u64;
+mod validate_usize;
 
 pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     match validation {
         Validation::U64(v) => validate_u64(v, value, root),
         Validation::I64(v) => validate_i64(v, value, root),
         Validation::F64(v) => validate_f64(v, value, root),
-        Validation::USize(v) => Ok(()), //validate_f64(v, value, root),
+        Validation::USize(v) => validate_usize(v, value, root),
         Validation::ISize(v) => Ok(()), //validate_f64(v, value, root),
         Validation::Bool(v) => validate_bool(v, value, root),
         Validation::Str(v) => validate_str(v, value, root),
