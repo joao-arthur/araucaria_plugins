@@ -6,18 +6,32 @@ pub fn value_from_json_value(value: &serde_json::Value, validation: Option<&Vali
     match value {
         serde_json::Value::Number(num) => {
             if let Some(Validation::U64(_)) = validation {
-                if let Some(num) = num.as_u64() {
-                    return Value::U64(num);
+                if let Some(u64_num) = num.as_u64() {
+                    return Value::U64(u64_num);
                 }
             }
             if let Some(Validation::I64(_)) = validation {
-                if let Some(num) = num.as_i64() {
-                    return Value::I64(num);
+                if let Some(i64_num) = num.as_i64() {
+                    return Value::I64(i64_num);
                 }
             }
             if let Some(Validation::F64(_)) = validation {
-                if let Some(num) = num.as_f64() {
-                    return Value::F64(num);
+                if let Some(f64_num) = num.as_f64() {
+                    return Value::F64(f64_num);
+                }
+            }
+            if let Some(Validation::USize(_)) = validation {
+                if let Some(u64_num) = num.as_u64() {
+                    if let Ok(usize_num) = usize::try_from(u64_num) {
+                        return Value::USize(usize_num);
+                    }
+                }
+            }
+            if let Some(Validation::ISize(_)) = validation {
+                if let Some(i64_num) = num.as_i64() {
+                    if let Ok(isize_num) = isize::try_from(i64_num) {
+                        return Value::ISize(isize_num);
+                    }
                 }
             }
             if let Some(num) = num.as_u64() {
