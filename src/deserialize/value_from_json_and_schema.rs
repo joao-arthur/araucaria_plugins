@@ -102,7 +102,7 @@ mod test {
     use std::collections::BTreeMap;
 
     use araucaria::{
-        validation::{F64Validation, I64Validation, ObjValidation, U64Validation, Validation},
+        validation::{F64Validation, I64Validation, ObjValidation, U64Validation, USizeValidation, Validation},
         value::Value,
     };
 
@@ -174,6 +174,30 @@ mod test {
         assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
 
         assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::F64(-192.0));
+        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
+        assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
+        assert_eq!(value_from_json_and_schema(&json_f64_neg_float, &v), Value::F64(-192.5));
+    }
+
+    #[test]
+    fn value_from_json_value_and_schema_usize() {
+        let v = Validation::USize(USizeValidation::default());
+        let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
+        let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
+
+        let json_f64_pos = serde_json::Value::Number(serde_json::Number::from_f64(192.0).unwrap());
+
+        let json_i64_neg = serde_json::Value::Number(serde_json::Number::from_i128(-192).unwrap());
+        let json_f64_neg = serde_json::Value::Number(serde_json::Number::from_f64(-192.0).unwrap());
+        let json_f64_pos_float = serde_json::Value::Number(serde_json::Number::from_f64(192.5).unwrap());
+        let json_f64_neg_float = serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap());
+
+        assert_eq!(value_from_json_and_schema(&json_u64, &v), Value::USize(192));
+        assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::USize(192));
+
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
+
+        assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::I64(-192));
         assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
         assert_eq!(value_from_json_and_schema(&json_f64_neg_float, &v), Value::F64(-192.5));
