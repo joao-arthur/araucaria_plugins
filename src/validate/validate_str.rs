@@ -148,7 +148,7 @@ pub fn validate_str(validation: &StrValidation, value: &Value, root: &Value) -> 
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
@@ -216,7 +216,7 @@ mod test {
     });
 
     #[test]
-    fn test_validate_str_default() {
+    fn validate_str_default() {
         let v = StrValidation::default();
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str])));
@@ -224,7 +224,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_optional() {
+    fn validate_str_optional() {
         let v = StrValidation::default().optional();
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Str])));
@@ -232,7 +232,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_eq_value() {
+    fn validate_str_eq_value() {
         let v = StrValidation::default().eq("Cogito ergo sum".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("Cogito ergo sum"))));
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
@@ -242,7 +242,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_ne_value() {
+    fn validate_str_ne_value() {
         let v = StrValidation::default().ne("Cogito ergo sum".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("Cogito ergo sum"))));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Ok(()));
@@ -252,7 +252,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_gt_value() {
+    fn validate_str_gt_value() {
         let v = StrValidation::default().gt("j".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -263,7 +263,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_ge_value() {
+    fn validate_str_ge_value() {
         let v = StrValidation::default().ge("j".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -274,7 +274,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_lt_value() {
+    fn validate_str_lt_value() {
         let v = StrValidation::default().lt("j".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Ok(()));
@@ -285,7 +285,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_le_value() {
+    fn validate_str_le_value() {
         let v = StrValidation::default().le("j".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("j"))));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Ok(()));
@@ -296,7 +296,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_btwn_value() {
+    fn validate_str_btwn_value() {
         let v = StrValidation::default().btwn("f".into(), "l".into());
         let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::from("f")), Operand::Value(OperandValue::from("l"))));
         assert_eq!(validate_str(&v, &Value::from("e"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -309,7 +309,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_eq_value() {
+    fn validate_bytes_len_eq_value() {
         let v = StrValidation::default().bytes_len_eq(16);
         let op_err = ValidationErr::BytesLen(Operation::Eq(Operand::Value(OperandValue::USize(16))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -320,7 +320,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_ne_value() {
+    fn validate_bytes_len_ne_value() {
         let v = StrValidation::default().bytes_len_ne(16);
         let op_err = ValidationErr::BytesLen(Operation::Ne(Operand::Value(OperandValue::USize(16))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -331,7 +331,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_gt_value() {
+    fn validate_bytes_len_gt_value() {
         let v = StrValidation::default().bytes_len_gt(23);
         let op_err = ValidationErr::BytesLen(Operation::Gt(Operand::Value(OperandValue::USize(23))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -342,7 +342,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_ge_value() {
+    fn validate_bytes_len_ge_value() {
         let v = StrValidation::default().bytes_len_ge(23);
         let op_err = ValidationErr::BytesLen(Operation::Ge(Operand::Value(OperandValue::USize(23))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -353,7 +353,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_lt_value() {
+    fn validate_bytes_len_lt_value() {
         let v = StrValidation::default().bytes_len_lt(23);
         let op_err = ValidationErr::BytesLen(Operation::Lt(Operand::Value(OperandValue::USize(23))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -364,7 +364,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_le_value() {
+    fn validate_bytes_len_le_value() {
         let v = StrValidation::default().bytes_len_le(23);
         let op_err = ValidationErr::BytesLen(Operation::Le(Operand::Value(OperandValue::USize(23))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -375,7 +375,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_btwn_value() {
+    fn validate_bytes_len_btwn_value() {
         let v = StrValidation::default().bytes_len_btwn(23, 29);
         let op_err = ValidationErr::BytesLen(Operation::Btwn(Operand::Value(OperandValue::USize(23)), Operand::Value(OperandValue::USize(29))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -387,7 +387,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_eq_value() {
+    fn validate_chars_len_eq_value() {
         let v = StrValidation::default().chars_len_eq(16);
         let op_err = ValidationErr::CharsLen(Operation::Eq(Operand::Value(OperandValue::USize(16))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -399,7 +399,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_ne_value() {
+    fn validate_chars_len_ne_value() {
         let v = StrValidation::default().chars_len_ne(16);
         let op_err = ValidationErr::CharsLen(Operation::Ne(Operand::Value(OperandValue::USize(16))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -411,7 +411,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_gt_value() {
+    fn validate_chars_len_gt_value() {
         let v = StrValidation::default().chars_len_gt(12);
         let op_err = ValidationErr::CharsLen(Operation::Gt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -422,7 +422,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_ge_value() {
+    fn validate_chars_len_ge_value() {
         let v = StrValidation::default().chars_len_ge(12);
         let op_err = ValidationErr::CharsLen(Operation::Ge(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -434,7 +434,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_lt_value() {
+    fn validate_chars_len_lt_value() {
         let v = StrValidation::default().chars_len_lt(12);
         let op_err = ValidationErr::CharsLen(Operation::Lt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -446,7 +446,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_le_value() {
+    fn validate_chars_len_le_value() {
         let v = StrValidation::default().chars_len_le(12);
         let op_err = ValidationErr::CharsLen(Operation::Le(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -458,7 +458,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_btwn_value() {
+    fn validate_chars_len_btwn_value() {
         let v = StrValidation::default().chars_len_btwn(8, 12);
         let op_err = ValidationErr::CharsLen(Operation::Btwn(Operand::Value(OperandValue::USize(8)), Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("ओंकार"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -471,7 +471,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_eq_value() {
+    fn validate_graphemes_len_eq_value() {
         let v = StrValidation::default().graphemes_len_eq(16);
         let op_err = ValidationErr::GraphemesLen(Operation::Eq(Operand::Value(OperandValue::USize(16))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -483,7 +483,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_ne_value() {
+    fn validate_graphemes_len_ne_value() {
         let v = StrValidation::default().graphemes_len_ne(16);
         let op_err = ValidationErr::GraphemesLen(Operation::Ne(Operand::Value(OperandValue::USize(16))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -495,7 +495,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_gt_value() {
+    fn validate_graphemes_len_gt_value() {
         let v = StrValidation::default().graphemes_len_gt(12);
         let op_err = ValidationErr::GraphemesLen(Operation::Gt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -506,7 +506,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_ge_value() {
+    fn validate_graphemes_len_ge_value() {
         let v = StrValidation::default().graphemes_len_ge(12);
         let op_err = ValidationErr::GraphemesLen(Operation::Ge(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -518,7 +518,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_lt_value() {
+    fn validate_graphemes_len_lt_value() {
         let v = StrValidation::default().graphemes_len_lt(12);
         let op_err = ValidationErr::GraphemesLen(Operation::Lt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -530,7 +530,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_le_value() {
+    fn validate_graphemes_len_le_value() {
         let v = StrValidation::default().graphemes_len_le(12);
         let op_err = ValidationErr::GraphemesLen(Operation::Le(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -542,7 +542,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_btwn_value() {
+    fn validate_graphemes_len_btwn_value() {
         let v = StrValidation::default().graphemes_len_btwn(8, 12);
         let op_err = ValidationErr::GraphemesLen(Operation::Btwn(Operand::Value(OperandValue::USize(8)), Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("ओंकार"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -555,7 +555,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_eq_value() {
+    fn validate_lowercase_len_eq_value() {
         let v = StrValidation::default().lowercase_len_eq(12);
         let op_err = ValidationErr::LowercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -566,7 +566,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_ne_value() {
+    fn validate_lowercase_len_ne_value() {
         let v = StrValidation::default().lowercase_len_ne(12);
         let op_err = ValidationErr::LowercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -577,7 +577,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_gt_value() {
+    fn validate_lowercase_len_gt_value() {
         let v = StrValidation::default().lowercase_len_gt(12);
         let op_err = ValidationErr::LowercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -588,7 +588,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_ge_value() {
+    fn validate_lowercase_len_ge_value() {
         let v = StrValidation::default().lowercase_len_ge(12);
         let op_err = ValidationErr::LowercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -599,7 +599,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_lt_value() {
+    fn validate_lowercase_len_lt_value() {
         let v = StrValidation::default().lowercase_len_lt(12);
         let op_err = ValidationErr::LowercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
@@ -610,7 +610,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_le_value() {
+    fn validate_lowercase_len_le_value() {
         let v = StrValidation::default().lowercase_len_le(12);
         let op_err = ValidationErr::LowercaseLen(Operation::Le(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
@@ -621,7 +621,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_btwn_value() {
+    fn validate_lowercase_len_btwn_value() {
         let v = StrValidation::default().lowercase_len_btwn(11, 12);
         let op_err = ValidationErr::LowercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(11)), Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
@@ -632,7 +632,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_eq_value() {
+    fn validate_uppercase_len_eq_value() {
         let v = StrValidation::default().uppercase_len_eq(12);
         let op_err = ValidationErr::UppercaseLen(Operation::Eq(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Ok(()));
@@ -643,7 +643,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_ne_value() {
+    fn validate_uppercase_len_ne_value() {
         let v = StrValidation::default().uppercase_len_ne(12);
         let op_err = ValidationErr::UppercaseLen(Operation::Ne(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -654,7 +654,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_gt_value() {
+    fn validate_uppercase_len_gt_value() {
         let v = StrValidation::default().uppercase_len_gt(12);
         let op_err = ValidationErr::UppercaseLen(Operation::Gt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -665,7 +665,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_ge_value() {
+    fn validate_uppercase_len_ge_value() {
         let v = StrValidation::default().uppercase_len_ge(12);
         let op_err = ValidationErr::UppercaseLen(Operation::Ge(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -676,7 +676,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_lt_value() {
+    fn validate_uppercase_len_lt_value() {
         let v = StrValidation::default().uppercase_len_lt(12);
         let op_err = ValidationErr::UppercaseLen(Operation::Lt(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Ok(()));
@@ -687,7 +687,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_le_value() {
+    fn validate_uppercase_len_le_value() {
         let v = StrValidation::default().uppercase_len_le(12);
         let op_err = ValidationErr::UppercaseLen(Operation::Le(Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Ok(()));
@@ -698,7 +698,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_btwn_value() {
+    fn validate_uppercase_len_btwn_value() {
         let v = StrValidation::default().uppercase_len_btwn(11, 12);
         let op_err = ValidationErr::UppercaseLen(Operation::Btwn(Operand::Value(OperandValue::USize(11)), Operand::Value(OperandValue::USize(12))));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Ok(()));
@@ -709,7 +709,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_eq_value() {
+    fn validate_numbers_len_eq_value() {
         let v = StrValidation::default().numbers_len_eq(2);
         let op_err = ValidationErr::NumbersLen(Operation::Eq(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -720,7 +720,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_ne_value() {
+    fn validate_numbers_len_ne_value() {
         let v = StrValidation::default().numbers_len_ne(2);
         let op_err = ValidationErr::NumbersLen(Operation::Ne(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Ok(()));
@@ -731,7 +731,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_gt_value() {
+    fn validate_numbers_len_gt_value() {
         let v = StrValidation::default().numbers_len_gt(2);
         let op_err = ValidationErr::NumbersLen(Operation::Gt(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -742,7 +742,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_ge_value() {
+    fn validate_numbers_len_ge_value() {
         let v = StrValidation::default().numbers_len_ge(2);
         let op_err = ValidationErr::NumbersLen(Operation::Ge(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -753,7 +753,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_lt_value() {
+    fn validate_numbers_len_lt_value() {
         let v = StrValidation::default().numbers_len_lt(2);
         let op_err = ValidationErr::NumbersLen(Operation::Lt(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Ok(()));
@@ -764,7 +764,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_le_value() {
+    fn validate_numbers_len_le_value() {
         let v = StrValidation::default().numbers_len_le(2);
         let op_err = ValidationErr::NumbersLen(Operation::Le(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Ok(()));
@@ -775,7 +775,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_btwn_value() {
+    fn validate_numbers_len_btwn_value() {
         let v = StrValidation::default().numbers_len_btwn(2, 3);
         let op_err = ValidationErr::NumbersLen(Operation::Btwn(Operand::Value(OperandValue::USize(2)), Operand::Value(OperandValue::USize(3))));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -787,7 +787,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_eq_value() {
+    fn validate_symbols_len_eq_value() {
         let v = StrValidation::default().symbols_len_eq(2);
         let op_err = ValidationErr::SymbolsLen(Operation::Eq(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -798,7 +798,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_ne_value() {
+    fn validate_symbols_len_ne_value() {
         let v = StrValidation::default().symbols_len_ne(2);
         let op_err = ValidationErr::SymbolsLen(Operation::Ne(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Ok(()));
@@ -809,7 +809,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_gt_value() {
+    fn validate_symbols_len_gt_value() {
         let v = StrValidation::default().symbols_len_gt(2);
         let op_err = ValidationErr::SymbolsLen(Operation::Gt(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -820,7 +820,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_ge_value() {
+    fn validate_symbols_len_ge_value() {
         let v = StrValidation::default().symbols_len_ge(2);
         let op_err = ValidationErr::SymbolsLen(Operation::Ge(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -831,7 +831,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_lt_value() {
+    fn validate_symbols_len_lt_value() {
         let v = StrValidation::default().symbols_len_lt(2);
         let op_err = ValidationErr::SymbolsLen(Operation::Lt(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Ok(()));
@@ -842,7 +842,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_le_value() {
+    fn validate_symbols_len_le_value() {
         let v = StrValidation::default().symbols_len_le(2);
         let op_err = ValidationErr::SymbolsLen(Operation::Le(Operand::Value(OperandValue::USize(2))));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Ok(()));
@@ -853,7 +853,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_btwn_value() {
+    fn validate_symbols_len_btwn_value() {
         let v = StrValidation::default().symbols_len_btwn(2, 3);
         let op_err = ValidationErr::SymbolsLen(Operation::Btwn(Operand::Value(OperandValue::USize(2)), Operand::Value(OperandValue::USize(3))));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -865,7 +865,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_eq_field() {
+    fn validate_str_eq_field() {
         let v = StrValidation::default().eq_field("str.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
@@ -875,7 +875,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_ne_field() {
+    fn validate_str_ne_field() {
         let v = StrValidation::default().ne_field("str.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Ok(()));
@@ -885,7 +885,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_gt_field() {
+    fn validate_str_gt_field() {
         let v = StrValidation::default().gt_field("str.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -896,7 +896,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_ge_field() {
+    fn validate_str_ge_field() {
         let v = StrValidation::default().ge_field("str.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -907,7 +907,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_lt_field() {
+    fn validate_str_lt_field() {
         let v = StrValidation::default().lt_field("str.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Ok(()));
@@ -918,7 +918,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_le_field() {
+    fn validate_str_le_field() {
         let v = StrValidation::default().le_field("str.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Ok(()));
@@ -929,7 +929,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_str_btwn_field() {
+    fn validate_str_btwn_field() {
         let v = StrValidation::default().btwn_field("str.1.value".into(), "str.2.value".into());
         let op_err = ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("str.1.value".into()), Operand::FieldPath("str.2.value".into())));
         assert_eq!(validate_str(&v, &Value::from("e"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -942,7 +942,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_eq_field() {
+    fn validate_bytes_len_eq_field() {
         let v = StrValidation::default().bytes_len_eq_field("usize.values.nums.16".into());
         let op_err = ValidationErr::BytesLen(Operation::Eq(Operand::FieldPath("usize.values.nums.16".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -953,7 +953,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_ne_field() {
+    fn validate_bytes_len_ne_field() {
         let v = StrValidation::default().bytes_len_ne_field("usize.values.nums.16".into());
         let op_err = ValidationErr::BytesLen(Operation::Ne(Operand::FieldPath("usize.values.nums.16".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -964,7 +964,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_gt_field() {
+    fn validate_bytes_len_gt_field() {
         let v = StrValidation::default().bytes_len_gt_field("usize.values.nums.23".into());
         let op_err = ValidationErr::BytesLen(Operation::Gt(Operand::FieldPath("usize.values.nums.23".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -975,7 +975,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_ge_field() {
+    fn validate_bytes_len_ge_field() {
         let v = StrValidation::default().bytes_len_ge_field("usize.values.nums.23".into());
         let op_err = ValidationErr::BytesLen(Operation::Ge(Operand::FieldPath("usize.values.nums.23".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -986,7 +986,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_lt_field() {
+    fn validate_bytes_len_lt_field() {
         let v = StrValidation::default().bytes_len_lt_field("usize.values.nums.23".into());
         let op_err = ValidationErr::BytesLen(Operation::Lt(Operand::FieldPath("usize.values.nums.23".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -997,7 +997,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_le_field() {
+    fn validate_bytes_len_le_field() {
         let v = StrValidation::default().bytes_len_le_field("usize.values.nums.23".into());
         let op_err = ValidationErr::BytesLen(Operation::Le(Operand::FieldPath("usize.values.nums.23".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1008,7 +1008,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bytes_len_btwn_field() {
+    fn validate_bytes_len_btwn_field() {
         let v = StrValidation::default().bytes_len_btwn_field("usize.values.nums.23".into(), "usize.values.nums.29".into());
         let op_err = ValidationErr::BytesLen(Operation::Btwn(
             Operand::FieldPath("usize.values.nums.23".into()),
@@ -1023,7 +1023,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_eq_field() {
+    fn validate_chars_len_eq_field() {
         let v = StrValidation::default().chars_len_eq_field("usize.values.nums.16".into());
         let op_err = ValidationErr::CharsLen(Operation::Eq(Operand::FieldPath("usize.values.nums.16".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1035,7 +1035,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_ne_field() {
+    fn validate_chars_len_ne_field() {
         let v = StrValidation::default().chars_len_ne_field("usize.values.nums.16".into());
         let op_err = ValidationErr::CharsLen(Operation::Ne(Operand::FieldPath("usize.values.nums.16".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1047,7 +1047,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_gt_field() {
+    fn validate_chars_len_gt_field() {
         let v = StrValidation::default().chars_len_gt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::CharsLen(Operation::Gt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1058,7 +1058,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_ge_field() {
+    fn validate_chars_len_ge_field() {
         let v = StrValidation::default().chars_len_ge_field("usize.values.nums.12".into());
         let op_err = ValidationErr::CharsLen(Operation::Ge(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1070,7 +1070,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_lt_field() {
+    fn validate_chars_len_lt_field() {
         let v = StrValidation::default().chars_len_lt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::CharsLen(Operation::Lt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1082,7 +1082,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_le_field() {
+    fn validate_chars_len_le_field() {
         let v = StrValidation::default().chars_len_le_field("usize.values.nums.12".into());
         let op_err = ValidationErr::CharsLen(Operation::Le(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1094,7 +1094,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_chars_len_btwn_field() {
+    fn validate_chars_len_btwn_field() {
         let v = StrValidation::default().chars_len_btwn_field("usize.values.nums.8".into(), "usize.values.nums.12".into());
         let op_err = ValidationErr::CharsLen(Operation::Btwn(
             Operand::FieldPath("usize.values.nums.8".into()),
@@ -1110,7 +1110,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_eq_field() {
+    fn validate_graphemes_len_eq_field() {
         let v = StrValidation::default().graphemes_len_eq_field("usize.values.nums.16".into());
         let op_err = ValidationErr::GraphemesLen(Operation::Eq(Operand::FieldPath("usize.values.nums.16".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1122,7 +1122,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_ne_field() {
+    fn validate_graphemes_len_ne_field() {
         let v = StrValidation::default().graphemes_len_ne_field("usize.values.nums.16".into());
         let op_err = ValidationErr::GraphemesLen(Operation::Ne(Operand::FieldPath("usize.values.nums.16".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1134,7 +1134,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_gt_field() {
+    fn validate_graphemes_len_gt_field() {
         let v = StrValidation::default().graphemes_len_gt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::GraphemesLen(Operation::Gt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1145,7 +1145,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_ge_field() {
+    fn validate_graphemes_len_ge_field() {
         let v = StrValidation::default().graphemes_len_ge_field("usize.values.nums.12".into());
         let op_err = ValidationErr::GraphemesLen(Operation::Ge(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1157,7 +1157,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_lt_field() {
+    fn validate_graphemes_len_lt_field() {
         let v = StrValidation::default().graphemes_len_lt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::GraphemesLen(Operation::Lt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1169,7 +1169,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_le_field() {
+    fn validate_graphemes_len_le_field() {
         let v = StrValidation::default().graphemes_len_le_field("usize.values.nums.12".into());
         let op_err = ValidationErr::GraphemesLen(Operation::Le(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1181,7 +1181,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_graphemes_len_btwn_field() {
+    fn validate_graphemes_len_btwn_field() {
         let v = StrValidation::default().graphemes_len_btwn_field("usize.values.nums.8".into(), "usize.values.nums.12".into());
         let op_err = ValidationErr::GraphemesLen(Operation::Btwn(
             Operand::FieldPath("usize.values.nums.8".into()),
@@ -1197,7 +1197,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_eq_field() {
+    fn validate_lowercase_len_eq_field() {
         let v = StrValidation::default().lowercase_len_eq_field("usize.values.nums.12".into());
         let op_err = ValidationErr::LowercaseLen(Operation::Eq(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
@@ -1208,7 +1208,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_ne_field() {
+    fn validate_lowercase_len_ne_field() {
         let v = StrValidation::default().lowercase_len_ne_field("usize.values.nums.12".into());
         let op_err = ValidationErr::LowercaseLen(Operation::Ne(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1219,7 +1219,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_gt_field() {
+    fn validate_lowercase_len_gt_field() {
         let v = StrValidation::default().lowercase_len_gt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::LowercaseLen(Operation::Gt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1230,7 +1230,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_ge_field() {
+    fn validate_lowercase_len_ge_field() {
         let v = StrValidation::default().lowercase_len_ge_field("usize.values.nums.12".into());
         let op_err = ValidationErr::LowercaseLen(Operation::Ge(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1241,7 +1241,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_lt_field() {
+    fn validate_lowercase_len_lt_field() {
         let v = StrValidation::default().lowercase_len_lt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::LowercaseLen(Operation::Lt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
@@ -1252,7 +1252,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_le_field() {
+    fn validate_lowercase_len_le_field() {
         let v = StrValidation::default().lowercase_len_le_field("usize.values.nums.12".into());
         let op_err = ValidationErr::LowercaseLen(Operation::Le(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
@@ -1263,7 +1263,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_lowercase_len_btwn_field() {
+    fn validate_lowercase_len_btwn_field() {
         let v = StrValidation::default().lowercase_len_btwn_field("usize.values.nums.11".into(), "usize.values.nums.12".into());
         let op_err = ValidationErr::LowercaseLen(Operation::Btwn(
             Operand::FieldPath("usize.values.nums.11".into()),
@@ -1277,7 +1277,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_eq_field() {
+    fn validate_uppercase_len_eq_field() {
         let v = StrValidation::default().uppercase_len_eq_field("usize.values.nums.12".into());
         let op_err = ValidationErr::UppercaseLen(Operation::Eq(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Ok(()));
@@ -1288,7 +1288,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_ne_field() {
+    fn validate_uppercase_len_ne_field() {
         let v = StrValidation::default().uppercase_len_ne_field("usize.values.nums.12".into());
         let op_err = ValidationErr::UppercaseLen(Operation::Ne(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("VENI, VIDI, VICI"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1299,7 +1299,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_gt_field() {
+    fn validate_uppercase_len_gt_field() {
         let v = StrValidation::default().uppercase_len_gt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::UppercaseLen(Operation::Gt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1310,7 +1310,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_ge_field() {
+    fn validate_uppercase_len_ge_field() {
         let v = StrValidation::default().uppercase_len_ge_field("usize.values.nums.12".into());
         let op_err = ValidationErr::UppercaseLen(Operation::Ge(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1321,7 +1321,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_lt_field() {
+    fn validate_uppercase_len_lt_field() {
         let v = StrValidation::default().uppercase_len_lt_field("usize.values.nums.12".into());
         let op_err = ValidationErr::UppercaseLen(Operation::Lt(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Ok(()));
@@ -1332,7 +1332,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_le_field() {
+    fn validate_uppercase_len_le_field() {
         let v = StrValidation::default().uppercase_len_le_field("usize.values.nums.12".into());
         let op_err = ValidationErr::UppercaseLen(Operation::Le(Operand::FieldPath("usize.values.nums.12".into())));
         assert_eq!(validate_str(&v, &Value::from("ГРУППА КРОВИ"), &ROOT), Ok(()));
@@ -1343,7 +1343,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_uppercase_len_btwn_field() {
+    fn validate_uppercase_len_btwn_field() {
         let v = StrValidation::default().uppercase_len_btwn_field("usize.values.nums.11".into(), "usize.values.nums.12".into());
         let op_err = ValidationErr::UppercaseLen(Operation::Btwn(
             Operand::FieldPath("usize.values.nums.11".into()),
@@ -1357,7 +1357,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_eq_field() {
+    fn validate_numbers_len_eq_field() {
         let v = StrValidation::default().numbers_len_eq_field("usize.values.nums.2".into());
         let op_err = ValidationErr::NumbersLen(Operation::Eq(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1368,7 +1368,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_ne_field() {
+    fn validate_numbers_len_ne_field() {
         let v = StrValidation::default().numbers_len_ne_field("usize.values.nums.2".into());
         let op_err = ValidationErr::NumbersLen(Operation::Ne(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Ok(()));
@@ -1379,7 +1379,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_gt_field() {
+    fn validate_numbers_len_gt_field() {
         let v = StrValidation::default().numbers_len_gt_field("usize.values.nums.2".into());
         let op_err = ValidationErr::NumbersLen(Operation::Gt(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1390,7 +1390,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_ge_field() {
+    fn validate_numbers_len_ge_field() {
         let v = StrValidation::default().numbers_len_ge_field("usize.values.nums.2".into());
         let op_err = ValidationErr::NumbersLen(Operation::Ge(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1401,7 +1401,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_lt_field() {
+    fn validate_numbers_len_lt_field() {
         let v = StrValidation::default().numbers_len_lt_field("usize.values.nums.2".into());
         let op_err = ValidationErr::NumbersLen(Operation::Lt(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Ok(()));
@@ -1412,7 +1412,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_le_field() {
+    fn validate_numbers_len_le_field() {
         let v = StrValidation::default().numbers_len_le_field("usize.values.nums.2".into());
         let op_err = ValidationErr::NumbersLen(Operation::Le(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("1"), &ROOT), Ok(()));
@@ -1423,7 +1423,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_numbers_len_btwn_field() {
+    fn validate_numbers_len_btwn_field() {
         let v = StrValidation::default().numbers_len_btwn_field("usize.values.nums.2".into(), "usize.values.nums.3".into());
         let op_err = ValidationErr::NumbersLen(Operation::Btwn(
             Operand::FieldPath("usize.values.nums.2".into()),
@@ -1438,7 +1438,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_eq_field() {
+    fn validate_symbols_len_eq_field() {
         let v = StrValidation::default().symbols_len_eq_field("usize.values.nums.2".into());
         let op_err = ValidationErr::SymbolsLen(Operation::Eq(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1449,7 +1449,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_ne_field() {
+    fn validate_symbols_len_ne_field() {
         let v = StrValidation::default().symbols_len_ne_field("usize.values.nums.2".into());
         let op_err = ValidationErr::SymbolsLen(Operation::Ne(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Ok(()));
@@ -1460,7 +1460,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_gt_field() {
+    fn validate_symbols_len_gt_field() {
         let v = StrValidation::default().symbols_len_gt_field("usize.values.nums.2".into());
         let op_err = ValidationErr::SymbolsLen(Operation::Gt(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1471,7 +1471,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_ge_field() {
+    fn validate_symbols_len_ge_field() {
         let v = StrValidation::default().symbols_len_ge_field("usize.values.nums.2".into());
         let op_err = ValidationErr::SymbolsLen(Operation::Ge(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -1482,7 +1482,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_lt_field() {
+    fn validate_symbols_len_lt_field() {
         let v = StrValidation::default().symbols_len_lt_field("usize.values.nums.2".into());
         let op_err = ValidationErr::SymbolsLen(Operation::Lt(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Ok(()));
@@ -1493,7 +1493,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_le_field() {
+    fn validate_symbols_len_le_field() {
         let v = StrValidation::default().symbols_len_le_field("usize.values.nums.2".into());
         let op_err = ValidationErr::SymbolsLen(Operation::Le(Operand::FieldPath("usize.values.nums.2".into())));
         assert_eq!(validate_str(&v, &Value::from("!"), &ROOT), Ok(()));
@@ -1504,7 +1504,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_symbols_len_btwn_field() {
+    fn validate_symbols_len_btwn_field() {
         let v = StrValidation::default().symbols_len_btwn_field("usize.values.nums.2".into(), "usize.values.nums.3".into());
         let op_err = ValidationErr::SymbolsLen(Operation::Btwn(
             Operand::FieldPath("usize.values.nums.2".into()),
@@ -1528,7 +1528,7 @@ mod test {
     }
 
     #[test]
-    fn test_bytes_len_emoji() {
+    fn bytes_len_emoji() {
         assert_eq!(bytes_len(&"👩‍👩‍👧‍👧".into()), 25);
         assert_eq!(bytes_len(&"👩‍👩‍👧".into()), 18);
     }
@@ -1543,7 +1543,7 @@ mod test {
     }
 
     #[test]
-    fn test_chars_len_emoji() {
+    fn chars_len_emoji() {
         assert_eq!(chars_len(&"👩‍👩‍👧‍👧".into()), 7);
         assert_eq!(chars_len(&"👩‍👩‍👧".into()), 5);
     }
@@ -1558,27 +1558,27 @@ mod test {
     }
 
     #[test]
-    fn test_graphemes_len_emoji() {
+    fn graphemes_len_emoji() {
         assert_eq!(graphemes_len(&"👩‍👩‍👧‍👧".into()), 1);
         assert_eq!(graphemes_len(&"👩‍👩‍👧".into()), 1);
     }
 
     #[test]
-    fn test_lowercase_len_lowercase() {
+    fn lowercase_len_lowercase() {
         assert_eq!(lowercase_len(&"группа крови".into()), 11);
         assert_eq!(lowercase_len(&"veni, vidi, vici".into()), 12);
         assert_eq!(lowercase_len(&"ὅσον ζῇς, φαίνου".into()), 13);
     }
 
     #[test]
-    fn test_lowercase_len_uppercase() {
+    fn lowercase_len_uppercase() {
         assert_eq!(lowercase_len(&"ГРУППА КРОВИ".into()), 0);
         assert_eq!(lowercase_len(&"VENI, VIDI, VICI".into()), 0);
         assert_eq!(lowercase_len(&"ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ".into()), 0);
     }
 
     #[test]
-    fn test_lowercase_len_not_applyable() {
+    fn lowercase_len_not_applyable() {
         assert_eq!(lowercase_len(&"👩‍👩‍👧‍👧".into()), 0);
         assert_eq!(lowercase_len(&"👩‍👩‍👧".into()), 0);
         assert_eq!(lowercase_len(&"ओंकार".into()), 0);
@@ -1586,21 +1586,21 @@ mod test {
     }
 
     #[test]
-    fn test_uppercase_len_lowercase() {
+    fn uppercase_len_lowercase() {
         assert_eq!(uppercase_len(&"группа крови".into()), 0);
         assert_eq!(uppercase_len(&"veni, vidi, vici".into()), 0);
         assert_eq!(uppercase_len(&"ὅσον ζῇς, φαίνου".into()), 0);
     }
 
     #[test]
-    fn test_uppercase_len_uppercase() {
+    fn uppercase_len_uppercase() {
         assert_eq!(uppercase_len(&"ГРУППА КРОВИ".into()), 11);
         assert_eq!(uppercase_len(&"VENI, VIDI, VICI".into()), 12);
         assert_eq!(uppercase_len(&"ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ".into()), 14);
     }
 
     #[test]
-    fn test_uppercase_len_not_applyable() {
+    fn uppercase_len_not_applyable() {
         assert_eq!(uppercase_len(&"👩‍👩‍👧‍👧".into()), 0);
         assert_eq!(uppercase_len(&"👩‍👩‍👧".into()), 0);
         assert_eq!(uppercase_len(&"ओंकार".into()), 0);

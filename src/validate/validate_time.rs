@@ -58,7 +58,7 @@ pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value) -
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
@@ -83,7 +83,7 @@ mod test {
     });
 
     #[test]
-    fn test_validate_date_default() {
+    fn validate_date_default() {
         let v = TimeValidation::default();
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
@@ -92,7 +92,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_optional() {
+    fn validate_date_optional() {
         let v = TimeValidation::default().optional();
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
@@ -101,7 +101,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_eq_value() {
+    fn validate_date_eq_value() {
         let v = TimeValidation::default().eq("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
@@ -114,7 +114,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ne_value() {
+    fn validate_date_ne_value() {
         let v = TimeValidation::default().ne("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("23:18"), &ROOT), Ok(()));
@@ -127,7 +127,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_gt_value() {
+    fn validate_date_gt_value() {
         let v = TimeValidation::default().gt("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -141,7 +141,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ge_value() {
+    fn validate_date_ge_value() {
         let v = TimeValidation::default().ge("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -155,7 +155,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_lt_value() {
+    fn validate_date_lt_value() {
         let v = TimeValidation::default().lt("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Ok(()));
@@ -169,7 +169,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_le_value() {
+    fn validate_date_le_value() {
         let v = TimeValidation::default().le("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Ok(()));
@@ -183,7 +183,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_btwn_value() {
+    fn validate_date_btwn_value() {
         let v = TimeValidation::default().btwn("09:00".into(), "09:59".into());
         let op_err =
             ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::from("09:00")), Operand::Value(OperandValue::from("09:59"))));
@@ -201,7 +201,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_eq_field() {
+    fn validate_time_eq_field() {
         let v = TimeValidation::default().eq_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -215,7 +215,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_ne_field() {
+    fn validate_time_ne_field() {
         let v = TimeValidation::default().ne_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Ok(()));
@@ -229,7 +229,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_gt_field() {
+    fn validate_time_gt_field() {
         let v = TimeValidation::default().gt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -243,7 +243,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_ge_field() {
+    fn validate_time_ge_field() {
         let v = TimeValidation::default().ge_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -257,7 +257,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_lt_field() {
+    fn validate_time_lt_field() {
         let v = TimeValidation::default().lt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Ok(()));
@@ -271,7 +271,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_le_field() {
+    fn validate_time_le_field() {
         let v = TimeValidation::default().le_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_time(&v, &Value::from("11:26"), &ROOT), Ok(()));
@@ -285,7 +285,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_btwn_field() {
+    fn validate_time_btwn_field() {
         let v = TimeValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
         let op_err =
             ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));
@@ -303,7 +303,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_invalid_format() {
+    fn validate_time_invalid_format() {
         let v = TimeValidation::default();
         assert_eq!(validate_time(&v, &Value::from("10:27:23.235"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
         assert_eq!(validate_time(&v, &Value::from("10:27:24"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
@@ -314,12 +314,12 @@ mod test {
     }
 
     #[test]
-    fn test_validate_time_invalid_date() {
+    fn validate_time_invalid_date() {
         // TODO
     }
 
     #[test]
-    fn test_parse_time() {
+    fn parse_time_ok() {
         assert_eq!(parse_time("06:11".into()), Ok(InternalTm(6, 11)));
     }
 }

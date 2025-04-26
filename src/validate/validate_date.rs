@@ -59,7 +59,7 @@ pub fn validate_date(validation: &DateValidation, value: &Value, root: &Value) -
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
@@ -84,7 +84,7 @@ mod test {
     });
 
     #[test]
-    fn test_validate_date_default() {
+    fn validate_date_default() {
         let v = DateValidation::default();
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Ok(()));
         assert_eq!(validate_date(&v, &Value::from("not a date"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
@@ -93,7 +93,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_optional() {
+    fn validate_date_optional() {
         let v = DateValidation::default().optional();
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Ok(()));
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Ok(()));
@@ -103,7 +103,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_eq_value() {
+    fn validate_date_eq_value() {
         let v = DateValidation::default().eq("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Ok(()));
@@ -116,7 +116,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ne_value() {
+    fn validate_date_ne_value() {
         let v = DateValidation::default().ne("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2025-04-18"), &ROOT), Ok(()));
@@ -129,7 +129,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_gt_value() {
+    fn validate_date_gt_value() {
         let v = DateValidation::default().gt("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -143,7 +143,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ge_value() {
+    fn validate_date_ge_value() {
         let v = DateValidation::default().ge("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -157,7 +157,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_lt_value() {
+    fn validate_date_lt_value() {
         let v = DateValidation::default().lt("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &ROOT), Ok(()));
@@ -171,7 +171,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_le_value() {
+    fn validate_date_le_value() {
         let v = DateValidation::default().le("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-27"), &ROOT), Ok(()));
@@ -185,7 +185,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_btwn_value() {
+    fn validate_date_btwn_value() {
         let v = DateValidation::default().btwn("2026-10-01".into(), "2026-10-31".into());
         let op_err = ValidationErr::Operation(Operation::Btwn(
             Operand::Value(OperandValue::from("2026-10-01")),
@@ -205,7 +205,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_eq_field() {
+    fn validate_date_eq_field() {
         let v = DateValidation::default().eq_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -219,7 +219,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ne_field() {
+    fn validate_date_ne_field() {
         let v = DateValidation::default().ne_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Ok(()));
@@ -233,7 +233,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_gt_field() {
+    fn validate_date_gt_field() {
         let v = DateValidation::default().gt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -247,7 +247,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_ge_field() {
+    fn validate_date_ge_field() {
         let v = DateValidation::default().ge_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -261,7 +261,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_lt_field() {
+    fn validate_date_lt_field() {
         let v = DateValidation::default().lt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Ok(()));
@@ -275,7 +275,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_le_field() {
+    fn validate_date_le_field() {
         let v = DateValidation::default().le_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Ok(()));
@@ -289,7 +289,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_btwn_field() {
+    fn validate_date_btwn_field() {
         let v = DateValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
         let op_err =
             ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));
@@ -307,7 +307,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_invalid_format() {
+    fn validate_date_invalid_format() {
         let v = DateValidation::default();
         assert_eq!(validate_date(&v, &Value::from("10-10-2026"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
         assert_eq!(validate_date(&v, &Value::from("10-2026-10"), &ROOT), Err(SchemaErr::validation([ValidationErr::Date])));
@@ -318,12 +318,12 @@ mod test {
     }
 
     #[test]
-    fn test_validate_date_invalid_date() {
+    fn validate_date_invalid_date() {
         // TODO
     }
 
     #[test]
-    fn test_parse_date() {
+    fn parse_date_ok() {
         assert_eq!(parse_date("2029-12-31".into()), Ok(InternalDt(2029, 12, 31)));
     }
 }

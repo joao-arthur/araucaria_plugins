@@ -78,7 +78,7 @@ pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
 
     use std::collections::BTreeMap;
 
@@ -95,7 +95,7 @@ mod test {
     use super::validate;
 
     #[test]
-    fn test_validate_primite_types() {
+    fn validate_primite_types() {
         let root = Value::None;
         assert_eq!(validate(&Validation::U64(U64Validation::default().eq(1917)), &Value::U64(1917), &root), Ok(()));
         assert_eq!(validate(&Validation::I64(I64Validation::default().eq(-800)), &Value::I64(-800), &root), Ok(()));
@@ -112,7 +112,7 @@ mod test {
     }
 
     #[test]
-    fn test_obj_ok() {
+    fn obj_ok() {
         let root = Value::None;
         assert_eq!(
             validate(
@@ -127,7 +127,7 @@ mod test {
     }
 
     #[test]
-    fn test_obj_err() {
+    fn obj_err() {
         let root = Value::None;
         assert_eq!(
             validate(

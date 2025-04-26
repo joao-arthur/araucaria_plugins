@@ -165,13 +165,13 @@ pub fn map_schema_err(value: araucaria::error::SchemaErr) -> SchemaErr {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::collections::BTreeMap;
 
     use super::{Operand, OperandValue, Operation, SchemaErr, ValidationErr};
 
     #[test]
-    fn test_serialize() {
+    fn serialize() {
         assert_eq!(
             serde_json::to_string(&SchemaErr::Obj(BTreeMap::from([
                 (

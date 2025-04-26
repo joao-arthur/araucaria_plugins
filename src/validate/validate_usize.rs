@@ -35,7 +35,7 @@ pub fn validate_usize(validation: &USizeValidation, value: &Value, root: &Value)
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
@@ -60,7 +60,7 @@ mod test {
     });
 
     #[test]
-    fn test_validate_usize_default() {
+    fn validate_usize_default() {
         let v = USizeValidation::default();
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Ok(()));
         assert_eq!(validate_usize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::USize])));
@@ -68,7 +68,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_optional() {
+    fn validate_usize_optional() {
         let v = USizeValidation::default().optional();
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Ok(()));
         assert_eq!(validate_usize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::USize])));
@@ -76,7 +76,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_eq_value() {
+    fn validate_usize_eq_value() {
         let v = USizeValidation::default().eq(42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::USize(42))));
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Ok(()));
@@ -89,7 +89,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_ne_value() {
+    fn validate_usize_ne_value() {
         let v = USizeValidation::default().ne(22);
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::USize(22))));
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Ok(()));
@@ -102,7 +102,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_gt_value() {
+    fn validate_usize_gt_value() {
         let v = USizeValidation::default().gt(1);
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::USize(1))));
         assert_eq!(validate_usize(&v, &Value::USize(2), &ROOT), Ok(()));
@@ -115,7 +115,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_ge_value() {
+    fn validate_usize_ge_value() {
         let v = USizeValidation::default().ge(1);
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::USize(1))));
         assert_eq!(validate_usize(&v, &Value::USize(1), &ROOT), Ok(()));
@@ -128,7 +128,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_lt_value() {
+    fn validate_usize_lt_value() {
         let v = USizeValidation::default().lt(5);
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::USize(5))));
         assert_eq!(validate_usize(&v, &Value::USize(4), &ROOT), Ok(()));
@@ -141,7 +141,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_le_value() {
+    fn validate_usize_le_value() {
         let v = USizeValidation::default().le(5);
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::USize(5))));
         assert_eq!(validate_usize(&v, &Value::USize(5), &ROOT), Ok(()));
@@ -154,7 +154,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_btwn_value() {
+    fn validate_usize_btwn_value() {
         let v = USizeValidation::default().btwn(5, 6);
         let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::USize(5)), Operand::Value(OperandValue::USize(6))));
         assert_eq!(validate_usize(&v, &Value::USize(4), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -169,7 +169,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_eq_field() {
+    fn validate_usize_eq_field() {
         let v = USizeValidation::default().eq_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -183,7 +183,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_ne_field() {
+    fn validate_usize_ne_field() {
         let v = USizeValidation::default().ne_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(41), &ROOT), Ok(()));
@@ -197,7 +197,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_gt_field() {
+    fn validate_usize_gt_field() {
         let v = USizeValidation::default().gt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -211,7 +211,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_ge_field() {
+    fn validate_usize_ge_field() {
         let v = USizeValidation::default().ge_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -225,7 +225,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_lt_field() {
+    fn validate_usize_lt_field() {
         let v = USizeValidation::default().lt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(41), &ROOT), Ok(()));
@@ -239,7 +239,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_le_field() {
+    fn validate_usize_le_field() {
         let v = USizeValidation::default().le_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(41), &ROOT), Ok(()));
@@ -253,7 +253,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_usize_btwn_field() {
+    fn validate_usize_btwn_field() {
         let v = USizeValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
         let op_err =
             ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));

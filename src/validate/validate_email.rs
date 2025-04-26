@@ -27,7 +27,7 @@ pub fn validate_email(validation: &EmailValidation, value: &Value) -> Result<(),
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         validation::EmailValidation,
@@ -37,21 +37,21 @@ mod test {
     use super::validate_email;
 
     #[test]
-    fn test_validate_email_default() {
+    fn validate_email_default() {
         let v = EmailValidation::default();
         assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Email])));
         assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([ValidationErr::Email])));
     }
 
     #[test]
-    fn test_validate_email_optional() {
+    fn validate_email_optional() {
         let v = EmailValidation::default().optional();
         assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Email])));
         assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([ValidationErr::Email])));
     }
 
     #[test]
-    fn test_validate_email_valid() {
+    fn validate_email_valid() {
         let v = EmailValidation::default();
         assert_eq!(validate_email(&v, &Value::from("john.lennon@gmail.com")), Ok(()));
         assert_eq!(validate_email(&v, &Value::from("paul_macca@hotmail.com")), Ok(()));
@@ -60,7 +60,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_email_invalid() {
+    fn validate_email_invalid() {
         let v = EmailValidation::default();
         assert_eq!(validate_email(&v, &Value::from("paullivecom")), Err(SchemaErr::validation([ValidationErr::Email])));
         assert_eq!(validate_email(&v, &Value::from("paullive.com")), Err(SchemaErr::validation([ValidationErr::Email])));

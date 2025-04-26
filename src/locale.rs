@@ -442,7 +442,7 @@ pub fn locale_en_long() -> Locale {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::collections::BTreeMap;
 
     use araucaria::{
@@ -539,7 +539,7 @@ mod test {
     }
 
     #[test]
-    fn test_locale_pt_long() {
+    fn validation_err_to_locale_locale_pt_long() {
         let locale = locale_pt_long();
         assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), "É obrigatório".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::U64, &locale), "Deve ser um número inteiro sem sinal".to_string());
@@ -650,7 +650,7 @@ mod test {
     }
 
     #[test]
-    fn test_locale_es_long() {
+    fn validation_err_to_locale_locale_es_long() {
         let locale = locale_es_long();
         assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), "Se requiere".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::U64, &locale), "Debe ser un número entero sin signo".to_string());
@@ -761,7 +761,7 @@ mod test {
     }
 
     #[test]
-    fn test_locale_en_long() {
+    fn validation_err_to_locale_locale_en_long() {
         let locale = locale_en_long();
         assert_eq!(validation_err_to_locale(&ValidationErr::Required, &locale), "Is required".to_string());
         assert_eq!(validation_err_to_locale(&ValidationErr::U64, &locale), "Must be an unsigned integer".to_string());

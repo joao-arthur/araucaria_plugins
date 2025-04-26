@@ -35,7 +35,7 @@ pub fn validate_bool(validation: &BoolValidation, value: &Value, root: &Value) -
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
@@ -60,7 +60,7 @@ mod test {
     });
 
     #[test]
-    fn test_validate_bool_default() {
+    fn validate_bool_default() {
         let v = BoolValidation::default();
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -69,7 +69,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_optional() {
+    fn validate_bool_optional() {
         let v = BoolValidation::default().optional();
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -78,7 +78,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_eq_value() {
+    fn validate_bool_eq_value() {
         let v = BoolValidation::default().eq(false);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
@@ -91,7 +91,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_ne_value() {
+    fn validate_bool_ne_value() {
         let v = BoolValidation::default().ne(false);
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::Bool(false))));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -104,7 +104,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_gt_value() {
+    fn validate_bool_gt_value() {
         let v = BoolValidation::default().gt(false);
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::Bool(false))));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -117,7 +117,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_ge_value() {
+    fn validate_bool_ge_value() {
         let v = BoolValidation::default().ge(true);
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::Bool(true))));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -130,7 +130,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_lt_value() {
+    fn validate_bool_lt_value() {
         let v = BoolValidation::default().lt(true);
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::Bool(true))));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
@@ -143,7 +143,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_le_value() {
+    fn validate_bool_le_value() {
         let v = BoolValidation::default().le(false);
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false))));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
@@ -156,7 +156,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_btwn_value() {
+    fn validate_bool_btwn_value() {
         let v = BoolValidation::default().btwn(false, true);
 
         let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::Bool(false)), Operand::Value(OperandValue::Bool(true))));
@@ -170,7 +170,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_eq_field() {
+    fn validate_bool_eq_field() {
         let v = BoolValidation::default().eq_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -183,7 +183,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_ne_field() {
+    fn validate_bool_ne_field() {
         let v = BoolValidation::default().ne_field("values.2.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.2.value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -196,7 +196,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_gt_field() {
+    fn validate_bool_gt_field() {
         let v = BoolValidation::default().gt_field("values.2.value".into());
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.2.value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -209,7 +209,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_ge_field() {
+    fn validate_bool_ge_field() {
         let v = BoolValidation::default().ge_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
@@ -222,7 +222,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_lt_field() {
+    fn validate_bool_lt_field() {
         let v = BoolValidation::default().lt_field("values.3.value".into());
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
@@ -235,7 +235,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_le_field() {
+    fn validate_bool_le_field() {
         let v = BoolValidation::default().le_field("values.2.value".into());
         let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.2.value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
@@ -248,7 +248,7 @@ mod test {
     }
 
     #[test]
-    fn test_validate_bool_btwn_field() {
+    fn validate_bool_btwn_field() {
         let v = BoolValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
         let op_err =
             ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));

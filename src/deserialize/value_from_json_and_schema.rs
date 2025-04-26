@@ -91,7 +91,7 @@ pub fn value_from_json_and_schema(value: &serde_json::Value, validation: &Valida
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::collections::BTreeMap;
 
     use araucaria::{
@@ -366,7 +366,7 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_nested_obj() {
+    fn value_from_json_nested_obj() {
         let usize_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
         let isize_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
         let string_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
