@@ -117,9 +117,9 @@ mod test {
         map.insert("null".into(), serde_json::Value::Null);
         map.insert("bool".into(), serde_json::Value::Bool(false));
         map.insert("string".into(), serde_json::Value::String("ingeniosus homo est".into()));
-        map.insert("num_u".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
-        map.insert("num_i".into(), serde_json::Value::Number(serde_json::Number::from_i128(-192_168).unwrap()));
-        map.insert("num_f".into(), serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap()));
+        map.insert("u64".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
+        map.insert("i64".into(), serde_json::Value::Number(serde_json::Number::from_i128(-192_168).unwrap()));
+        map.insert("f64".into(), serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap()));
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, None),
@@ -127,9 +127,9 @@ mod test {
                 ("null".into(), Value::None),
                 ("bool".into(), Value::Bool(false)),
                 ("string".into(), Value::from("ingeniosus homo est")),
-                ("num_u".into(), Value::U64(192_168)),
-                ("num_i".into(), Value::I64(-192_168)),
-                ("num_f".into(), Value::F64(-192.5)),
+                ("u64".into(), Value::U64(192_168)),
+                ("i64".into(), Value::I64(-192_168)),
+                ("f64".into(), Value::F64(-192.5)),
             ])
         );
     }
@@ -137,36 +137,36 @@ mod test {
     #[test]
     fn test_value_from_json_value_without_validation() {
         let mut map = serde_json::Map::new();
-        map.insert("num_u".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
-        map.insert("num_i".into(), serde_json::Value::Number(serde_json::Number::from_i128(-192_168).unwrap()));
-        map.insert("num_f".into(), serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap()));
+        map.insert("u64".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
+        map.insert("i64".into(), serde_json::Value::Number(serde_json::Number::from_i128(-192_168).unwrap()));
+        map.insert("f64".into(), serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap()));
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, None),
-            Value::from([("num_u".into(), Value::U64(192_168)), ("num_i".into(), Value::I64(-192_168)), ("num_f".into(), Value::F64(-192.5))])
+            Value::from([("u64".into(), Value::U64(192_168)), ("i64".into(), Value::I64(-192_168)), ("f64".into(), Value::F64(-192.5))])
         );
     }
 
     #[test]
     fn test_value_from_json_value_without_same_validation() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("num_u".into(), Validation::U64(U64Validation::default())),
-            ("num_i".into(), Validation::I64(I64Validation::default())),
-            ("num_f".into(), Validation::F64(F64Validation::default())),
+            ("u64".into(), Validation::U64(U64Validation::default())),
+            ("i64".into(), Validation::I64(I64Validation::default())),
+            ("f64".into(), Validation::F64(F64Validation::default())),
         ])));
         let mut map = serde_json::Map::new();
-        map.insert("num_u".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
-        map.insert("num_i".into(), serde_json::Value::Number(serde_json::Number::from_i128(-192_168).unwrap()));
-        map.insert("num_f".into(), serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap()));
+        map.insert("u64".into(), serde_json::Value::Number(serde_json::Number::from_u128(192_168).unwrap()));
+        map.insert("i64".into(), serde_json::Value::Number(serde_json::Number::from_i128(-192_168).unwrap()));
+        map.insert("f64".into(), serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap()));
         let value = serde_json::Value::Object(map);
         assert_eq!(
             value_from_json_value(&value, Some(&validation)),
-            Value::from([("num_u".into(), Value::U64(192_168)), ("num_i".into(), Value::I64(-192_168)), ("num_f".into(), Value::F64(-192.5))])
+            Value::from([("u64".into(), Value::U64(192_168)), ("i64".into(), Value::I64(-192_168)), ("f64".into(), Value::F64(-192.5))])
         );
     }
 
     #[test]
-    fn test_value_from_json_value_num_u() {
+    fn test_value_from_json_value_u64() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("num_1".into(), Validation::U64(U64Validation::default())),
             ("num_2".into(), Validation::U64(U64Validation::default())),
@@ -184,7 +184,7 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_value_num_i() {
+    fn test_value_from_json_value_i64() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("num_1".into(), Validation::I64(I64Validation::default())),
             ("num_2".into(), Validation::I64(I64Validation::default())),
@@ -202,7 +202,7 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_value_num_f() {
+    fn test_value_from_json_value_f64() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("num_1".into(), Validation::F64(F64Validation::default())),
             ("num_2".into(), Validation::F64(F64Validation::default())),
