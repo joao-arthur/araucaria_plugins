@@ -7,6 +7,7 @@ use validate_date_time::validate_date_time;
 use validate_email::validate_email;
 use validate_f64::validate_f64;
 use validate_i64::validate_i64;
+use validate_isize::validate_isize;
 use validate_str::validate_str;
 use validate_time::validate_time;
 use validate_u64::validate_u64;
@@ -18,6 +19,7 @@ mod validate_date_time;
 mod validate_email;
 mod validate_f64;
 mod validate_i64;
+mod validate_isize;
 mod validate_str;
 mod validate_time;
 mod validate_u64;
@@ -29,7 +31,7 @@ pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<
         Validation::I64(v) => validate_i64(v, value, root),
         Validation::F64(v) => validate_f64(v, value, root),
         Validation::USize(v) => validate_usize(v, value, root),
-        Validation::ISize(v) => Ok(()), //validate_f64(v, value, root),
+        Validation::ISize(v) => validate_isize(v, value, root),
         Validation::Bool(v) => validate_bool(v, value, root),
         Validation::Str(v) => validate_str(v, value, root),
         Validation::Date(v) => validate_date(v, value, root),
