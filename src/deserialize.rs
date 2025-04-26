@@ -99,15 +99,15 @@ fn internal_value_from_json_value_and_schema(value: &serde_json::Value, validati
         }
         serde_json::Value::Bool(bool) => Value::Bool(*bool),
         serde_json::Value::String(str) => Value::Str(str.clone()),
-        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| value_from_json_value(item, None)).collect()),
+        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| internal_value_from_json_value_and_schema(item, None)).collect()),
         serde_json::Value::Object(obj) => {
             let mut result: BTreeMap<String, Value> = BTreeMap::new();
             for (key, item) in obj {
                 if let Some(Validation::Obj(obj_validation)) = validation {
                     let fff = key.clone();
-                    result.insert(key.clone(), value_from_json_value(item, obj_validation.validation.get(&fff)));
+                    result.insert(key.clone(), internal_value_from_json_value_and_schema(item, obj_validation.validation.get(&fff)));
                 } else {
-                    result.insert(key.clone(), value_from_json_value(item, None));
+                    result.insert(key.clone(), internal_value_from_json_value_and_schema(item, None));
                 }
             }
             Value::Obj(result)
