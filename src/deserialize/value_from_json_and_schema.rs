@@ -5,7 +5,7 @@ use araucaria::{
     value::Value,
 };
 
-fn internal_value_from_json_value_and_schema(value: &serde_json::Value, validation: Option<&Validation>) -> Value {
+fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Option<&Validation>) -> Value {
     match value {
         serde_json::Value::Number(num) => {
             if let Some(Validation::U64(_)) = validation {
@@ -69,15 +69,15 @@ fn internal_value_from_json_value_and_schema(value: &serde_json::Value, validati
         }
         serde_json::Value::Bool(bool) => Value::Bool(*bool),
         serde_json::Value::String(str) => Value::Str(str.clone()),
-        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| internal_value_from_json_value_and_schema(item, None)).collect()),
+        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| internal_value_from_json_and_schema(item, None)).collect()),
         serde_json::Value::Object(obj) => {
             let mut result: BTreeMap<String, Value> = BTreeMap::new();
             for (key, item) in obj {
                 if let Some(Validation::Obj(obj_validation)) = validation {
                     let fff = key.clone();
-                    result.insert(key.clone(), internal_value_from_json_value_and_schema(item, obj_validation.validation.get(&fff)));
+                    result.insert(key.clone(), internal_value_from_json_and_schema(item, obj_validation.validation.get(&fff)));
                 } else {
-                    result.insert(key.clone(), internal_value_from_json_value_and_schema(item, None));
+                    result.insert(key.clone(), internal_value_from_json_and_schema(item, None));
                 }
             }
             Value::Obj(result)
@@ -87,7 +87,7 @@ fn internal_value_from_json_value_and_schema(value: &serde_json::Value, validati
 }
 
 pub fn value_from_json_and_schema(value: &serde_json::Value, validation: &Validation) -> Value {
-    internal_value_from_json_value_and_schema(value, Some(validation))
+    internal_value_from_json_and_schema(value, Some(validation))
 }
 
 #[cfg(test)]
@@ -95,14 +95,16 @@ mod test {
     use std::collections::BTreeMap;
 
     use araucaria::{
-        validation::{EnumValidation, F64Validation, I64Validation, ISizeValidation, ObjValidation, U64Validation, USizeValidation, Validation},
+        validation::{
+            BoolValidation, EnumValidation, F64Validation, I64Validation, ISizeValidation, ObjValidation, U64Validation, USizeValidation, Validation,
+        },
         value::Value,
     };
 
     use super::value_from_json_and_schema;
 
     #[test]
-    fn value_from_json_value_and_schema_u64() {
+    fn value_from_json_and_schema_u64() {
         let v = Validation::U64(U64Validation::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
@@ -124,7 +126,7 @@ mod test {
     }
 
     #[test]
-    fn value_from_json_value_and_schema_i64() {
+    fn value_from_json_and_schema_i64() {
         let v = Validation::I64(I64Validation::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
@@ -146,7 +148,7 @@ mod test {
     }
 
     #[test]
-    fn value_from_json_value_and_schema_f64() {
+    fn value_from_json_and_schema_f64() {
         let v = Validation::F64(F64Validation::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
@@ -169,7 +171,7 @@ mod test {
     }
 
     #[test]
-    fn value_from_json_value_and_schema_usize() {
+    fn value_from_json_and_schema_usize() {
         let v = Validation::USize(USizeValidation::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
@@ -191,7 +193,7 @@ mod test {
     }
 
     #[test]
-    fn value_from_json_value_and_schema_isize() {
+    fn value_from_json_and_schema_isize() {
         let v = Validation::ISize(ISizeValidation::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
@@ -213,7 +215,7 @@ mod test {
     }
 
     #[test]
-    fn value_from_json_value_and_schema_enum_usize() {
+    fn value_from_json_and_schema_enum_usize() {
         let enum_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
         let v = Validation::Enum(EnumValidation::from(enum_values));
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
@@ -236,7 +238,7 @@ mod test {
     }
 
     #[test]
-    fn value_from_json_value_and_schema_enum_isize() {
+    fn value_from_json_and_schema_enum_isize() {
         let enum_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
         let v = Validation::Enum(EnumValidation::from(enum_values));
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
@@ -259,7 +261,7 @@ mod test {
     }
 
     #[test]
-    fn value_from_json_value_and_schema_enum_string() {
+    fn value_from_json_and_schema_enum_string() {
         let enum_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
         let v = Validation::Enum(EnumValidation::from(enum_values));
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
@@ -279,7 +281,14 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_value_without_same_validation() {
+    fn value_from_json_and_schema_bool() {
+        let v = Validation::Bool(BoolValidation::default());
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::Bool(false), &v), Value::Bool(false));
+        assert_eq!(value_from_json_and_schema(&serde_json::Value::Bool(true), &v), Value::Bool(true));
+    }
+
+    #[test]
+    fn test_value_from_json_without_same_validation() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("u64".into(), Validation::U64(U64Validation::default())),
             ("i64".into(), Validation::I64(I64Validation::default())),
@@ -297,7 +306,7 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_value_u64() {
+    fn test_value_from_json_u64() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("num_1".into(), Validation::U64(U64Validation::default())),
             ("num_2".into(), Validation::U64(U64Validation::default())),
@@ -315,7 +324,7 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_value_i64() {
+    fn test_value_from_json_i64() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("num_1".into(), Validation::I64(I64Validation::default())),
             ("num_2".into(), Validation::I64(I64Validation::default())),
@@ -333,7 +342,7 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_value_f64() {
+    fn test_value_from_json_f64() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("num_1".into(), Validation::F64(F64Validation::default())),
             ("num_2".into(), Validation::F64(F64Validation::default())),
@@ -351,7 +360,7 @@ mod test {
     }
 
     #[test]
-    fn test_value_from_json_value_nested_obj() {
+    fn test_value_from_json_nested_obj() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
             "lvl_1".into(),
             Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
