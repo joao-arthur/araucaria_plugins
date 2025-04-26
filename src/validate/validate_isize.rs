@@ -81,7 +81,10 @@ mod test {
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::ISize(-42))));
         assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(-7), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -91,7 +94,10 @@ mod test {
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::ISize(-22))));
         assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(-22), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -101,7 +107,10 @@ mod test {
         let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::ISize(-2))));
         assert_eq!(validate_isize(&v, &Value::ISize(-1), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(-2), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -111,7 +120,10 @@ mod test {
         let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::ISize(-2))));
         assert_eq!(validate_isize(&v, &Value::ISize(-2), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(-3), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -121,7 +133,10 @@ mod test {
         let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::ISize(-5))));
         assert_eq!(validate_isize(&v, &Value::ISize(-6), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(-5), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -131,7 +146,10 @@ mod test {
         let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::ISize(-5))));
         assert_eq!(validate_isize(&v, &Value::ISize(-5), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(-4), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -143,7 +161,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(5), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(6), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(7), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -154,7 +175,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -165,7 +189,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -176,7 +203,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -187,7 +217,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -198,7 +231,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -209,7 +245,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
@@ -224,7 +263,10 @@ mod test {
         assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
+        assert_eq!(
+            validate_isize(&v, &Value::None, &ROOT),
+            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
+        );
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 }

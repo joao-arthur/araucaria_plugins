@@ -161,15 +161,58 @@ mod test {
     use super::{bytes_len, chars_len, graphemes_len, lowercase_len, numbers_len, symbols_len, uppercase_len, validate_str};
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("d"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("f"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("l"))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("j"))])),
-            ]),
-        )]))
+        Value::Obj(BTreeMap::from([
+            (
+                "str".into(),
+                Value::Arr(vec![
+                    Value::Obj(BTreeMap::from([("value".into(), Value::from("d"))])),
+                    Value::Obj(BTreeMap::from([("value".into(), Value::from("f"))])),
+                    Value::Obj(BTreeMap::from([("value".into(), Value::from("l"))])),
+                    Value::Obj(BTreeMap::from([("value".into(), Value::from("j"))])),
+                ]),
+            ),
+            (
+                "usize".into(),
+                Value::Obj(BTreeMap::from([(
+                    "values".into(),
+                    Value::Obj(BTreeMap::from([(
+                        "nums".into(),
+                        Value::Arr(vec![
+                            Value::USize(0),
+                            Value::USize(1),
+                            Value::USize(2),
+                            Value::USize(3),
+                            Value::USize(4),
+                            Value::USize(5),
+                            Value::USize(6),
+                            Value::USize(7),
+                            Value::USize(8),
+                            Value::USize(9),
+                            Value::USize(10),
+                            Value::USize(11),
+                            Value::USize(12),
+                            Value::USize(13),
+                            Value::USize(14),
+                            Value::USize(15),
+                            Value::USize(16),
+                            Value::USize(17),
+                            Value::USize(18),
+                            Value::USize(19),
+                            Value::USize(20),
+                            Value::USize(21),
+                            Value::USize(22),
+                            Value::USize(23),
+                            Value::USize(24),
+                            Value::USize(25),
+                            Value::USize(26),
+                            Value::USize(27),
+                            Value::USize(28),
+                            Value::USize(29),
+                        ]),
+                    )])),
+                )])),
+            ),
+        ]))
     });
 
     #[test]
@@ -823,8 +866,8 @@ mod test {
 
     #[test]
     fn test_validate_str_eq_field() {
-        let v = StrValidation::default().eq_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
+        let v = StrValidation::default().eq_field("str.3.value".into());
+        let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
@@ -833,8 +876,8 @@ mod test {
 
     #[test]
     fn test_validate_str_ne_field() {
-        let v = StrValidation::default().ne_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
+        let v = StrValidation::default().ne_field("str.3.value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
@@ -843,8 +886,8 @@ mod test {
 
     #[test]
     fn test_validate_str_gt_field() {
-        let v = StrValidation::default().gt_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
+        let v = StrValidation::default().gt_field("str.3.value".into());
+        let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Ok(()));
@@ -854,8 +897,8 @@ mod test {
 
     #[test]
     fn test_validate_str_ge_field() {
-        let v = StrValidation::default().ge_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
+        let v = StrValidation::default().ge_field("str.3.value".into());
+        let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Ok(()));
@@ -865,8 +908,8 @@ mod test {
 
     #[test]
     fn test_validate_str_lt_field() {
-        let v = StrValidation::default().lt_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
+        let v = StrValidation::default().lt_field("str.3.value".into());
+        let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -876,8 +919,8 @@ mod test {
 
     #[test]
     fn test_validate_str_le_field() {
-        let v = StrValidation::default().le_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
+        let v = StrValidation::default().le_field("str.3.value".into());
+        let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("str.3.value".into())));
         assert_eq!(validate_str(&v, &Value::from("a"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("j"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
@@ -887,9 +930,8 @@ mod test {
 
     #[test]
     fn test_validate_str_btwn_field() {
-        let v = StrValidation::default().btwn_field("values.1.value".into(), "values.2.value".into());
-        let op_err =
-            ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.1.value".into()), Operand::FieldPath("values.2.value".into())));
+        let v = StrValidation::default().btwn_field("str.1.value".into(), "str.2.value".into());
+        let op_err = ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("str.1.value".into()), Operand::FieldPath("str.2.value".into())));
         assert_eq!(validate_str(&v, &Value::from("e"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::from("f"), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from("i"), &ROOT), Ok(()));
@@ -898,6 +940,88 @@ mod test {
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
         assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
     }
+
+    #[test]
+    fn test_validate_bytes_len_eq_field() {
+        let v = StrValidation::default().bytes_len_eq_field("usize.values.nums.16".into());
+        let op_err = ValidationErr::BytesLen(Operation::Eq(Operand::FieldPath("usize.values.nums.16".into())));
+        assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_bytes_len_ne_field() {
+        let v = StrValidation::default().bytes_len_ne_field("usize.values.nums.16".into());
+        let op_err = ValidationErr::BytesLen(Operation::Ne(Operand::FieldPath("usize.values.nums.16".into())));
+        assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_bytes_len_gt_field() {
+        let v = StrValidation::default().bytes_len_gt_field("usize.values.nums.23".into());
+        let op_err = ValidationErr::BytesLen(Operation::Gt(Operand::FieldPath("usize.values.nums.23".into())));
+        assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_bytes_len_ge_field() {
+        let v = StrValidation::default().bytes_len_ge_field("usize.values.nums.23".into());
+        let op_err = ValidationErr::BytesLen(Operation::Ge(Operand::FieldPath("usize.values.nums.23".into())));
+        assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_bytes_len_lt_field() {
+        let v = StrValidation::default().bytes_len_lt_field("usize.values.nums.23".into());
+        let op_err = ValidationErr::BytesLen(Operation::Lt(Operand::FieldPath("usize.values.nums.23".into())));
+        assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_bytes_len_le_field() {
+        let v = StrValidation::default().bytes_len_le_field("usize.values.nums.23".into());
+        let op_err = ValidationErr::BytesLen(Operation::Le(Operand::FieldPath("usize.values.nums.23".into())));
+        assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn test_validate_bytes_len_btwn_field() {
+        let v = StrValidation::default().bytes_len_btwn_field("usize.values.nums.23".into(), "usize.values.nums.29".into());
+        let op_err = ValidationErr::BytesLen(Operation::Btwn(
+            Operand::FieldPath("usize.values.nums.23".into()),
+            Operand::FieldPath("usize.values.nums.29".into()),
+        ));
+        assert_eq!(validate_str(&v, &Value::from("veni, vidi, vici"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::from("группа крови"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("𒀀𒈾 𒂍𒀀𒈾𒍢𒅕"), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from("ὅσον ζῇς, φαίνου"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
+        assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
 
     #[test]
     fn test_bytes_len() {
