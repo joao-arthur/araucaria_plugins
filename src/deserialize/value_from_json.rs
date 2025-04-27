@@ -54,4 +54,11 @@ mod tests {
         assert_eq!(value_from_json(&json_f64_pos_float), Value::F64(192.5));
         assert_eq!(value_from_json(&json_f64_neg_float), Value::F64(-192.5));
     }
+
+    #[test]
+    fn value_from_json_bool() {
+        assert_eq!(value_from_json(&serde_json::Value::Bool(false)), Value::Bool(false));
+        assert_eq!(value_from_json(&serde_json::Value::Bool(true)), Value::Bool(true));
+    }
+
 }
