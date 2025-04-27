@@ -82,106 +82,88 @@ pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<
 #[cfg(test)]
 mod tests {
 
-    use std::collections::BTreeMap;
+    use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
         validation::{
-            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, F64Validation, I64Validation, ISizeValidation, ObjValidation,
-            StrValidation, TimeValidation, U64Validation, USizeValidation, Validation,
+            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, EnumValidation, F64Validation, I64Validation, ISizeValidation,
+            ObjValidation, StrValidation, TimeValidation, U64Validation, USizeValidation, Validation,
         },
         value::Value,
     };
 
     use super::validate;
 
+    static ROOT: LazyLock<Value> = LazyLock::new(|| Value::None);
+    const REQUIRED: ValidationErr = ValidationErr::Required;
+    const BOOL: ValidationErr = ValidationErr::Bool;
+
     #[test]
-    fn validate_primite_types() {
-        let root = Value::None;
-        assert_eq!(validate(&Validation::U64(U64Validation::default().eq(1917)), &Value::U64(1917), &root), Ok(()));
-        assert_eq!(validate(&Validation::I64(I64Validation::default().eq(-800)), &Value::I64(-800), &root), Ok(()));
-        assert_eq!(validate(&Validation::F64(F64Validation::default().eq(1.5)), &Value::F64(1.5), &root), Ok(()));
-        assert_eq!(validate(&Validation::USize(USizeValidation::default().eq(1917)), &Value::USize(1917), &root), Ok(()));
-        assert_eq!(validate(&Validation::ISize(ISizeValidation::default().eq(-284)), &Value::ISize(-284), &root), Ok(()));
-        assert_eq!(validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false), &root), Ok(()));
-        assert_eq!(validate(&Validation::Str(StrValidation::default().eq("Gladius".into())), &Value::from("Gladius"), &root), Ok(()));
-        assert_eq!(validate(&Validation::Date(DateValidation::default().eq("2015-12-28".into())), &Value::from("2015-12-28"), &root), Ok(()));
-        assert_eq!(validate(&Validation::Time(TimeValidation::default().eq("20:38".into())), &Value::from("20:38"), &root), Ok(()));
-        assert_eq!(
-            validate(&Validation::DateTime(DateTimeValidation::default().eq("2015-12-28T20:38Z".into())), &Value::from("2015-12-28T20:38Z"), &root),
-            Ok(())
-        );
-        assert_eq!(validate(&Validation::Email(EmailValidation::default()), &Value::from("bruno@gmail.com"), &root), Ok(()));
+    fn validate_required_not_nested() {
+        let v_u64 = Validation::U64(U64Validation::default().eq(1917));
+        let v_i64 = Validation::I64(I64Validation::default().eq(-800));
+        let v_f64 = Validation::F64(F64Validation::default().eq(1.5));
+        let v_usize = Validation::USize(USizeValidation::default().eq(1917));
+        let v_isize = Validation::ISize(ISizeValidation::default().eq(-284));
+        let v_bool = Validation::Bool(BoolValidation::default().eq(false));
+        let v_str = Validation::Str(StrValidation::default().eq("Gladius".into()));
+        let v_email = Validation::Email(EmailValidation::default());
+        let v_date = Validation::Date(DateValidation::default().eq("2015-12-28".into()));
+        let v_time = Validation::Time(TimeValidation::default().eq("20:38".into()));
+        let v_date_time = Validation::DateTime(DateTimeValidation::default().eq("2015-12-28T20:38Z".into()));
+        let v_enum = Validation::Enum(EnumValidation::from(vec!["UNIX".to_string(), "LINUX".to_string(), "FREEBSD".to_string()]));
+
+        assert_eq!(validate(&v_u64, &Value::U64(1917), &ROOT), Ok(()));
+        assert_eq!(validate(&v_i64, &Value::I64(-800), &ROOT), Ok(()));
+        assert_eq!(validate(&v_f64, &Value::F64(1.5), &ROOT), Ok(()));
+        assert_eq!(validate(&v_usize, &Value::USize(1917), &ROOT), Ok(()));
+        assert_eq!(validate(&v_isize, &Value::ISize(-284), &ROOT), Ok(()));
+        assert_eq!(validate(&v_bool, &Value::Bool(false), &ROOT), Ok(()));
+        assert_eq!(validate(&v_str, &Value::from("Gladius"), &ROOT), Ok(()));
+        assert_eq!(validate(&v_email, &Value::from("bruno@gmail.com"), &ROOT), Ok(()));
+        assert_eq!(validate(&v_date, &Value::from("2015-12-28"), &ROOT), Ok(()));
+        assert_eq!(validate(&v_time, &Value::from("20:38"), &ROOT), Ok(()));
+        assert_eq!(validate(&v_date_time, &Value::from("2015-12-28T20:38Z"), &ROOT), Ok(()));
+        assert_eq!(validate(&v_enum, &Value::from("LINUX"), &ROOT), Ok(()));
     }
 
     #[test]
-    fn obj_ok() {
-        let root = Value::None;
+    fn validate_obj_nested_ok() {
+        let v = Validation::Obj(
+            ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))])),
+        );
+        let value = Value::Obj(BTreeMap::from([("is".into(), Value::Bool(false))]));
+        assert_eq!(validate(&v, &value, &ROOT), Ok(()));
+    }
+
+    #[test]
+    fn validate_obj_none() {
+        let v = Validation::Obj(
+            ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))])),
+        );
+        let value = Value::None;
         assert_eq!(
-            validate(
-                &Validation::Obj(
-                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
-                ),
-                &Value::Obj(BTreeMap::from([("is".into(), Value::Bool(false))])),
-                &root
-            ),
-            Ok(())
+            validate(&v, &value, &ROOT),
+            Err(SchemaErr::obj([(
+                "is".into(),
+                SchemaErr::Validation(vec![REQUIRED, BOOL, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))])
+            )]))
         );
     }
 
     #[test]
-    fn obj_err() {
-        let root = Value::None;
-        assert_eq!(
-            validate(
-                &Validation::Obj(
-                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
-                ),
-                &Value::None,
-                &root
-            ),
-            Err(SchemaErr::obj([(
-                "is".into(),
-                SchemaErr::Validation(vec![
-                    ValidationErr::Required,
-                    ValidationErr::Bool,
-                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
-                ])
-            )]))
+    fn validate_obj_wrong() {
+        let v = Validation::Obj(
+            ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))])),
         );
+        let value = Value::Bool(false);
         assert_eq!(
-            validate(
-                &Validation::Obj(
-                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
-                ),
-                &Value::None,
-                &root
-            ),
+            validate(&v, &value, &ROOT),
             Err(SchemaErr::obj([(
                 "is".into(),
-                SchemaErr::Validation(vec![
-                    ValidationErr::Required,
-                    ValidationErr::Bool,
-                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
-                ])
-            )]))
-        );
-        assert_eq!(
-            validate(
-                &Validation::Obj(
-                    ObjValidation::default().validation(BTreeMap::from([("is".into(), Validation::Bool(BoolValidation::default().eq(false)))]))
-                ),
-                &Value::Bool(false),
-                &root
-            ),
-            Err(SchemaErr::obj([(
-                "is".into(),
-                SchemaErr::Validation(vec![
-                    ValidationErr::Required,
-                    ValidationErr::Bool,
-                    ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
-                ])
+                SchemaErr::Validation(vec![REQUIRED, BOOL, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))])
             )]))
         );
     }
