@@ -63,7 +63,7 @@ mod tests {
     });
 
     #[test]
-    fn validate_date_default() {
+    fn validate_time_default() {
         let v = TimeValidation::default();
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
@@ -72,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_date_optional() {
+    fn validate_time_optional() {
         let v = TimeValidation::default().optional();
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([ValidationErr::Time])));
@@ -81,7 +81,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_date_eq_value() {
+    fn validate_time_value() {
         let v = TimeValidation::default().eq("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
@@ -91,7 +91,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_time_ne_field() {
+    fn validate_time_field() {
         let v = TimeValidation::default().ne_field("values.0.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
         assert_eq!(validate_time(&v, &Value::from("02:18"), &ROOT), Ok(()));
