@@ -37,18 +37,21 @@ mod tests {
 
     use super::validate_email;
 
+    const REQUIRED: ValidationErr = ValidationErr::Required;
+    const EMAIL: ValidationErr = ValidationErr::Email;
+
     #[test]
     fn validate_email_default() {
         let v = EmailValidation::default();
-        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Email])));
-        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([ValidationErr::Email])));
+        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([REQUIRED, EMAIL])));
+        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([EMAIL])));
     }
 
     #[test]
     fn validate_email_optional() {
         let v = EmailValidation::default().optional();
-        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([ValidationErr::Email])));
-        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([ValidationErr::Email])));
+        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([EMAIL])));
+        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([EMAIL])));
     }
 
     #[test]
@@ -60,6 +63,6 @@ mod tests {
     #[test]
     fn validate_email_invalid() {
         let v = EmailValidation::default();
-        assert_eq!(validate_email(&v, &Value::from("paullivecom")), Err(SchemaErr::validation([ValidationErr::Email])));
+        assert_eq!(validate_email(&v, &Value::from("paullivecom")), Err(SchemaErr::validation([EMAIL])));
     }
 }

@@ -48,21 +48,23 @@ mod tests {
     use super::validate_u64;
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| Value::Obj(BTreeMap::from([("u64_value".into(), Value::U64(42))])));
+    const REQUIRED: ValidationErr = ValidationErr::Required;
+    const U64: ValidationErr = ValidationErr::U64;
 
     #[test]
     fn validate_u64_default() {
         let v = U64Validation::default();
         assert_eq!(validate_u64(&v, &Value::U64(42), &ROOT), Ok(()));
-        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::U64])));
-        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::U64])));
+        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, U64])));
+        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([U64])));
     }
 
     #[test]
     fn validate_u64_optional() {
         let v = U64Validation::default().optional();
         assert_eq!(validate_u64(&v, &Value::U64(42), &ROOT), Ok(()));
-        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::U64])));
-        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::U64])));
+        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([U64])));
+        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([U64])));
     }
 
     #[test]
@@ -71,8 +73,8 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::U64(42))));
         assert_eq!(validate_u64(&v, &Value::U64(42), &ROOT), Ok(()));
         assert_eq!(validate_u64(&v, &Value::U64(418), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::U64, op_err.clone()])));
-        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::U64, op_err.clone()])));
+        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, U64, op_err.clone()])));
+        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([U64, op_err.clone()])));
     }
 
     #[test]
@@ -81,7 +83,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("u64_value".into())));
         assert_eq!(validate_u64(&v, &Value::U64(418), &ROOT), Ok(()));
         assert_eq!(validate_u64(&v, &Value::U64(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::U64, op_err.clone()])));
-        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::U64, op_err.clone()])));
+        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, U64, op_err.clone()])));
+        assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([U64, op_err.clone()])));
     }
 }
