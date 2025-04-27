@@ -370,7 +370,7 @@ mod tests {
         let usize_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
         let isize_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
         let string_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
-        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
+        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
             "lvl_1".into(),
             Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
                 "lvl_2".into(),
@@ -445,6 +445,6 @@ mod tests {
         map.insert("lvl_1".into(), serde_json::Value::Object(map_level_1));
         let json_value = serde_json::Value::Object(map);
 
-        assert_eq!(value_from_json_and_schema(&json_value, &validation), value);
+        assert_eq!(value_from_json_and_schema(&json_value, &v), value);
     }
 }

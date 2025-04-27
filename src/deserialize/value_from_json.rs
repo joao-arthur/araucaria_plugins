@@ -29,3 +29,29 @@ pub fn value_from_json(value: &serde_json::Value) -> Value {
         serde_json::Value::Null => Value::None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use araucaria::value::Value;
+
+    use super::value_from_json;
+
+    #[test]
+    fn value_from_json_number() {
+        let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
+        let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
+        let json_i64_neg = serde_json::Value::Number(serde_json::Number::from_i128(-192).unwrap());
+        let json_f64_pos = serde_json::Value::Number(serde_json::Number::from_f64(192.0).unwrap());
+        let json_f64_neg = serde_json::Value::Number(serde_json::Number::from_f64(-192.0).unwrap());
+        let json_f64_pos_float = serde_json::Value::Number(serde_json::Number::from_f64(192.5).unwrap());
+        let json_f64_neg_float = serde_json::Value::Number(serde_json::Number::from_f64(-192.5).unwrap());
+
+        assert_eq!(value_from_json(&json_u64), Value::U64(192));
+        assert_eq!(value_from_json(&json_i64_pos), Value::U64(192));
+        assert_eq!(value_from_json(&json_i64_neg), Value::I64(-192));
+        assert_eq!(value_from_json(&json_f64_pos), Value::F64(192.0));
+        assert_eq!(value_from_json(&json_f64_neg), Value::F64(-192.0));
+        assert_eq!(value_from_json(&json_f64_pos_float), Value::F64(192.5));
+        assert_eq!(value_from_json(&json_f64_neg_float), Value::F64(-192.5));
+    }
+}
