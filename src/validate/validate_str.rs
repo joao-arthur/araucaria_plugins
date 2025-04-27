@@ -4,6 +4,7 @@ use araucaria::{
     validation::StrValidation,
     value::Value,
 };
+use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;
 
 fn bytes_len(str_value: &String) -> usize {
@@ -38,49 +39,50 @@ pub fn validate_str(validation: &StrValidation, value: &Value, root: &Value) -> 
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
+            let str_value = str_value.nfc().collect::<String>();
             if let Some(operation) = &validation.operation {
                 if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone()), root) {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
             if let Some(bytes_len_operation) = &validation.bytes_len {
-                let len = bytes_len(str_value);
+                let len = bytes_len(&str_value);
                 if let Some(Err(())) = compare(bytes_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
                 }
             }
             if let Some(chars_len_operation) = &validation.chars_len {
-                let len = chars_len(str_value);
+                let len = chars_len(&str_value);
                 if let Some(Err(())) = compare(chars_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
                 }
             }
             if let Some(graphemes_len_operation) = &validation.graphemes_len {
-                let len = graphemes_len(str_value);
+                let len = graphemes_len(&str_value);
                 if let Some(Err(())) = compare(graphemes_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
                 }
             }
             if let Some(lowercase_len_operation) = &validation.lowercase_len {
-                let len = lowercase_len(str_value);
+                let len = lowercase_len(&str_value);
                 if let Some(Err(())) = compare(lowercase_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
                 }
             }
             if let Some(uppercase_len_operation) = &validation.uppercase_len {
-                let len = uppercase_len(str_value);
+                let len = uppercase_len(&str_value);
                 if let Some(Err(())) = compare(uppercase_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
                 }
             }
             if let Some(numbers_len_operation) = &validation.numbers_len {
-                let len = numbers_len(str_value);
+                let len = numbers_len(&str_value);
                 if let Some(Err(())) = compare(numbers_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
                 }
             }
             if let Some(symbols_len_operation) = &validation.symbols_len {
-                let len = symbols_len(str_value);
+                let len = symbols_len(&str_value);
                 if let Some(Err(())) = compare(symbols_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
                 }
@@ -1516,6 +1518,59 @@ mod tests {
         assert_eq!(validate_str(&v, &Value::from("&*()"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Str, op_err.clone()])));
         assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Str, op_err.clone()])));
+    }
+
+    #[test]
+    fn validate_chars_len_eq_normalized() {
+        let v = StrValidation::default().chars_len_eq(5);
+
+        let a_upper_composed = "ÀÁÂÃÄ";
+        let e_upper_composed = "ÈÉÊẼË";
+        let i_upper_composed = "ÌÍÎĨÏ";
+        let o_upper_composed = "ÒÓÔÕÖ";
+        let u_upper_composed = "ÙÚÛŨÜ";
+
+        let a_lower_composed = "àáâãä";
+        let e_lower_composed = "èéêẽë";
+        let i_lower_composed = "ìíîĩï";
+        let o_lower_composed = "òóôõö";
+        let u_lower_composed = "ùúûũü";
+
+        let a_upper_decomposed = "A\u{300}A\u{301}A\u{302}A\u{303}A\u{308}";
+        let e_upper_decomposed = "E\u{300}E\u{301}E\u{302}E\u{303}E\u{308}";
+        let i_upper_decomposed = "I\u{300}I\u{301}I\u{302}I\u{303}I\u{308}";
+        let o_upper_decomposed = "O\u{300}O\u{301}O\u{302}O\u{303}O\u{308}";
+        let u_upper_decomposed = "U\u{300}U\u{301}U\u{302}U\u{303}U\u{308}";
+
+        let a_lower_decomposed = "a\u{300}a\u{301}a\u{302}a\u{303}a\u{308}";
+        let e_lower_decomposed = "e\u{300}e\u{301}e\u{302}e\u{303}e\u{308}";
+        let i_lower_decomposed = "i\u{300}i\u{301}i\u{302}i\u{303}i\u{308}";
+        let o_lower_decomposed = "o\u{300}o\u{301}o\u{302}o\u{303}o\u{308}";
+        let u_lower_decomposed = "u\u{300}u\u{301}u\u{302}u\u{303}u\u{308}";
+
+        assert_eq!(validate_str(&v, &Value::from(a_upper_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(e_upper_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(i_upper_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(o_upper_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(u_upper_composed), &ROOT), Ok(()));
+
+        assert_eq!(validate_str(&v, &Value::from(a_lower_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(e_lower_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(i_lower_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(o_lower_composed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(u_lower_composed), &ROOT), Ok(()));
+
+        assert_eq!(validate_str(&v, &Value::from(a_upper_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(e_upper_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(i_upper_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(o_upper_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(u_upper_decomposed), &ROOT), Ok(()));
+
+        assert_eq!(validate_str(&v, &Value::from(a_lower_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(e_lower_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(i_lower_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(o_lower_decomposed), &ROOT), Ok(()));
+        assert_eq!(validate_str(&v, &Value::from(u_lower_decomposed), &ROOT), Ok(()));
     }
 
     #[test]
