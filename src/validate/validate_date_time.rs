@@ -56,9 +56,7 @@ mod tests {
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
         Value::Obj(BTreeMap::from([(
             "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))])),
-            ]),
+            Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))]))]),
         )]))
     });
 

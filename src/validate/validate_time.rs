@@ -54,12 +54,7 @@ mod tests {
     use super::validate_time;
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))])),
-            ]),
-        )]))
+        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))]))]))]))
     });
 
     #[test]

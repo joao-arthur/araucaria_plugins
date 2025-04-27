@@ -54,12 +54,7 @@ mod tests {
     use super::validate_date;
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-10-28"))])),
-            ]),
-        )]))
+        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-10-28"))]))]))]))
     });
 
     #[test]
