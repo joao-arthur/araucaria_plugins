@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_usize_value() {
+    fn validate_usize_operation_value() {
         let v = USizeValidation::default().eq(42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::USize(42))));
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Ok(()));
@@ -78,7 +78,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_usize_field() {
+    fn validate_usize_operation_field() {
         let v = USizeValidation::default().ne_field("usize_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("usize_value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(418), &ROOT), Ok(()));

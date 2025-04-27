@@ -174,7 +174,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_str_value() {
+    fn validate_str_operation_value() {
         let v = StrValidation::default().eq("Cogito ergo sum".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("Cogito ergo sum"))));
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
@@ -184,7 +184,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_str_field() {
+    fn validate_str_operation_field() {
         let v = StrValidation::default().ne_field("str".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("str".into())));
         assert_eq!(validate_str(&v, &Value::from("Memento mori"), &ROOT), Ok(()));

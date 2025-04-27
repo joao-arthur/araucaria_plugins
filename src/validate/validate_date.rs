@@ -74,7 +74,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_date_value() {
+    fn validate_date_operation_value() {
         let v = DateValidation::default().eq("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Ok(()));
@@ -84,7 +84,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_date_field() {
+    fn validate_date_operation_field() {
         let v = DateValidation::default().ne_field("date_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("date_value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Ok(()));

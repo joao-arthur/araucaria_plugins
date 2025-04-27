@@ -76,7 +76,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_time_value() {
+    fn validate_time_operation_value() {
         let v = TimeValidation::default().eq("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
@@ -86,7 +86,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_time_field() {
+    fn validate_time_operation_field() {
         let v = TimeValidation::default().ne_field("time_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("time_value".into())));
         assert_eq!(validate_time(&v, &Value::from("02:18"), &ROOT), Ok(()));

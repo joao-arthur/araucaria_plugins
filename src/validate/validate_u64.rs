@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_u64_value() {
+    fn validate_u64_operation_value() {
         let v = U64Validation::default().eq(42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::U64(42))));
         assert_eq!(validate_u64(&v, &Value::U64(42), &ROOT), Ok(()));
@@ -78,7 +78,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_u64_field() {
+    fn validate_u64_operation_field() {
         let v = U64Validation::default().ne_field("u64_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("u64_value".into())));
         assert_eq!(validate_u64(&v, &Value::U64(418), &ROOT), Ok(()));

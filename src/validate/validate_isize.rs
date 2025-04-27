@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_isize_value() {
+    fn validate_isize_operation_value() {
         let v = ISizeValidation::default().eq(-42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::ISize(-42))));
         assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
@@ -78,7 +78,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_isize_field() {
+    fn validate_isize_operation_field() {
         let v = ISizeValidation::default().ne_field("isize_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("isize_value".into())));
         assert_eq!(validate_isize(&v, &Value::ISize(418), &ROOT), Ok(()));

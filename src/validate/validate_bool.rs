@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_bool_value() {
+    fn validate_bool_operation_value() {
         let v = BoolValidation::default().eq(false);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
@@ -78,7 +78,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_bool_field() {
+    fn validate_bool_operation_field() {
         let v = BoolValidation::default().ne_field("bool_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("bool_value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));

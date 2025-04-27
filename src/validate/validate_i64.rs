@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_i64_value() {
+    fn validate_i64_operation_value() {
         let v = I64Validation::default().eq(-42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-42))));
         assert_eq!(validate_i64(&v, &Value::I64(-42), &ROOT), Ok(()));
@@ -78,7 +78,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_i64_field() {
+    fn validate_i64_operation_field() {
         let v = I64Validation::default().ne_field("i64_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("i64_value".into())));
         assert_eq!(validate_i64(&v, &Value::I64(-418), &ROOT), Ok(()));
