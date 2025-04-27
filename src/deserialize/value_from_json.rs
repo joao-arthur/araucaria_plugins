@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use araucaria::{validation, value::Value};
+use araucaria::value::Value;
 
 pub fn value_from_json(value: &serde_json::Value) -> Value {
     match value {
@@ -32,6 +32,8 @@ pub fn value_from_json(value: &serde_json::Value) -> Value {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeMap;
+
     use araucaria::value::Value;
 
     use super::value_from_json;
@@ -73,5 +75,24 @@ mod tests {
     #[test]
     fn value_from_json_null() {
         assert_eq!(value_from_json(&serde_json::Value::Null), Value::None);
+    }
+
+    #[test]
+    fn value_from_json_and_schema_obj() {
+        let value = Value::Obj(BTreeMap::from([
+            ("u64".into(), Value::U64(27)),
+            ("i64".into(), Value::I64(-28)),
+            ("f64".into(), Value::F64(-29.5)),
+            ("bool".into(), Value::Bool(true)),
+            ("str".into(), Value::Str("The king will come".into())),
+        ]));
+        let mut json_map = serde_json::Map::new();
+        json_map.insert("u64".into(), serde_json::Value::Number(serde_json::Number::from_u128(27).unwrap()));
+        json_map.insert("i64".into(), serde_json::Value::Number(serde_json::Number::from_i128(-28).unwrap()));
+        json_map.insert("f64".into(), serde_json::Value::Number(serde_json::Number::from_f64(-29.5).unwrap()));
+        json_map.insert("bool".into(), serde_json::Value::Bool(true));
+        json_map.insert("str".into(), serde_json::Value::String("The king will come".into()));
+        let json_value = serde_json::Value::Object(json_map);
+        assert_eq!(value_from_json(&json_value), value);
     }
 }
