@@ -106,4 +106,24 @@ mod tests {
         assert_eq!(validate_enum(&v, &Value::None), Err(SchemaErr::validation([enum_err.clone()])));
         assert_eq!(validate_enum(&v, &bool_stub()), Err(SchemaErr::validation([enum_err.clone()])));
     }
+
+    #[test]
+    fn validate_enum_isize_default() {
+        let v = EnumValidation::from(ISIZE_VALUES.clone());
+        let enum_err = ValidationErr::ISizeEnum(ISIZE_VALUES.clone());
+        assert_eq!(validate_enum(&v, &Value::ISize(-3)), Ok(()));
+        assert_eq!(validate_enum(&v, &Value::ISize(1)), Err(SchemaErr::validation([enum_err.clone()])));
+        assert_eq!(validate_enum(&v, &Value::None), Err(SchemaErr::validation([REQUIRED, enum_err.clone()])));
+        assert_eq!(validate_enum(&v, &bool_stub()), Err(SchemaErr::validation([enum_err.clone()])));
+    }
+
+    #[test]
+    fn validate_enum_isize_optional() {
+        let v = EnumValidation::from(ISIZE_VALUES.clone()).optional();
+        let enum_err = ValidationErr::ISizeEnum(ISIZE_VALUES.clone());
+        assert_eq!(validate_enum(&v, &Value::ISize(-3)), Ok(()));
+        assert_eq!(validate_enum(&v, &Value::ISize(1)), Err(SchemaErr::validation([enum_err.clone()])));
+        assert_eq!(validate_enum(&v, &Value::None), Err(SchemaErr::validation([enum_err.clone()])));
+        assert_eq!(validate_enum(&v, &bool_stub()), Err(SchemaErr::validation([enum_err.clone()])));
+    }
 }
