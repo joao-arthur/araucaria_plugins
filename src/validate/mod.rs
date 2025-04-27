@@ -5,6 +5,7 @@ use validate_bool::validate_bool;
 use validate_date::validate_date;
 use validate_date_time::validate_date_time;
 use validate_email::validate_email;
+use validate_enum::validate_enum;
 use validate_f64::validate_f64;
 use validate_i64::validate_i64;
 use validate_isize::validate_isize;
@@ -17,6 +18,7 @@ mod validate_bool;
 mod validate_date;
 mod validate_date_time;
 mod validate_email;
+mod validate_enum;
 mod validate_f64;
 mod validate_i64;
 mod validate_isize;
@@ -73,7 +75,7 @@ pub fn validate(validation: &Validation, value: &Value, root: &Value) -> Result<
                 if result.is_empty() { Ok(()) } else { Err(SchemaErr::Obj(result)) }
             }
         },
-        Validation::Enum(v) => Ok(()),
+        Validation::Enum(v) => validate_enum(v, value),
     }
 }
 
