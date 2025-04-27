@@ -61,4 +61,12 @@ mod tests {
         assert_eq!(value_from_json(&serde_json::Value::Bool(true)), Value::Bool(true));
     }
 
+    #[test]
+    fn value_from_json_string() {
+        assert_eq!(value_from_json(&serde_json::Value::String("Naruto".into())), Value::Str("Naruto".into()));
+        assert_eq!(value_from_json(&serde_json::Value::String("chuck@gmail.com".into())), Value::Str("chuck@gmail.com".into()));
+        assert_eq!(value_from_json(&serde_json::Value::String("2025-04-26".into())), Value::Str("2025-04-26".into()));
+        assert_eq!(value_from_json(&serde_json::Value::String("16:55".into())), Value::Str("16:55".into()));
+        assert_eq!(value_from_json(&serde_json::Value::String("2025-04-26T16:55Z".into())), Value::Str("2025-04-26T16:55Z".into()));
+    }
 }
