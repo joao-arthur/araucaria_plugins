@@ -1,28 +1,11 @@
-use std::sync::LazyLock;
-
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
     validation::TimeValidation,
     value::Value,
 };
-use regex::Regex;
 
-#[derive(Debug, PartialEq)]
-struct InternalTm(pub u8, pub u8);
-
-static TM_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^([0-9]{2}):([0-9]{2})$").unwrap());
-
-fn parse_time(s: &str) -> Result<InternalTm, ()> {
-    let caps = TM_REGEX.captures(s).ok_or(())?;
-    let (_, [h, m]) = caps.extract();
-    let h = h.parse::<u8>().map_err(|_| ())?;
-    let m = m.parse::<u8>().map_err(|_| ())?;
-    if h > 23 || m > 59 {
-        return Err(());
-    }
-    Ok(InternalTm(h, m))
-}
+use crate::utils::time::parse_time;
 
 pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
@@ -68,7 +51,7 @@ mod tests {
         value::{Value, stub::u64_stub},
     };
 
-    use super::{InternalTm, parse_time, validate_time};
+    use super::validate_time;
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
         Value::Obj(BTreeMap::from([(
@@ -81,30 +64,6 @@ mod tests {
             ]),
         )]))
     });
-
-    #[test]
-    fn parse_time_ok() {
-        assert_eq!(parse_time("06:11"), Ok(InternalTm(6, 11)));
-    }
-
-    #[test]
-    fn parse_time_invalid_format() {
-        assert_eq!(parse_time("10:27:23.235"), Err(()));
-        assert_eq!(parse_time("10:27:24"), Err(()));
-        assert_eq!(parse_time("1061"), Err(()));
-        assert_eq!(parse_time("106"), Err(()));
-        assert_eq!(parse_time("10"), Err(()));
-        assert_eq!(parse_time("1"), Err(()));
-    }
-
-    #[test]
-    fn parse_time_invalid_value() {
-        assert_eq!(parse_time("24:00"), Err(()));
-        assert_eq!(parse_time("00:60"), Err(()));
-        assert_eq!(parse_time("24:20"), Err(()));
-        assert_eq!(parse_time("04:99"), Err(()));
-        assert_eq!(parse_time("72:93"), Err(()));
-    }
 
     #[test]
     fn validate_date_default() {

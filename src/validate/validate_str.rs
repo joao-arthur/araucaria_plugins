@@ -4,42 +4,14 @@ use araucaria::{
     validation::StrValidation,
     value::Value,
 };
-use unicode_normalization::UnicodeNormalization;
-use unicode_segmentation::UnicodeSegmentation;
 
-fn bytes_len(str_value: &String) -> usize {
-    str_value.len()
-}
-
-fn chars_len(str_value: &String) -> usize {
-    str_value.chars().count()
-}
-
-fn graphemes_len(str_value: &String) -> usize {
-    str_value.graphemes(true).collect::<Vec<&str>>().len()
-}
-
-fn lowercase_len(str_value: &String) -> usize {
-    str_value.chars().filter(|c| c.is_lowercase()).count()
-}
-
-fn uppercase_len(str_value: &String) -> usize {
-    str_value.chars().filter(|c| c.is_uppercase()).count()
-}
-
-fn numbers_len(str_value: &String) -> usize {
-    str_value.chars().filter(|c| c.is_ascii_digit()).count()
-}
-
-fn symbols_len(str_value: &String) -> usize {
-    str_value.chars().filter(|c| c.is_ascii_punctuation()).count()
-}
+use crate::utils::string::{bytes_len, chars_len, graphemes_len, lowercase_len, normalize_nfc, numbers_len, symbols_len, uppercase_len};
 
 pub fn validate_str(validation: &StrValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
-            let str_value = str_value.nfc().collect::<String>();
+            let str_value = normalize_nfc(str_value);
             if let Some(operation) = &validation.operation {
                 if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone()), root) {
                     base.push(ValidationErr::Operation(operation.clone()));
@@ -160,7 +132,7 @@ mod tests {
         value::{Value, stub::u64_stub},
     };
 
-    use super::{bytes_len, chars_len, graphemes_len, lowercase_len, numbers_len, symbols_len, uppercase_len, validate_str};
+    use super::validate_str;
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
         Value::Obj(BTreeMap::from([
@@ -1571,119 +1543,5 @@ mod tests {
         assert_eq!(validate_str(&v, &Value::from(i_lower_decomposed), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from(o_lower_decomposed), &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &Value::from(u_lower_decomposed), &ROOT), Ok(()));
-    }
-
-    #[test]
-    fn test_bytes_len() {
-        assert_eq!(bytes_len(&"veni, vidi, vici".into()), 16);
-        assert_eq!(bytes_len(&"ὅσον ζῇς, φαίνου".into()), 31);
-        assert_eq!(bytes_len(&"группа крови".into()), 23);
-        assert_eq!(bytes_len(&"ओंकार".into()), 15);
-        assert_eq!(bytes_len(&"𒀀𒈾 𒂍𒀀𒈾𒍢𒅕".into()), 29);
-    }
-
-    #[test]
-    fn bytes_len_emoji() {
-        assert_eq!(bytes_len(&"👩‍👩‍👧‍👧".into()), 25);
-        assert_eq!(bytes_len(&"👩‍👩‍👧".into()), 18);
-    }
-
-    #[test]
-    fn test_chars_len() {
-        assert_eq!(chars_len(&"veni, vidi, vici".into()), 16);
-        assert_eq!(chars_len(&"ὅσον ζῇς, φαίνου".into()), 16);
-        assert_eq!(chars_len(&"группа крови".into()), 12);
-        assert_eq!(chars_len(&"ओंकार".into()), 5);
-        assert_eq!(chars_len(&"𒀀𒈾 𒂍𒀀𒈾𒍢𒅕".into()), 8);
-    }
-
-    #[test]
-    fn chars_len_emoji() {
-        assert_eq!(chars_len(&"👩‍👩‍👧‍👧".into()), 7);
-        assert_eq!(chars_len(&"👩‍👩‍👧".into()), 5);
-    }
-
-    #[test]
-    fn test_graphemes_len() {
-        assert_eq!(graphemes_len(&"veni, vidi, vici".into()), 16);
-        assert_eq!(graphemes_len(&"ὅσον ζῇς, φαίνου".into()), 16);
-        assert_eq!(graphemes_len(&"группа крови".into()), 12);
-        assert_eq!(graphemes_len(&"ओंकार".into()), 3);
-        assert_eq!(graphemes_len(&"𒀀𒈾 𒂍𒀀𒈾𒍢𒅕".into()), 8);
-    }
-
-    #[test]
-    fn graphemes_len_emoji() {
-        assert_eq!(graphemes_len(&"👩‍👩‍👧‍👧".into()), 1);
-        assert_eq!(graphemes_len(&"👩‍👩‍👧".into()), 1);
-    }
-
-    #[test]
-    fn lowercase_len_lowercase() {
-        assert_eq!(lowercase_len(&"группа крови".into()), 11);
-        assert_eq!(lowercase_len(&"veni, vidi, vici".into()), 12);
-        assert_eq!(lowercase_len(&"ὅσον ζῇς, φαίνου".into()), 13);
-    }
-
-    #[test]
-    fn lowercase_len_uppercase() {
-        assert_eq!(lowercase_len(&"ГРУППА КРОВИ".into()), 0);
-        assert_eq!(lowercase_len(&"VENI, VIDI, VICI".into()), 0);
-        assert_eq!(lowercase_len(&"ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ".into()), 0);
-    }
-
-    #[test]
-    fn lowercase_len_not_applyable() {
-        assert_eq!(lowercase_len(&"👩‍👩‍👧‍👧".into()), 0);
-        assert_eq!(lowercase_len(&"👩‍👩‍👧".into()), 0);
-        assert_eq!(lowercase_len(&"ओंकार".into()), 0);
-        assert_eq!(lowercase_len(&"𒀀𒈾 𒂍𒀀𒈾𒍢𒅕".into()), 0);
-    }
-
-    #[test]
-    fn uppercase_len_lowercase() {
-        assert_eq!(uppercase_len(&"группа крови".into()), 0);
-        assert_eq!(uppercase_len(&"veni, vidi, vici".into()), 0);
-        assert_eq!(uppercase_len(&"ὅσον ζῇς, φαίνου".into()), 0);
-    }
-
-    #[test]
-    fn uppercase_len_uppercase() {
-        assert_eq!(uppercase_len(&"ГРУППА КРОВИ".into()), 11);
-        assert_eq!(uppercase_len(&"VENI, VIDI, VICI".into()), 12);
-        assert_eq!(uppercase_len(&"ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ".into()), 14);
-    }
-
-    #[test]
-    fn uppercase_len_not_applyable() {
-        assert_eq!(uppercase_len(&"👩‍👩‍👧‍👧".into()), 0);
-        assert_eq!(uppercase_len(&"👩‍👩‍👧".into()), 0);
-        assert_eq!(uppercase_len(&"ओंकार".into()), 0);
-        assert_eq!(uppercase_len(&"𒀀𒈾 𒂍𒀀𒈾𒍢𒅕".into()), 0);
-    }
-
-    #[test]
-    fn test_numbers_len() {
-        assert_eq!(numbers_len(&"veni, vidi, vici".into()), 0);
-        assert_eq!(numbers_len(&"ὅσον ζῇς, φαίνου".into()), 0);
-        assert_eq!(numbers_len(&"группа крови".into()), 0);
-        assert_eq!(numbers_len(&"ओंकार".into()), 0);
-        assert_eq!(numbers_len(&"𒀀𒈾 𒂍𒀀𒈾𒍢𒅕".into()), 0);
-        assert_eq!(numbers_len(&"👩‍👩‍👧‍👧".into()), 0);
-        assert_eq!(numbers_len(&"0123456789".into()), 10);
-    }
-
-    #[test]
-    fn test_symbols_len() {
-        assert_eq!(symbols_len(&"veni, vidi, vici".into()), 2);
-        assert_eq!(symbols_len(&"ὅσον ζῇς, φαίνου".into()), 1);
-        assert_eq!(symbols_len(&"группа крови".into()), 0);
-        assert_eq!(symbols_len(&"ओंकार".into()), 0);
-        assert_eq!(symbols_len(&"𒀀𒈾 𒂍𒀀𒈾𒍢𒅕".into()), 0);
-        assert_eq!(symbols_len(&"👩‍👩‍👧‍👧".into()), 0);
-        assert_eq!(symbols_len(&"!\"#$%&'()*+,-./".into()), 15);
-        assert_eq!(symbols_len(&":;<=>?@".into()), 7);
-        assert_eq!(symbols_len(&"[\\]^_`".into()), 6);
-        assert_eq!(symbols_len(&"{|}~".into()), 4);
     }
 }

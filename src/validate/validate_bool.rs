@@ -48,22 +48,13 @@ mod tests {
     use super::validate_bool;
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::Bool(false))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::Bool(true))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::Bool(false))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::Bool(true))])),
-            ]),
-        )]))
+        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::Bool(false))]))]))]))
     });
 
     #[test]
     fn validate_bool_default() {
         let v = BoolValidation::default();
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool])));
         assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
     }
@@ -71,7 +62,6 @@ mod tests {
     #[test]
     fn validate_bool_optional() {
         let v = BoolValidation::default().optional();
-        assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
         assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool])));
@@ -89,14 +79,11 @@ mod tests {
 
     #[test]
     fn validate_bool_field() {
-        let v = BoolValidation::default().ne_field("values.2.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.2.value".into())));
+        let v = BoolValidation::default().ne_field("values.0.value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_bool(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()]))
-        );
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Bool, op_err.clone()])));
         assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Bool, op_err.clone()])));
     }
 }

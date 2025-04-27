@@ -3,13 +3,14 @@ use araucaria::{
     validation::EmailValidation,
     value::Value,
 };
-use email_address::EmailAddress;
+
+use crate::utils::email::email_is_valid;
 
 pub fn validate_email(validation: &EmailValidation, value: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
-            if !EmailAddress::is_valid(str_value) {
+            if !email_is_valid(str_value) {
                 base.push(ValidationErr::Email);
             }
         }
