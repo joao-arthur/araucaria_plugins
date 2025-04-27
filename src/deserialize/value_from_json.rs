@@ -69,4 +69,9 @@ mod tests {
         assert_eq!(value_from_json(&serde_json::Value::String("16:55".into())), Value::Str("16:55".into()));
         assert_eq!(value_from_json(&serde_json::Value::String("2025-04-26T16:55Z".into())), Value::Str("2025-04-26T16:55Z".into()));
     }
+
+    #[test]
+    fn value_from_json_null() {
+        assert_eq!(value_from_json(&serde_json::Value::Null), Value::None);
+    }
 }
