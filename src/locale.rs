@@ -219,6 +219,7 @@ pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> Strin
             Operation::Le(v) => locale.symbols_le.replace("%value%", &operand_to_string(v)),
             Operation::Btwn(a, b) => locale.symbols_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b)),
         },
+        _ => "".into()
     }
 }
 

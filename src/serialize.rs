@@ -66,6 +66,9 @@ pub enum ValidationErr {
     UppercaseLen(Operation),
     NumbersLen(Operation),
     SymbolsLen(Operation),
+    USizeEnum(Vec<usize>),
+    ISizeEnum(Vec<isize>),
+    StrEnum(Vec<String>),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -154,6 +157,9 @@ pub fn map_err(validation_err: araucaria::error::ValidationErr) -> ValidationErr
         araucaria::error::ValidationErr::UppercaseLen(operation) => ValidationErr::UppercaseLen(map_operation(operation)),
         araucaria::error::ValidationErr::NumbersLen(operation) => ValidationErr::NumbersLen(map_operation(operation)),
         araucaria::error::ValidationErr::SymbolsLen(operation) => ValidationErr::SymbolsLen(map_operation(operation)),
+        araucaria::error::ValidationErr::USizeEnum(usize_values) => ValidationErr::USizeEnum(usize_values),
+        araucaria::error::ValidationErr::ISizeEnum(isize_values) => ValidationErr::ISizeEnum(isize_values),
+        araucaria::error::ValidationErr::StrEnum(str_values) => ValidationErr::StrEnum(str_values),
     }
 }
 
