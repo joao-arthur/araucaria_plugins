@@ -47,9 +47,7 @@ mod tests {
 
     use super::validate_usize;
 
-    static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::USize(42))]))]))]))
-    });
+    static ROOT: LazyLock<Value> = LazyLock::new(|| Value::Obj(BTreeMap::from([("usize_value".into(), Value::USize(42))])));
 
     #[test]
     fn validate_usize_default() {
@@ -68,7 +66,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_usize_eq_value() {
+    fn validate_usize_value() {
         let v = USizeValidation::default().eq(42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::USize(42))));
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Ok(()));
@@ -78,9 +76,9 @@ mod tests {
     }
 
     #[test]
-    fn validate_usize_ne_field() {
-        let v = USizeValidation::default().ne_field("values.0.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
+    fn validate_usize_field() {
+        let v = USizeValidation::default().ne_field("usize_value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("usize_value".into())));
         assert_eq!(validate_usize(&v, &Value::USize(418), &ROOT), Ok(()));
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_usize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::USize, op_err.clone()])));

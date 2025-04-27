@@ -53,9 +53,7 @@ mod tests {
 
     use super::validate_date;
 
-    static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-10-28"))]))]))]))
-    });
+    static ROOT: LazyLock<Value> = LazyLock::new(|| Value::Obj(BTreeMap::from([("date_value".into(), Value::from("2026-10-28"))])));
 
     #[test]
     fn validate_date_default() {
@@ -85,8 +83,8 @@ mod tests {
 
     #[test]
     fn validate_date_field() {
-        let v = DateValidation::default().ne_field("values.0.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
+        let v = DateValidation::default().ne_field("date_value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("date_value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Ok(()));
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_date(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()])));

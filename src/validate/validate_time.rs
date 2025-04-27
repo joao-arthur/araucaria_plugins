@@ -53,9 +53,7 @@ mod tests {
 
     use super::validate_time;
 
-    static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::from("11:27"))]))]))]))
-    });
+    static ROOT: LazyLock<Value> = LazyLock::new(|| Value::Obj(BTreeMap::from([("time_value".into(), Value::from("11:27"))])));
 
     #[test]
     fn validate_time_default() {
@@ -87,8 +85,8 @@ mod tests {
 
     #[test]
     fn validate_time_field() {
-        let v = TimeValidation::default().ne_field("values.0.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
+        let v = TimeValidation::default().ne_field("time_value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("time_value".into())));
         assert_eq!(validate_time(&v, &Value::from("02:18"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Time, op_err.clone()])));

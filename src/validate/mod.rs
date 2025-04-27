@@ -86,8 +86,8 @@ mod tests {
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
         validation::{
-            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, F64Validation, I64Validation, ObjValidation, StrValidation,
-            TimeValidation, U64Validation, Validation,
+            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, F64Validation, I64Validation, ISizeValidation, ObjValidation,
+            StrValidation, TimeValidation, U64Validation, USizeValidation, Validation,
         },
         value::Value,
     };
@@ -100,6 +100,8 @@ mod tests {
         assert_eq!(validate(&Validation::U64(U64Validation::default().eq(1917)), &Value::U64(1917), &root), Ok(()));
         assert_eq!(validate(&Validation::I64(I64Validation::default().eq(-800)), &Value::I64(-800), &root), Ok(()));
         assert_eq!(validate(&Validation::F64(F64Validation::default().eq(1.5)), &Value::F64(1.5), &root), Ok(()));
+        assert_eq!(validate(&Validation::USize(USizeValidation::default().eq(1917)), &Value::USize(1917), &root), Ok(()));
+        assert_eq!(validate(&Validation::ISize(ISizeValidation::default().eq(-284)), &Value::ISize(-284), &root), Ok(()));
         assert_eq!(validate(&Validation::Bool(BoolValidation::default().eq(false)), &Value::Bool(false), &root), Ok(()));
         assert_eq!(validate(&Validation::Str(StrValidation::default().eq("Gladius".into())), &Value::from("Gladius"), &root), Ok(()));
         assert_eq!(validate(&Validation::Date(DateValidation::default().eq("2015-12-28".into())), &Value::from("2015-12-28"), &root), Ok(()));

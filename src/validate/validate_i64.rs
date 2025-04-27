@@ -47,9 +47,7 @@ mod tests {
 
     use super::validate_i64;
 
-    static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::I64(-42))]))]))]))
-    });
+    static ROOT: LazyLock<Value> = LazyLock::new(|| Value::Obj(BTreeMap::from([("i64_value".into(), Value::I64(-42))])));
 
     #[test]
     fn validate_i64_default() {
@@ -79,8 +77,8 @@ mod tests {
 
     #[test]
     fn validate_i64_field() {
-        let v = I64Validation::default().ne_field("values.0.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
+        let v = I64Validation::default().ne_field("i64_value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("i64_value".into())));
         assert_eq!(validate_i64(&v, &Value::I64(-418), &ROOT), Ok(()));
         assert_eq!(validate_i64(&v, &Value::I64(-42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_i64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::I64, op_err.clone()])));

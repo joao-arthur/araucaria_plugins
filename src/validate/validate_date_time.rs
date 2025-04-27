@@ -53,12 +53,7 @@ mod tests {
 
     use super::validate_date_time;
 
-    static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20T11:27Z"))]))]),
-        )]))
-    });
+    static ROOT: LazyLock<Value> = LazyLock::new(|| Value::Obj(BTreeMap::from([("date_time_value".into(), Value::from("2028-11-20T11:27Z"))])));
 
     #[test]
     fn validate_date_time_default() {
@@ -88,8 +83,8 @@ mod tests {
 
     #[test]
     fn validate_date_time_field() {
-        let v = DateTimeValidation::default().ne_field("values.0.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
+        let v = DateTimeValidation::default().ne_field("date_time_value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("date_time_value".into())));
         assert_eq!(validate_date_time(&v, &Value::from("2025-04-27T11:26Z"), &ROOT), Ok(()));
         assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_date_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::DateTime, op_err.clone()])));
