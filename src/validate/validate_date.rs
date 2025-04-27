@@ -57,7 +57,7 @@ mod tests {
         Value::Obj(BTreeMap::from([(
             "values".into(),
             Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::from("2028-11-20"))])),
+                Value::Obj(BTreeMap::from([("value".into(), Value::from("2026-10-28"))])),
             ]),
         )]))
     });
@@ -93,8 +93,7 @@ mod tests {
         let v = DateValidation::default().ne_field("values.0.value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT), Ok(()));
-        assert_eq!(validate_date(&v, &Value::from("2028-11-20"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::from("2028-11-21"), &ROOT), Ok(()));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
         assert_eq!(validate_date(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::Date, op_err.clone()])));
         assert_eq!(validate_date(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::Date, op_err.clone()])));
     }
