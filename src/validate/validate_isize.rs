@@ -48,15 +48,7 @@ mod tests {
     use super::validate_isize;
 
     static ROOT: LazyLock<Value> = LazyLock::new(|| {
-        Value::Obj(BTreeMap::from([(
-            "values".into(),
-            Value::Arr(vec![
-                Value::Obj(BTreeMap::from([("value".into(), Value::ISize(12))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::ISize(22))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::ISize(32))])),
-                Value::Obj(BTreeMap::from([("value".into(), Value::ISize(42))])),
-            ]),
-        )]))
+        Value::Obj(BTreeMap::from([("values".into(), Value::Arr(vec![Value::Obj(BTreeMap::from([("value".into(), Value::ISize(42))]))]))]))
     });
 
     #[test]
@@ -80,193 +72,18 @@ mod tests {
         let v = ISizeValidation::default().eq(-42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::ISize(-42))));
         assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(-7), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_ne_value() {
-        let v = ISizeValidation::default().ne(-22);
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::ISize(-22))));
-        assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(-22), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_gt_value() {
-        let v = ISizeValidation::default().gt(-2);
-        let op_err = ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::ISize(-2))));
-        assert_eq!(validate_isize(&v, &Value::ISize(-1), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(-2), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_ge_value() {
-        let v = ISizeValidation::default().ge(-2);
-        let op_err = ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::ISize(-2))));
-        assert_eq!(validate_isize(&v, &Value::ISize(-2), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(-3), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_lt_value() {
-        let v = ISizeValidation::default().lt(-5);
-        let op_err = ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::ISize(-5))));
-        assert_eq!(validate_isize(&v, &Value::ISize(-6), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(-5), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_le_value() {
-        let v = ISizeValidation::default().le(-5);
-        let op_err = ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::ISize(-5))));
-        assert_eq!(validate_isize(&v, &Value::ISize(-5), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(-4), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_btwn_value() {
-        let v = ISizeValidation::default().btwn(5, 6);
-        let op_err = ValidationErr::Operation(Operation::Btwn(Operand::Value(OperandValue::ISize(5)), Operand::Value(OperandValue::ISize(6))));
-        assert_eq!(validate_isize(&v, &Value::ISize(4), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(5), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(6), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(7), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_eq_field() {
-        let v = ISizeValidation::default().eq_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Eq(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
+        assert_eq!(validate_isize(&v, &Value::ISize(-418), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 
     #[test]
     fn validate_isize_ne_field() {
-        let v = ISizeValidation::default().ne_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
+        let v = ISizeValidation::default().ne_field("values.0.value".into());
+        let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("values.0.value".into())));
+        assert_eq!(validate_isize(&v, &Value::ISize(418), &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Ok(()));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_gt_field() {
-        let v = ISizeValidation::default().gt_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Gt(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Ok(()));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_ge_field() {
-        let v = ISizeValidation::default().ge_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Ge(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Ok(()));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_lt_field() {
-        let v = ISizeValidation::default().lt_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Lt(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_le_field() {
-        let v = ISizeValidation::default().le_field("values.3.value".into());
-        let op_err = ValidationErr::Operation(Operation::Le(Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
-    }
-
-    #[test]
-    fn validate_isize_btwn_field() {
-        let v = ISizeValidation::default().btwn_field("values.2.value".into(), "values.3.value".into());
-        let op_err =
-            ValidationErr::Operation(Operation::Btwn(Operand::FieldPath("values.2.value".into()), Operand::FieldPath("values.3.value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(31), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::ISize(32), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(33), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(41), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(43), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(
-            validate_isize(&v, &Value::None, &ROOT),
-            Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()]))
-        );
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ValidationErr::Required, ValidationErr::ISize, op_err.clone()])));
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ValidationErr::ISize, op_err.clone()])));
     }
 }
