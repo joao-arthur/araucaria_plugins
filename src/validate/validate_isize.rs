@@ -5,7 +5,7 @@ use araucaria::{
     value::Value,
 };
 
-pub fn validate_isize(validation: &ISizeValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_isize(validation: &ISizeValidation, value: &Value, root: &Value, enforce_optional: bool) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::ISize(isize_value) => {
@@ -16,12 +16,22 @@ pub fn validate_isize(validation: &ISizeValidation, value: &Value, root: &Value)
             }
         }
         Value::None => {
-            if validation.required {
-                base.push(ValidationErr::Required);
-            }
-            base.push(ValidationErr::ISize);
-            if let Some(operation) = &validation.operation {
-                base.push(ValidationErr::Operation(operation.clone()));
+            if enforce_optional {
+                if validation.required {
+                    base.push(ValidationErr::Required);
+                }
+                base.push(ValidationErr::ISize);
+                if let Some(operation) = &validation.operation {
+                    base.push(ValidationErr::Operation(operation.clone()));
+                }
+            } else {
+                if validation.required {
+                    base.push(ValidationErr::Required);
+                    base.push(ValidationErr::ISize);
+                    if let Some(operation) = &validation.operation {
+                        base.push(ValidationErr::Operation(operation.clone()));
+                    }
+                }
             }
         }
         _ => {
@@ -54,36 +64,38 @@ mod tests {
     #[test]
     fn validate_isize_default() {
         let v = ISizeValidation::default();
-        assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, ISIZE])));
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ISIZE])));
+        assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT, false), Ok(()));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([REQUIRED, ISIZE])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, ISIZE])));
+        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT, false), Err(SchemaErr::validation([ISIZE])));
     }
 
     #[test]
     fn validate_isize_optional() {
         let v = ISizeValidation::default().optional();
-        assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ISIZE])));
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ISIZE])));
+        assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT, false), Ok(()));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([ISIZE])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, false), Ok(()));
+        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT, false), Err(SchemaErr::validation([ISIZE])));
     }
 
     #[test]
     fn validate_isize_operation_value() {
         let v = ISizeValidation::default().eq(-42);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::ISize(-42))));
-        assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(-418), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, ISIZE, op_err.clone()])));
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ISIZE, op_err.clone()])));
+        assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT, false), Ok(()));
+        assert_eq!(validate_isize(&v, &Value::ISize(-418), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, ISIZE, op_err.clone()])));
+        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT, false), Err(SchemaErr::validation([ISIZE, op_err.clone()])));
     }
 
     #[test]
     fn validate_isize_operation_field() {
         let v = ISizeValidation::default().ne_field("isize_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("isize_value".into())));
-        assert_eq!(validate_isize(&v, &Value::ISize(418), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, ISIZE, op_err.clone()])));
-        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ISIZE, op_err.clone()])));
+        assert_eq!(validate_isize(&v, &Value::ISize(418), &ROOT, false), Ok(()));
+        assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, ISIZE, op_err.clone()])));
+        assert_eq!(validate_isize(&v, &bool_stub(), &ROOT, false), Err(SchemaErr::validation([ISIZE, op_err.clone()])));
     }
 }

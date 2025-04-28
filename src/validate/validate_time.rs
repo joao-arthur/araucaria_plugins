@@ -7,7 +7,7 @@ use araucaria::{
 
 use crate::utils::time::parse_time;
 
-pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value, enforce_optional: bool) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
@@ -22,12 +22,22 @@ pub fn validate_time(validation: &TimeValidation, value: &Value, root: &Value) -
             }
         }
         Value::None => {
-            if validation.required {
-                base.push(ValidationErr::Required);
-            }
-            base.push(ValidationErr::Time);
-            if let Some(operation) = &validation.operation {
-                base.push(ValidationErr::Operation(operation.clone()));
+            if enforce_optional {
+                if validation.required {
+                    base.push(ValidationErr::Required);
+                }
+                base.push(ValidationErr::Time);
+                if let Some(operation) = &validation.operation {
+                    base.push(ValidationErr::Operation(operation.clone()));
+                }
+            } else {
+                if validation.required {
+                    base.push(ValidationErr::Required);
+                    base.push(ValidationErr::Time);
+                    if let Some(operation) = &validation.operation {
+                        base.push(ValidationErr::Operation(operation.clone()));
+                    }
+                }
             }
         }
         _ => {
@@ -60,50 +70,52 @@ mod tests {
     #[test]
     fn validate_time_default() {
         let v = TimeValidation::default();
-        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
-        assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([TIME])));
-        assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, TIME])));
-        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT, false), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT, false), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([REQUIRED, TIME])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, TIME])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([TIME])));
     }
 
     #[test]
     fn validate_time_optional() {
         let v = TimeValidation::default().optional();
-        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
-        assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([TIME])));
-        assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([TIME])));
-        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT, false), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT, false), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, false), Ok(()));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([TIME])));
     }
 
     #[test]
     fn validate_time_operation_value() {
         let v = TimeValidation::default().eq("11:27".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("11:27"))));
-        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
-        assert_eq!(validate_time(&v, &Value::from("23:18"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, TIME, op_err.clone()])));
-        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([TIME, op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT, false), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("23:18"), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, TIME, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([TIME, op_err.clone()])));
     }
 
     #[test]
     fn validate_time_operation_field() {
         let v = TimeValidation::default().ne_field("time_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("time_value".into())));
-        assert_eq!(validate_time(&v, &Value::from("02:18"), &ROOT), Ok(()));
-        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, TIME, op_err.clone()])));
-        assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([TIME, op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::from("02:18"), &ROOT, false), Ok(()));
+        assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, TIME, op_err.clone()])));
+        assert_eq!(validate_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([TIME, op_err.clone()])));
     }
 
     #[test]
     fn validate_time_invalid_format() {
         let v = TimeValidation::default();
-        assert_eq!(validate_time(&v, &Value::from("10:27:23.235"), &ROOT), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::from("10:27:23.235"), &ROOT, false), Err(SchemaErr::validation([TIME])));
     }
 
     #[test]
     fn validate_time_invalid_value() {
         let v = TimeValidation::default();
-        assert_eq!(validate_time(&v, &Value::from("72:93"), &ROOT), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::from("72:93"), &ROOT, false), Err(SchemaErr::validation([TIME])));
     }
 }
