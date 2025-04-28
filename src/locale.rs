@@ -95,35 +95,16 @@ impl Serialize for SchemaLocalizedErr {
     }
 }
 
-pub fn schema_err_to_locale(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
+pub fn localize_schema_err(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
     match err {
         SchemaErr::Arr(arr) => SchemaLocalizedErr::Arr(arr.iter().map(|item| validation_err_to_locale(item, locale)).collect()),
         SchemaErr::Obj(obj) => {
             let mut result: BTreeMap<String, SchemaLocalizedErr> = BTreeMap::new();
             for (key, item) in obj {
-                result.insert(key.clone(), schema_err_to_locale(item, locale));
+                result.insert(key.clone(), localize_schema_err(item, locale));
             }
             SchemaLocalizedErr::Obj(result)
         }
-    }
-}
-
-pub fn operand_value_to_string(value: &OperandValue) -> String {
-    match value {
-        OperandValue::U64(val) => val.to_string(),
-        OperandValue::I64(val) => val.to_string(),
-        OperandValue::F64(val) => val.to_string(),
-        OperandValue::USize(val) => val.to_string(),
-        OperandValue::ISize(val) => val.to_string(),
-        OperandValue::Bool(val) => val.to_string(),
-        OperandValue::Str(val) => "\"".to_string() + val + "\"",
-    }
-}
-
-pub fn operand_to_string(operand: &Operand) -> String {
-    match operand {
-        Operand::Value(value) => operand_value_to_string(value),
-        Operand::FieldPath(path) => "\"".to_string() + path + "\"",
     }
 }
 
@@ -142,82 +123,82 @@ pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> Strin
         ValidationErr::Time => locale.time.clone(),
         ValidationErr::DateTime => locale.date_time.clone(),
         ValidationErr::Operation(operation) => match operation {
-            Operation::Eq(v) => locale.eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.le.replace("%value%", &operand_to_string(v)),
-            Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b)),
+            Operation::Eq(v) => locale.eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.le.replace("%value%", &v.to_string()),
+            Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
         },
         ValidationErr::BytesLen(operation) => match operation {
-            Operation::Eq(v) => locale.bytes_len_eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.bytes_len_ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.bytes_len_gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.bytes_len_ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.bytes_len_lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.bytes_len_le.replace("%value%", &operand_to_string(v)),
-            Operation::Btwn(a, b) => locale.bytes_len_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b)),
+            Operation::Eq(v) => locale.bytes_len_eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.bytes_len_ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.bytes_len_gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.bytes_len_ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.bytes_len_lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.bytes_len_le.replace("%value%", &v.to_string()),
+            Operation::Btwn(a, b) => locale.bytes_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
         },
         ValidationErr::CharsLen(operation) => match operation {
-            Operation::Eq(v) => locale.chars_len_eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.chars_len_ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.chars_len_gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.chars_len_ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.chars_len_lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.chars_len_le.replace("%value%", &operand_to_string(v)),
-            Operation::Btwn(a, b) => locale.chars_len_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b)),
+            Operation::Eq(v) => locale.chars_len_eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.chars_len_ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.chars_len_gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.chars_len_ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.chars_len_lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.chars_len_le.replace("%value%", &v.to_string()),
+            Operation::Btwn(a, b) => locale.chars_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
         },
         ValidationErr::GraphemesLen(operation) => match operation {
-            Operation::Eq(v) => locale.graphemes_len_eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.graphemes_len_ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.graphemes_len_gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.graphemes_len_ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.graphemes_len_lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.graphemes_len_le.replace("%value%", &operand_to_string(v)),
+            Operation::Eq(v) => locale.graphemes_len_eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.graphemes_len_ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.graphemes_len_gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.graphemes_len_ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.graphemes_len_lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.graphemes_len_le.replace("%value%", &v.to_string()),
             Operation::Btwn(a, b) => {
-                locale.graphemes_len_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b))
+                locale.graphemes_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string())
             }
         },
         ValidationErr::LowercaseLen(operation) => match operation {
-            Operation::Eq(v) => locale.lowercase_len_eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.lowercase_len_ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.lowercase_len_gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.lowercase_len_ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.lowercase_len_lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.lowercase_len_le.replace("%value%", &operand_to_string(v)),
+            Operation::Eq(v) => locale.lowercase_len_eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.lowercase_len_ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.lowercase_len_gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.lowercase_len_ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.lowercase_len_lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.lowercase_len_le.replace("%value%", &v.to_string()),
             Operation::Btwn(a, b) => {
-                locale.lowercase_len_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b))
+                locale.lowercase_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string())
             }
         },
         ValidationErr::UppercaseLen(operation) => match operation {
-            Operation::Eq(v) => locale.uppercase_len_eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.uppercase_len_ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.uppercase_len_gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.uppercase_len_ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.uppercase_len_lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.uppercase_len_le.replace("%value%", &operand_to_string(v)),
+            Operation::Eq(v) => locale.uppercase_len_eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.uppercase_len_ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.uppercase_len_gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.uppercase_len_ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.uppercase_len_lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.uppercase_len_le.replace("%value%", &v.to_string()),
             Operation::Btwn(a, b) => {
-                locale.uppercase_len_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b))
+                locale.uppercase_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string())
             }
         },
         ValidationErr::NumbersLen(operation) => match operation {
-            Operation::Eq(v) => locale.number_len_eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.number_len_ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.number_len_gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.number_len_ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.number_len_lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.number_len_le.replace("%value%", &operand_to_string(v)),
-            Operation::Btwn(a, b) => locale.number_len_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b)),
+            Operation::Eq(v) => locale.number_len_eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.number_len_ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.number_len_gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.number_len_ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.number_len_lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.number_len_le.replace("%value%", &v.to_string()),
+            Operation::Btwn(a, b) => locale.number_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
         },
         ValidationErr::SymbolsLen(operation) => match operation {
-            Operation::Eq(v) => locale.symbols_eq.replace("%value%", &operand_to_string(v)),
-            Operation::Ne(v) => locale.symbols_ne.replace("%value%", &operand_to_string(v)),
-            Operation::Gt(v) => locale.symbols_gt.replace("%value%", &operand_to_string(v)),
-            Operation::Ge(v) => locale.symbols_ge.replace("%value%", &operand_to_string(v)),
-            Operation::Lt(v) => locale.symbols_lt.replace("%value%", &operand_to_string(v)),
-            Operation::Le(v) => locale.symbols_le.replace("%value%", &operand_to_string(v)),
-            Operation::Btwn(a, b) => locale.symbols_btwn.replace("%value_a%", &operand_to_string(a)).replace("%value_b%", &operand_to_string(b)),
+            Operation::Eq(v) => locale.symbols_eq.replace("%value%", &v.to_string()),
+            Operation::Ne(v) => locale.symbols_ne.replace("%value%", &v.to_string()),
+            Operation::Gt(v) => locale.symbols_gt.replace("%value%", &v.to_string()),
+            Operation::Ge(v) => locale.symbols_ge.replace("%value%", &v.to_string()),
+            Operation::Lt(v) => locale.symbols_lt.replace("%value%", &v.to_string()),
+            Operation::Le(v) => locale.symbols_le.replace("%value%", &v.to_string()),
+            Operation::Btwn(a, b) => locale.symbols_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
         },
         _ => "".into(),
     }
@@ -451,7 +432,7 @@ mod tests {
         operation::{Operand, OperandValue, Operation},
     };
 
-    use super::{SchemaLocalizedErr, locale_en_long, locale_es_long, locale_pt_long, schema_err_to_locale, validation_err_to_locale};
+    use super::{SchemaLocalizedErr, locale_en_long, locale_es_long, locale_pt_long, localize_schema_err, validation_err_to_locale};
 
     const REQUIRED: ValidationErr = ValidationErr::Required;
     const U64: ValidationErr = ValidationErr::U64;
@@ -559,7 +540,7 @@ mod tests {
         let locale = locale_pt_long();
         let err = SchemaErr::arr([REQUIRED, BOOL, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(true))))]);
         let localized_err = SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()]);
-        assert_eq!(schema_err_to_locale(&err, &locale), localized_err);
+        assert_eq!(localize_schema_err(&err, &locale), localized_err);
     }
 
     #[test]
@@ -595,12 +576,12 @@ mod tests {
                 SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
             ),
         ]));
-        assert_eq!(schema_err_to_locale(&err, &locale), localized_err);
+        assert_eq!(localize_schema_err(&err, &locale), localized_err);
     }
 
     // TODO REMOVE FROM HERE
     #[test]
-    fn test_schema_err_to_locale_serialize() {
+    fn test_localize_schema_err_to_locale() {
         assert_eq!(
             serde_json::to_string(&SchemaLocalizedErr::Obj(BTreeMap::from([
                 ( "name".into(), SchemaLocalizedErr::Arr(vec![ "É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()])),
