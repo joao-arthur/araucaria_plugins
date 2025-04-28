@@ -201,11 +201,11 @@ pub fn localize_validation_err(error: &ValidationErr, locale: &Locale) -> String
 pub fn locale_pt_long() -> Locale {
     Locale {
         required: "É obrigatório".into(),
-        u64: "Deve ser um número inteiro sem sinal".into(),
-        i64: "Deve ser um número inteiro".into(),
-        f64: "Deve ser um número com ponto flutuante".into(),
-        usize: "".into(),
-        isize: "".into(),
+        u64: "Deve ser um número inteiro sem sinal de 64 bits".into(),
+        i64: "Deve ser um número inteiro de 64 bits".into(),
+        f64: "Deve ser um número com ponto flutuante de 64 bits".into(),
+        usize: "Deve ser um número inteiro sem sinal".into(),
+        isize: "Deve ser um número inteiro".into(),
         bool: "Deve ser um booleano".into(),
         str: "Deve ser uma string".into(),
         email: "Deve ser um e-mail".into(),
@@ -274,11 +274,11 @@ pub fn locale_pt_long() -> Locale {
 pub fn locale_es_long() -> Locale {
     Locale {
         required: "Se requiere".into(),
-        u64: "Debe ser un número entero sin signo".into(),
-        i64: "Debe ser un número entero".into(),
-        f64: "Debe ser un número de punto flotante".into(),
-        usize: "".into(),
-        isize: "".into(),
+        u64: "Debe ser un número entero sin signo de 64 bits".into(),
+        i64: "Debe ser un número entero de 64 bits".into(),
+        f64: "Debe ser un número de punto flotante de 64 bits".into(),
+        usize: "Debe ser un número entero sin signo".into(),
+        isize: "Debe ser un número entero".into(),
         bool: "Debe ser un booleano".into(),
         str: "Debe ser una cadena".into(),
         email: "Debe ser un correo electrónico".into(),
@@ -347,11 +347,11 @@ pub fn locale_es_long() -> Locale {
 pub fn locale_en_long() -> Locale {
     Locale {
         required: "Is required".into(),
-        u64: "Must be an unsigned integer".into(),
-        i64: "Must be an integer".into(),
-        f64: "Must be a float".into(),
-        usize: "".into(),
-        isize: "".into(),
+        u64: "Must be an 64 bits unsigned integer".into(),
+        i64: "Must be an 64 bits integer".into(),
+        f64: "Must be a 64 bits float".into(),
+        usize: "Must be an unsigned integer".into(),
+        isize: "Must be an integer".into(),
         bool: "Must be a boolean".into(),
         str: "Must be a string".into(),
         email: "Must be an e-mail".into(),
@@ -449,6 +449,8 @@ mod tests {
     const F64_VALUE_B: Operand = Operand::Value(OperandValue::F64(-2.4));
     const USIZE_VALUE_A: Operand = Operand::Value(OperandValue::USize(27));
     const USIZE_VALUE_B: Operand = Operand::Value(OperandValue::USize(39));
+    const ISIZE_VALUE_A: Operand = Operand::Value(OperandValue::ISize(-93));
+    const ISIZE_VALUE_B: Operand = Operand::Value(OperandValue::ISize(-72));
     const BOOL_VALUE_A: Operand = Operand::Value(OperandValue::Bool(false));
     const BOOL_VALUE_B: Operand = Operand::Value(OperandValue::Bool(true));
     const OP_U64_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(U64_VALUE_A));
@@ -613,9 +615,11 @@ mod tests {
         let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
         assert_eq!(localize_validation_err(&REQUIRED, &l), "É obrigatório".to_string());
-        assert_eq!(localize_validation_err(&U64, &l), "Deve ser um número inteiro sem sinal".to_string());
-        assert_eq!(localize_validation_err(&I64, &l), "Deve ser um número inteiro".to_string());
-        assert_eq!(localize_validation_err(&F64, &l), "Deve ser um número com ponto flutuante".to_string());
+        assert_eq!(localize_validation_err(&U64, &l), "Deve ser um número inteiro sem sinal de 64 bits".to_string());
+        assert_eq!(localize_validation_err(&I64, &l), "Deve ser um número inteiro de 64 bits".to_string());
+        assert_eq!(localize_validation_err(&F64, &l), "Deve ser um número com ponto flutuante de 64 bits".to_string());
+        assert_eq!(localize_validation_err(&USIZE, &l), "Deve ser um número inteiro sem sinal".to_string());
+        assert_eq!(localize_validation_err(&ISIZE, &l), "Deve ser um número inteiro".to_string());
         assert_eq!(localize_validation_err(&BOOL, &l), "Deve ser um booleano".to_string());
         assert_eq!(localize_validation_err(&STR, &l), "Deve ser uma string".to_string());
         assert_eq!(localize_validation_err(&EMAIL, &l), "Deve ser um e-mail".to_string());
@@ -736,9 +740,11 @@ mod tests {
         let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
         assert_eq!(localize_validation_err(&REQUIRED, &l), "Se requiere".to_string());
-        assert_eq!(localize_validation_err(&U64, &l), "Debe ser un número entero sin signo".to_string());
-        assert_eq!(localize_validation_err(&I64, &l), "Debe ser un número entero".to_string());
-        assert_eq!(localize_validation_err(&F64, &l), "Debe ser un número de punto flotante".to_string());
+        assert_eq!(localize_validation_err(&U64, &l), "Debe ser un número entero sin signo de 64 bits".to_string());
+        assert_eq!(localize_validation_err(&I64, &l), "Debe ser un número entero de 64 bits".to_string());
+        assert_eq!(localize_validation_err(&F64, &l), "Debe ser un número de punto flotante de 64 bits".to_string());
+        assert_eq!(localize_validation_err(&USIZE, &l), "Debe ser un número entero sin signo".to_string());
+        assert_eq!(localize_validation_err(&ISIZE, &l), "Debe ser un número entero".to_string());
         assert_eq!(localize_validation_err(&BOOL, &l), "Debe ser un booleano".to_string());
         assert_eq!(localize_validation_err(&STR, &l), "Debe ser una cadena".to_string());
         assert_eq!(localize_validation_err(&EMAIL, &l), "Debe ser un correo electrónico".to_string());
@@ -859,9 +865,11 @@ mod tests {
         let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
         assert_eq!(localize_validation_err(&REQUIRED, &l), "Is required".to_string());
-        assert_eq!(localize_validation_err(&U64, &l), "Must be an unsigned integer".to_string());
-        assert_eq!(localize_validation_err(&I64, &l), "Must be an integer".to_string());
-        assert_eq!(localize_validation_err(&F64, &l), "Must be a float".to_string());
+        assert_eq!(localize_validation_err(&U64, &l), "Must be an 64 bits unsigned integer".to_string());
+        assert_eq!(localize_validation_err(&I64, &l), "Must be an 64 bits integer".to_string());
+        assert_eq!(localize_validation_err(&F64, &l), "Must be a 64 bits float".to_string());
+        assert_eq!(localize_validation_err(&USIZE, &l), "Must be an unsigned integer".to_string());
+        assert_eq!(localize_validation_err(&ISIZE, &l), "Must be an integer".to_string());
         assert_eq!(localize_validation_err(&BOOL, &l), "Must be a boolean".to_string());
         assert_eq!(localize_validation_err(&STR, &l), "Must be a string".to_string());
         assert_eq!(localize_validation_err(&EMAIL, &l), "Must be an e-mail".to_string());
