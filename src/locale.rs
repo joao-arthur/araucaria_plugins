@@ -97,7 +97,7 @@ impl Serialize for SchemaLocalizedErr {
 
 pub fn schema_err_to_locale(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
     match err {
-        SchemaErr::Validation(arr) => SchemaLocalizedErr::Arr(arr.iter().map(|item| validation_err_to_locale(item, locale)).collect()),
+        SchemaErr::Arr(arr) => SchemaLocalizedErr::Arr(arr.iter().map(|item| validation_err_to_locale(item, locale)).collect()),
         SchemaErr::Obj(obj) => {
             let mut result: BTreeMap<String, SchemaLocalizedErr> = BTreeMap::new();
             for (key, item) in obj {
@@ -458,7 +458,7 @@ mod tests {
         let locale = locale_pt_long();
         assert_eq!(
             schema_err_to_locale(
-                &SchemaErr::Validation(vec![
+                &SchemaErr::arr([
                     ValidationErr::Required,
                     ValidationErr::Bool,
                     ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(true))))
@@ -472,7 +472,7 @@ mod tests {
                 &SchemaErr::Obj(BTreeMap::from([
                     (
                         "name".into(),
-                        SchemaErr::Validation(vec![
+                        SchemaErr::arr([
                             ValidationErr::Required,
                             ValidationErr::Str,
                             ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("Paul McCartney"))))
@@ -480,7 +480,7 @@ mod tests {
                     ),
                     (
                         "birthdate".into(),
-                        SchemaErr::Validation(vec![
+                        SchemaErr::arr([
                             ValidationErr::Required,
                             ValidationErr::Str,
                             ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("1942-06-18"))))
@@ -488,7 +488,7 @@ mod tests {
                     ),
                     (
                         "alive".into(),
-                        SchemaErr::Validation(vec![
+                        SchemaErr::arr([
                             ValidationErr::Required,
                             ValidationErr::Bool,
                             ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(true))))
@@ -496,7 +496,7 @@ mod tests {
                     ),
                     (
                         "bands".into(),
-                        SchemaErr::Validation(vec![
+                        SchemaErr::arr([
                             ValidationErr::Required,
                             ValidationErr::Str,
                             ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("The Beatles"))))

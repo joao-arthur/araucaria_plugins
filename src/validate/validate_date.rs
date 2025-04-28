@@ -47,7 +47,7 @@ pub fn validate_date(validation: &DateValidation, value: &Value, root: &Value, e
             }
         }
     }
-    if !base.is_empty() { Err(SchemaErr::Validation(base)) } else { Ok(()) }
+    if !base.is_empty() { Err(SchemaErr::Arr(base)) } else { Ok(()) }
 }
 
 #[cfg(test)]
@@ -71,18 +71,18 @@ mod tests {
     fn validate_date_default() {
         let v = DateValidation::default();
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([REQUIRED, DATE])));
-        assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, DATE])));
-        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE])));
+        assert_eq!(validate_date(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, DATE])));
+        assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE])));
     }
 
     #[test]
     fn validate_date_optional() {
         let v = DateValidation::default().optional();
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([DATE])));
+        assert_eq!(validate_date(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([DATE])));
         assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Ok(()));
-        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE])));
     }
 
     #[test]
@@ -90,9 +90,9 @@ mod tests {
         let v = DateValidation::default().eq("2026-10-28".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date(&v, &Value::from("2025-04-18"), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, DATE, op_err.clone()])));
-        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE, op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2025-04-18"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE, op_err.clone()])));
     }
 
     #[test]
@@ -100,20 +100,20 @@ mod tests {
         let v = DateValidation::default().ne_field("date_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("date_value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, DATE, op_err.clone()])));
-        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE, op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE, op_err.clone()])));
+        assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE, op_err.clone()])));
     }
 
     #[test]
     fn validate_date_invalid_format() {
         let v = DateValidation::default();
-        assert_eq!(validate_date(&v, &Value::from("10-10-2026"), &ROOT, false), Err(SchemaErr::validation([DATE])));
+        assert_eq!(validate_date(&v, &Value::from("10-10-2026"), &ROOT, false), Err(SchemaErr::arr([DATE])));
     }
 
     #[test]
     fn validate_date_invalid_value() {
         let v = DateValidation::default();
-        assert_eq!(validate_date(&v, &Value::from("2029-12-00"), &ROOT, false), Err(SchemaErr::validation([DATE])));
+        assert_eq!(validate_date(&v, &Value::from("2029-12-00"), &ROOT, false), Err(SchemaErr::arr([DATE])));
     }
 }

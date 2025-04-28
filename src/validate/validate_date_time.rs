@@ -47,7 +47,7 @@ pub fn validate_date_time(validation: &DateTimeValidation, value: &Value, root: 
             }
         }
     }
-    if !base.is_empty() { Err(SchemaErr::Validation(base)) } else { Ok(()) }
+    if !base.is_empty() { Err(SchemaErr::Arr(base)) } else { Ok(()) }
 }
 
 #[cfg(test)]
@@ -71,18 +71,18 @@ mod tests {
     fn validate_date_time_default() {
         let v = DateTimeValidation::default();
         assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([REQUIRED, DATE_TIME])));
-        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, DATE_TIME])));
-        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE_TIME])));
     }
 
     #[test]
     fn validate_date_time_optional() {
         let v = DateTimeValidation::default().optional();
         assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::validation([DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([DATE_TIME])));
         assert_eq!(validate_date_time(&v, &Value::None, &ROOT, false), Ok(()));
-        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE_TIME])));
     }
 
     #[test]
@@ -90,9 +90,9 @@ mod tests {
         let v = DateTimeValidation::default().eq("2028-11-20T11:27Z".into());
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("2028-11-20T11:27Z"))));
         assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2025-04-18T23:18Z"), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, DATE_TIME, op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE_TIME, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2025-04-18T23:18Z"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE_TIME, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE_TIME, op_err.clone()])));
     }
 
     #[test]
@@ -100,20 +100,20 @@ mod tests {
         let v = DateTimeValidation::default().ne_field("date_time_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("date_time_value".into())));
         assert_eq!(validate_date_time(&v, &Value::from("2025-04-27T11:26Z"), &ROOT, false), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT, false), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::validation([REQUIRED, DATE_TIME, op_err.clone()])));
-        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::validation([DATE_TIME, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::from("2028-11-20T11:27Z"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE_TIME, op_err.clone()])));
+        assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE_TIME, op_err.clone()])));
     }
 
     #[test]
     fn validate_date_time_invalid_format() {
         let v = DateTimeValidation::default();
-        assert_eq!(validate_date_time(&v, &Value::from("28-10-2026T10:27:29.973Z"), &ROOT, false), Err(SchemaErr::validation([DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &Value::from("28-10-2026T10:27:29.973Z"), &ROOT, false), Err(SchemaErr::arr([DATE_TIME])));
     }
 
     #[test]
     fn validate_date_time_invalid_value() {
         let v = DateTimeValidation::default();
-        assert_eq!(validate_date_time(&v, &Value::from("2029-17-73T82:93Z"), &ROOT, false), Err(SchemaErr::validation([DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &Value::from("2029-17-73T82:93Z"), &ROOT, false), Err(SchemaErr::arr([DATE_TIME])));
     }
 }

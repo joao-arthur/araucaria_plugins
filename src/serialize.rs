@@ -73,7 +73,7 @@ pub enum ValidationErr {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SchemaErr {
-    Validation(Vec<ValidationErr>),
+    Arr(Vec<ValidationErr>),
     Obj(BTreeMap<String, SchemaErr>),
 }
 
@@ -83,7 +83,7 @@ impl Serialize for SchemaErr {
         S: Serializer,
     {
         match self {
-            SchemaErr::Validation(vec) => vec.serialize(serializer),
+            SchemaErr::Arr(vec) => vec.serialize(serializer),
             SchemaErr::Obj(map) => map.serialize(serializer),
         }
     }
@@ -165,7 +165,7 @@ pub fn map_err(validation_err: araucaria::error::ValidationErr) -> ValidationErr
 
 pub fn map_schema_err(value: araucaria::error::SchemaErr) -> SchemaErr {
     match value {
-        araucaria::error::SchemaErr::Validation(value) => SchemaErr::Validation(value.into_iter().map(map_err).collect()),
+        araucaria::error::SchemaErr::Arr(value) => SchemaErr::Arr(value.into_iter().map(map_err).collect()),
         araucaria::error::SchemaErr::Obj(value) => SchemaErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), map_schema_err(v))).collect()),
     }
 }
@@ -182,16 +182,16 @@ mod tests {
             serde_json::to_string(&SchemaErr::Obj(BTreeMap::from([
                 (
                     "bool".into(),
-                    SchemaErr::Validation(vec![
+                    SchemaErr::Arr(vec![
                         ValidationErr::Required,
                         ValidationErr::Bool,
                         ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))))
                     ]),
                 ),
-                ("u64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::U64])),
-                ("u64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::U64])),
-                ("i64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::I64])),
-                ("f64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::F64])),
+                ("u64".into(), SchemaErr::Arr(vec![ValidationErr::Required, ValidationErr::U64])),
+                ("u64".into(), SchemaErr::Arr(vec![ValidationErr::Required, ValidationErr::U64])),
+                ("i64".into(), SchemaErr::Arr(vec![ValidationErr::Required, ValidationErr::I64])),
+                ("f64".into(), SchemaErr::Arr(vec![ValidationErr::Required, ValidationErr::F64])),
             ])))
             .unwrap(),
             r#"{"bool":["Required","Bool",{"Operation":{"Eq":{"Value":{"Bool":false}}}}],"f64":["Required","F64"],"i64":["Required","I64"],"u64":["Required","U64"]}"#.to_string()
