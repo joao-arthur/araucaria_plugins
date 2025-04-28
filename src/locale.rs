@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 
 use araucaria::{
     error::{SchemaErr, ValidationErr},
-    operation::{Operand, OperandValue, Operation},
+    operation::Operation,
 };
 
 pub struct Locale {
@@ -97,7 +97,7 @@ impl Serialize for SchemaLocalizedErr {
 
 pub fn localize_schema_err(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
     match err {
-        SchemaErr::Arr(arr) => SchemaLocalizedErr::Arr(arr.iter().map(|item| validation_err_to_locale(item, locale)).collect()),
+        SchemaErr::Arr(arr) => SchemaLocalizedErr::Arr(arr.iter().map(|item| localize_validation_err(item, locale)).collect()),
         SchemaErr::Obj(obj) => {
             let mut result: BTreeMap<String, SchemaLocalizedErr> = BTreeMap::new();
             for (key, item) in obj {
@@ -108,7 +108,7 @@ pub fn localize_schema_err(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedE
     }
 }
 
-pub fn validation_err_to_locale(error: &ValidationErr, locale: &Locale) -> String {
+pub fn localize_validation_err(error: &ValidationErr, locale: &Locale) -> String {
     match error {
         ValidationErr::Required => locale.required.clone(),
         ValidationErr::U64 => locale.u64.clone(),
@@ -426,7 +426,7 @@ mod tests {
         operation::{Operand, OperandValue, Operation},
     };
 
-    use super::{SchemaLocalizedErr, locale_en_long, locale_es_long, locale_pt_long, localize_schema_err, validation_err_to_locale};
+    use super::{SchemaLocalizedErr, locale_en_long, locale_es_long, locale_pt_long, localize_schema_err, localize_validation_err};
 
     const REQUIRED: ValidationErr = ValidationErr::Required;
     const U64: ValidationErr = ValidationErr::U64;
@@ -576,14 +576,25 @@ mod tests {
     // TODO REMOVE FROM HERE
     #[test]
     fn test_localize_schema_err_to_locale() {
+        let err = SchemaLocalizedErr::Obj(BTreeMap::from([
+            (
+                "name".into(),
+                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()]),
+            ),
+            (
+                "birthdate".into(),
+                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()]),
+            ),
+            ("alive".into(), SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()])),
+            (
+                "bands".into(),
+                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
+            ),
+        ]));
         assert_eq!(
-            serde_json::to_string(&SchemaLocalizedErr::Obj(BTreeMap::from([
-                ( "name".into(), SchemaLocalizedErr::Arr(vec![ "É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()])),
-                ( "birthdate".into(), SchemaLocalizedErr::Arr(vec![ "É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()])),
-                ( "alive".into(), SchemaLocalizedErr::Arr(vec![ "É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()])),
-                ( "bands".into(), SchemaLocalizedErr::Arr(vec![ "É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()])),
-            ]))).unwrap(),
-                r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"],"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""],"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""],"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""]}"#.to_string());
+            serde_json::to_string(&err).unwrap(),
+            r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"],"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""],"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""],"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""]}"#.to_string()
+        );
     }
 
     #[test]
@@ -601,112 +612,112 @@ mod tests {
         let operation_str_le = ValidationErr::Operation(Operation::Le(str_value_a.clone()));
         let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
-        assert_eq!(validation_err_to_locale(&REQUIRED, &l), "É obrigatório".to_string());
-        assert_eq!(validation_err_to_locale(&U64, &l), "Deve ser um número inteiro sem sinal".to_string());
-        assert_eq!(validation_err_to_locale(&I64, &l), "Deve ser um número inteiro".to_string());
-        assert_eq!(validation_err_to_locale(&F64, &l), "Deve ser um número com ponto flutuante".to_string());
-        assert_eq!(validation_err_to_locale(&BOOL, &l), "Deve ser um booleano".to_string());
-        assert_eq!(validation_err_to_locale(&STR, &l), "Deve ser uma string".to_string());
-        assert_eq!(validation_err_to_locale(&EMAIL, &l), "Deve ser um e-mail".to_string());
-        assert_eq!(validation_err_to_locale(&DATE, &l), "Deve ser uma data".to_string());
-        assert_eq!(validation_err_to_locale(&TIME, &l), "Deve ser uma hora".to_string());
-        assert_eq!(validation_err_to_locale(&DATE_TIME, &l), "Deve ser uma data e hora".to_string());
+        assert_eq!(localize_validation_err(&REQUIRED, &l), "É obrigatório".to_string());
+        assert_eq!(localize_validation_err(&U64, &l), "Deve ser um número inteiro sem sinal".to_string());
+        assert_eq!(localize_validation_err(&I64, &l), "Deve ser um número inteiro".to_string());
+        assert_eq!(localize_validation_err(&F64, &l), "Deve ser um número com ponto flutuante".to_string());
+        assert_eq!(localize_validation_err(&BOOL, &l), "Deve ser um booleano".to_string());
+        assert_eq!(localize_validation_err(&STR, &l), "Deve ser uma string".to_string());
+        assert_eq!(localize_validation_err(&EMAIL, &l), "Deve ser um e-mail".to_string());
+        assert_eq!(localize_validation_err(&DATE, &l), "Deve ser uma data".to_string());
+        assert_eq!(localize_validation_err(&TIME, &l), "Deve ser uma hora".to_string());
+        assert_eq!(localize_validation_err(&DATE_TIME, &l), "Deve ser uma data e hora".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_U64_EQ, &l), "Deve ser igual a 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_NE, &l), "Deve ser diferente de 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_GT, &l), "Deve ser maior que 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_GE, &l), "Deve ser maior ou igual a 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_LT, &l), "Deve ser menor que 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_LE, &l), "Deve ser menor ou igual a 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_BTWN, &l), "Deve estar entre 34 e 43".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_EQ, &l), "Deve ser igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_NE, &l), "Deve ser diferente de 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_GT, &l), "Deve ser maior que 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_GE, &l), "Deve ser maior ou igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_LT, &l), "Deve ser menor que 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_LE, &l), "Deve ser menor ou igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_BTWN, &l), "Deve estar entre 34 e 43".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_I64_EQ, &l), "Deve ser igual a -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_NE, &l), "Deve ser diferente de -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_GT, &l), "Deve ser maior que -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_GE, &l), "Deve ser maior ou igual a -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_LT, &l), "Deve ser menor que -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_LE, &l), "Deve ser menor ou igual a -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_BTWN, &l), "Deve estar entre -4 e 4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_EQ, &l), "Deve ser igual a -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_NE, &l), "Deve ser diferente de -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_GT, &l), "Deve ser maior que -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_GE, &l), "Deve ser maior ou igual a -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_LT, &l), "Deve ser menor que -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_LE, &l), "Deve ser menor ou igual a -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_BTWN, &l), "Deve estar entre -4 e 4".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_F64_EQ, &l), "Deve ser igual a -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_NE, &l), "Deve ser diferente de -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_GT, &l), "Deve ser maior que -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_GE, &l), "Deve ser maior ou igual a -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_LT, &l), "Deve ser menor que -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_LE, &l), "Deve ser menor ou igual a -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_BTWN, &l), "Deve estar entre -4.6 e -2.4".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_EQ, &l), "Deve ser igual a -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_NE, &l), "Deve ser diferente de -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_GT, &l), "Deve ser maior que -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_GE, &l), "Deve ser maior ou igual a -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_LT, &l), "Deve ser menor que -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_LE, &l), "Deve ser menor ou igual a -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_BTWN, &l), "Deve estar entre -4.6 e -2.4".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_BOOL_EQ, &l), "Deve ser igual a false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_NE, &l), "Deve ser diferente de false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_GT, &l), "Deve ser maior que false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_GE, &l), "Deve ser maior ou igual a false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_LT, &l), "Deve ser menor que false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_LE, &l), "Deve ser menor ou igual a false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_BTWN, &l), "Deve estar entre false e true".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_EQ, &l), "Deve ser igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_NE, &l), "Deve ser diferente de false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_GT, &l), "Deve ser maior que false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_GE, &l), "Deve ser maior ou igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_LT, &l), "Deve ser menor que false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_LE, &l), "Deve ser menor ou igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_BTWN, &l), "Deve estar entre false e true".to_string());
 
-        assert_eq!(validation_err_to_locale(&operation_str_eq, &l), r#"Deve ser igual a "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_ne, &l), r#"Deve ser diferente de "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_gt, &l), r#"Deve ser maior que "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_ge, &l), r#"Deve ser maior ou igual a "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_lt, &l), r#"Deve ser menor que "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_le, &l), r#"Deve ser menor ou igual a "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_btwn, &l), r#"Deve estar entre "aurorae" e "crespúculum""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_eq, &l), r#"Deve ser igual a "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_ne, &l), r#"Deve ser diferente de "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_gt, &l), r#"Deve ser maior que "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_ge, &l), r#"Deve ser maior ou igual a "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_lt, &l), r#"Deve ser menor que "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_le, &l), r#"Deve ser menor ou igual a "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_btwn, &l), r#"Deve estar entre "aurorae" e "crespúculum""#.to_string());
 
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_EQ, &l), "A quantidade de bytes deve ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_NE, &l), "A quantidade de bytes deve ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_GT, &l), "A quantidade de bytes deve ser maior que 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_GE, &l), "A quantidade de bytes deve ser maior ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_LT, &l), "A quantidade de bytes deve ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_LE, &l), "A quantidade de bytes deve ser menor ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_BTWN, &l), "A quantidade de bytes deve estar entre 27 e 39".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_EQ, &l), "A quantidade de bytes deve ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_NE, &l), "A quantidade de bytes deve ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_GT, &l), "A quantidade de bytes deve ser maior que 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_GE, &l), "A quantidade de bytes deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_LT, &l), "A quantidade de bytes deve ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_LE, &l), "A quantidade de bytes deve ser menor ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_BTWN, &l), "A quantidade de bytes deve estar entre 27 e 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_EQ, &l), "A quantidade de caracteres deve ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_NE, &l), "A quantidade de caracteres deve ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_GT, &l), "A quantidade de caracteres deve ser maior que 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_GE, &l), "A quantidade de caracteres deve ser maior ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_LT, &l), "A quantidade de caracteres deve ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_LE, &l), "A quantidade de caracteres deve ser menor ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_BTWN, &l), "A quantidade de caracteres deve estar entre 27 e 39".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_EQ, &l), "A quantidade de caracteres deve ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_NE, &l), "A quantidade de caracteres deve ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_GT, &l), "A quantidade de caracteres deve ser maior que 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_GE, &l), "A quantidade de caracteres deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_LT, &l), "A quantidade de caracteres deve ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_LE, &l), "A quantidade de caracteres deve ser menor ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_BTWN, &l), "A quantidade de caracteres deve estar entre 27 e 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_EQ, &l), "A quantidade de grafemas deve ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_NE, &l), "A quantidade de grafemas deve ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_GT, &l), "A quantidade de grafemas deve ser maior que 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_GE, &l), "A quantidade de grafemas deve ser maior ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_LT, &l), "A quantidade de grafemas deve ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_LE, &l), "A quantidade de grafemas deve ser menor ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_BTWN, &l), "A quantidade de grafemas deve estar entre 27 e 39".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_EQ, &l), "A quantidade de grafemas deve ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_NE, &l), "A quantidade de grafemas deve ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_GT, &l), "A quantidade de grafemas deve ser maior que 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_GE, &l), "A quantidade de grafemas deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_LT, &l), "A quantidade de grafemas deve ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_LE, &l), "A quantidade de grafemas deve ser menor ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_BTWN, &l), "A quantidade de grafemas deve estar entre 27 e 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_EQ, &l), "A quantidade de caracteres minúsculos deve ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_NE, &l), "A quantidade de caracteres minúsculos deve ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_GT, &l), "A quantidade de caracteres minúsculos deve ser maior que 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_GE, &l), "A quantidade de caracteres minúsculos deve ser maior ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_LT, &l), "A quantidade de caracteres minúsculos deve ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_LE, &l), "A quantidade de caracteres minúsculos deve ser menor ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_BTWN, &l), "A quantidade de caracteres minúsculos deve estar entre 27 e 39".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_EQ, &l), "A quantidade de caracteres minúsculos deve ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_NE, &l), "A quantidade de caracteres minúsculos deve ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_GT, &l), "A quantidade de caracteres minúsculos deve ser maior que 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_GE, &l), "A quantidade de caracteres minúsculos deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_LT, &l), "A quantidade de caracteres minúsculos deve ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_LE, &l), "A quantidade de caracteres minúsculos deve ser menor ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_BTWN, &l), "A quantidade de caracteres minúsculos deve estar entre 27 e 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_EQ, &l), "A quantidade de caracteres maiúsculos deve ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_NE, &l), "A quantidade de caracteres maiúsculos deve ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_GT, &l), "A quantidade de caracteres maiúsculos deve ser maior que 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_GE, &l), "A quantidade de caracteres maiúsculos deve ser maior ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_LT, &l), "A quantidade de caracteres maiúsculos deve ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_LE, &l), "A quantidade de caracteres maiúsculos deve ser menor ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_BTWN, &l), "A quantidade de caracteres maiúsculos deve estar entre 27 e 39".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_EQ, &l), "A quantidade de caracteres maiúsculos deve ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_NE, &l), "A quantidade de caracteres maiúsculos deve ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_GT, &l), "A quantidade de caracteres maiúsculos deve ser maior que 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_GE, &l), "A quantidade de caracteres maiúsculos deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_LT, &l), "A quantidade de caracteres maiúsculos deve ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_LE, &l), "A quantidade de caracteres maiúsculos deve ser menor ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_BTWN, &l), "A quantidade de caracteres maiúsculos deve estar entre 27 e 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_EQ, &l), "A quantidade de números deve ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_NE, &l), "A quantidade de números deve ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_GT, &l), "A quantidade de números deve ser maior que 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_GE, &l), "A quantidade de números deve ser maior ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_LT, &l), "A quantidade de números deve ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_LE, &l), "A quantidade de números deve ser menor ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_BTWN, &l), "A quantidade de números deve estar entre 27 e 39".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_EQ, &l), "A quantidade de números deve ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_NE, &l), "A quantidade de números deve ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_GT, &l), "A quantidade de números deve ser maior que 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_GE, &l), "A quantidade de números deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_LT, &l), "A quantidade de números deve ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_LE, &l), "A quantidade de números deve ser menor ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_BTWN, &l), "A quantidade de números deve estar entre 27 e 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_EQ, &l), "A quantidade de símbolos deve ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_NE, &l), "A quantidade de símbolos deve ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_GT, &l), "A quantidade de símbolos deve ser maior que 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_GE, &l), "A quantidade de símbolos deve ser maior ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_LT, &l), "A quantidade de símbolos deve ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_LE, &l), "A quantidade de símbolos deve ser menor ou igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_BTWN, &l), "A quantidade de símbolos deve estar entre 27 e 39".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_EQ, &l), "A quantidade de símbolos deve ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_NE, &l), "A quantidade de símbolos deve ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_GT, &l), "A quantidade de símbolos deve ser maior que 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_GE, &l), "A quantidade de símbolos deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_LT, &l), "A quantidade de símbolos deve ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_LE, &l), "A quantidade de símbolos deve ser menor ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_BTWN, &l), "A quantidade de símbolos deve estar entre 27 e 39".to_string());
     }
 
     #[test]
@@ -724,112 +735,112 @@ mod tests {
         let operation_str_le = ValidationErr::Operation(Operation::Le(str_value_a.clone()));
         let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
-        assert_eq!(validation_err_to_locale(&REQUIRED, &l), "Se requiere".to_string());
-        assert_eq!(validation_err_to_locale(&U64, &l), "Debe ser un número entero sin signo".to_string());
-        assert_eq!(validation_err_to_locale(&I64, &l), "Debe ser un número entero".to_string());
-        assert_eq!(validation_err_to_locale(&F64, &l), "Debe ser un número de punto flotante".to_string());
-        assert_eq!(validation_err_to_locale(&BOOL, &l), "Debe ser un booleano".to_string());
-        assert_eq!(validation_err_to_locale(&STR, &l), "Debe ser una cadena".to_string());
-        assert_eq!(validation_err_to_locale(&EMAIL, &l), "Debe ser un correo electrónico".to_string());
-        assert_eq!(validation_err_to_locale(&DATE, &l), "Debe ser una fecha".to_string());
-        assert_eq!(validation_err_to_locale(&TIME, &l), "Debe ser una hora".to_string());
-        assert_eq!(validation_err_to_locale(&DATE_TIME, &l), "Debe ser una fecha y hora".to_string());
+        assert_eq!(localize_validation_err(&REQUIRED, &l), "Se requiere".to_string());
+        assert_eq!(localize_validation_err(&U64, &l), "Debe ser un número entero sin signo".to_string());
+        assert_eq!(localize_validation_err(&I64, &l), "Debe ser un número entero".to_string());
+        assert_eq!(localize_validation_err(&F64, &l), "Debe ser un número de punto flotante".to_string());
+        assert_eq!(localize_validation_err(&BOOL, &l), "Debe ser un booleano".to_string());
+        assert_eq!(localize_validation_err(&STR, &l), "Debe ser una cadena".to_string());
+        assert_eq!(localize_validation_err(&EMAIL, &l), "Debe ser un correo electrónico".to_string());
+        assert_eq!(localize_validation_err(&DATE, &l), "Debe ser una fecha".to_string());
+        assert_eq!(localize_validation_err(&TIME, &l), "Debe ser una hora".to_string());
+        assert_eq!(localize_validation_err(&DATE_TIME, &l), "Debe ser una fecha y hora".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_U64_EQ, &l), "Debe ser igual a 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_NE, &l), "Debe ser diferente de 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_GT, &l), "Debe ser mayor que 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_GE, &l), "Debe ser mayor o igual a 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_LT, &l), "Debe ser menor que 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_LE, &l), "Debe ser menor o igual a 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_BTWN, &l), "Debe estar entre 34 y 43".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_EQ, &l), "Debe ser igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_NE, &l), "Debe ser diferente de 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_GT, &l), "Debe ser mayor que 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_GE, &l), "Debe ser mayor o igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_LT, &l), "Debe ser menor que 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_LE, &l), "Debe ser menor o igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_BTWN, &l), "Debe estar entre 34 y 43".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_I64_EQ, &l), "Debe ser igual a -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_NE, &l), "Debe ser diferente de -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_GT, &l), "Debe ser mayor que -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_GE, &l), "Debe ser mayor o igual a -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_LT, &l), "Debe ser menor que -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_LE, &l), "Debe ser menor o igual a -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_BTWN, &l), "Debe estar entre -4 y 4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_EQ, &l), "Debe ser igual a -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_NE, &l), "Debe ser diferente de -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_GT, &l), "Debe ser mayor que -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_GE, &l), "Debe ser mayor o igual a -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_LT, &l), "Debe ser menor que -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_LE, &l), "Debe ser menor o igual a -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_BTWN, &l), "Debe estar entre -4 y 4".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_F64_EQ, &l), "Debe ser igual a -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_NE, &l), "Debe ser diferente de -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_GT, &l), "Debe ser mayor que -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_GE, &l), "Debe ser mayor o igual a -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_LT, &l), "Debe ser menor que -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_LE, &l), "Debe ser menor o igual a -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_BTWN, &l), "Debe estar entre -4.6 y -2.4".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_EQ, &l), "Debe ser igual a -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_NE, &l), "Debe ser diferente de -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_GT, &l), "Debe ser mayor que -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_GE, &l), "Debe ser mayor o igual a -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_LT, &l), "Debe ser menor que -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_LE, &l), "Debe ser menor o igual a -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_BTWN, &l), "Debe estar entre -4.6 y -2.4".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_BOOL_EQ, &l), "Debe ser igual a false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_NE, &l), "Debe ser diferente de false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_GT, &l), "Debe ser mayor que false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_GE, &l), "Debe ser mayor o igual a false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_LT, &l), "Debe ser menor que false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_LE, &l), "Debe ser menor o igual a false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_BTWN, &l), "Debe estar entre false y true".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_EQ, &l), "Debe ser igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_NE, &l), "Debe ser diferente de false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_GT, &l), "Debe ser mayor que false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_GE, &l), "Debe ser mayor o igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_LT, &l), "Debe ser menor que false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_LE, &l), "Debe ser menor o igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_BTWN, &l), "Debe estar entre false y true".to_string());
 
-        assert_eq!(validation_err_to_locale(&operation_str_eq, &l), r#"Debe ser igual a "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_ne, &l), r#"Debe ser diferente de "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_gt, &l), r#"Debe ser mayor que "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_ge, &l), r#"Debe ser mayor o igual a "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_lt, &l), r#"Debe ser menor que "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_le, &l), r#"Debe ser menor o igual a "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_btwn, &l), r#"Debe estar entre "aurorae" y "crespúculum""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_eq, &l), r#"Debe ser igual a "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_ne, &l), r#"Debe ser diferente de "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_gt, &l), r#"Debe ser mayor que "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_ge, &l), r#"Debe ser mayor o igual a "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_lt, &l), r#"Debe ser menor que "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_le, &l), r#"Debe ser menor o igual a "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_btwn, &l), r#"Debe estar entre "aurorae" y "crespúculum""#.to_string());
 
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_EQ, &l), "La cantidad de bytes debe ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_NE, &l), "La cantidad de bytes debe ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_GT, &l), "La cantidad de bytes debe ser mayor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_GE, &l), "La cantidad de bytes debe ser mayor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_LT, &l), "La cantidad de bytes debe ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_LE, &l), "La cantidad de bytes debe ser menor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_BTWN, &l), "La cantidad de bytes debe estar entre 27 y 39".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_EQ, &l), "La cantidad de bytes debe ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_NE, &l), "La cantidad de bytes debe ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_GT, &l), "La cantidad de bytes debe ser mayor que 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_GE, &l), "La cantidad de bytes debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_LT, &l), "La cantidad de bytes debe ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_LE, &l), "La cantidad de bytes debe ser menor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_BTWN, &l), "La cantidad de bytes debe estar entre 27 y 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_EQ, &l), "La cantidad de caracteres debe ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_NE, &l), "La cantidad de caracteres debe ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_GT, &l), "La cantidad de caracteres debe ser mayor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_GE, &l), "La cantidad de caracteres debe ser mayor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_LT, &l), "La cantidad de caracteres debe ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_LE, &l), "La cantidad de caracteres debe ser menor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_BTWN, &l), "La cantidad de caracteres debe estar entre 27 y 39".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_EQ, &l), "La cantidad de caracteres debe ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_NE, &l), "La cantidad de caracteres debe ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_GT, &l), "La cantidad de caracteres debe ser mayor que 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_GE, &l), "La cantidad de caracteres debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_LT, &l), "La cantidad de caracteres debe ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_LE, &l), "La cantidad de caracteres debe ser menor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_BTWN, &l), "La cantidad de caracteres debe estar entre 27 y 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_EQ, &l), "La cantidad de grafemas debe ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_NE, &l), "La cantidad de grafemas debe ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_GT, &l), "La cantidad de grafemas debe ser mayor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_GE, &l), "La cantidad de grafemas debe ser mayor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_LT, &l), "La cantidad de grafemas debe ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_LE, &l), "La cantidad de grafemas debe ser menor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_BTWN, &l), "La cantidad de grafemas debe estar entre 27 y 39".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_EQ, &l), "La cantidad de grafemas debe ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_NE, &l), "La cantidad de grafemas debe ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_GT, &l), "La cantidad de grafemas debe ser mayor que 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_GE, &l), "La cantidad de grafemas debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_LT, &l), "La cantidad de grafemas debe ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_LE, &l), "La cantidad de grafemas debe ser menor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_BTWN, &l), "La cantidad de grafemas debe estar entre 27 y 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_EQ, &l), "La cantidad de caracteres en minúsculas debe ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_NE, &l), "La cantidad de caracteres en minúsculas debe ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_GT, &l), "La cantidad de caracteres en minúsculas debe ser mayor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_GE, &l), "La cantidad de caracteres en minúsculas debe ser mayor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_LT, &l), "La cantidad de caracteres en minúsculas debe ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_LE, &l), "La cantidad de caracteres en minúsculas debe ser menor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_BTWN, &l), "La cantidad de caracteres en minúsculas debe estar entre 27 y 39".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_EQ, &l), "La cantidad de caracteres en minúsculas debe ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_NE, &l), "La cantidad de caracteres en minúsculas debe ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_GT, &l), "La cantidad de caracteres en minúsculas debe ser mayor que 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_GE, &l), "La cantidad de caracteres en minúsculas debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_LT, &l), "La cantidad de caracteres en minúsculas debe ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_LE, &l), "La cantidad de caracteres en minúsculas debe ser menor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_BTWN, &l), "La cantidad de caracteres en minúsculas debe estar entre 27 y 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_EQ, &l), "La cantidad de caracteres en mayúsculas debe ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_NE, &l), "La cantidad de caracteres en mayúsculas debe ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_GT, &l), "La cantidad de caracteres en mayúsculas debe ser mayor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_GE, &l), "La cantidad de caracteres en mayúsculas debe ser mayor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_LT, &l), "La cantidad de caracteres en mayúsculas debe ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_LE, &l), "La cantidad de caracteres en mayúsculas debe ser menor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_BTWN, &l), "La cantidad de caracteres en mayúsculas debe estar entre 27 y 39".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_EQ, &l), "La cantidad de caracteres en mayúsculas debe ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_NE, &l), "La cantidad de caracteres en mayúsculas debe ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_GT, &l), "La cantidad de caracteres en mayúsculas debe ser mayor que 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_GE, &l), "La cantidad de caracteres en mayúsculas debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_LT, &l), "La cantidad de caracteres en mayúsculas debe ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_LE, &l), "La cantidad de caracteres en mayúsculas debe ser menor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_BTWN, &l), "La cantidad de caracteres en mayúsculas debe estar entre 27 y 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_EQ, &l), "La cantidad de números debe ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_NE, &l), "La cantidad de números debe ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_GT, &l), "La cantidad de números debe ser mayor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_GE, &l), "La cantidad de números debe ser mayor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_LT, &l), "La cantidad de números debe ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_LE, &l), "La cantidad de números debe ser menor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_BTWN, &l), "La cantidad de números debe estar entre 27 y 39".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_EQ, &l), "La cantidad de números debe ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_NE, &l), "La cantidad de números debe ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_GT, &l), "La cantidad de números debe ser mayor que 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_GE, &l), "La cantidad de números debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_LT, &l), "La cantidad de números debe ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_LE, &l), "La cantidad de números debe ser menor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_BTWN, &l), "La cantidad de números debe estar entre 27 y 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_EQ, &l), "La cantidad de símbolos debe ser igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_NE, &l), "La cantidad de símbolos debe ser diferente de 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_GT, &l), "La cantidad de símbolos debe ser mayor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_GE, &l), "La cantidad de símbolos debe ser mayor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_LT, &l), "La cantidad de símbolos debe ser menor que 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_LE, &l), "La cantidad de símbolos debe ser menor o igual a 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_BTWN, &l), "La cantidad de símbolos debe estar entre 27 y 39".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_EQ, &l), "La cantidad de símbolos debe ser igual a 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_NE, &l), "La cantidad de símbolos debe ser diferente de 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_GT, &l), "La cantidad de símbolos debe ser mayor que 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_GE, &l), "La cantidad de símbolos debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_LT, &l), "La cantidad de símbolos debe ser menor que 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_LE, &l), "La cantidad de símbolos debe ser menor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_BTWN, &l), "La cantidad de símbolos debe estar entre 27 y 39".to_string());
     }
 
     #[test]
@@ -847,111 +858,111 @@ mod tests {
         let operation_str_le = ValidationErr::Operation(Operation::Le(str_value_a.clone()));
         let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
-        assert_eq!(validation_err_to_locale(&REQUIRED, &l), "Is required".to_string());
-        assert_eq!(validation_err_to_locale(&U64, &l), "Must be an unsigned integer".to_string());
-        assert_eq!(validation_err_to_locale(&I64, &l), "Must be an integer".to_string());
-        assert_eq!(validation_err_to_locale(&F64, &l), "Must be a float".to_string());
-        assert_eq!(validation_err_to_locale(&BOOL, &l), "Must be a boolean".to_string());
-        assert_eq!(validation_err_to_locale(&STR, &l), "Must be a string".to_string());
-        assert_eq!(validation_err_to_locale(&EMAIL, &l), "Must be an e-mail".to_string());
-        assert_eq!(validation_err_to_locale(&DATE, &l), "Must be a date".to_string());
-        assert_eq!(validation_err_to_locale(&TIME, &l), "Must be a time".to_string());
-        assert_eq!(validation_err_to_locale(&DATE_TIME, &l), "Must be a date and time".to_string());
+        assert_eq!(localize_validation_err(&REQUIRED, &l), "Is required".to_string());
+        assert_eq!(localize_validation_err(&U64, &l), "Must be an unsigned integer".to_string());
+        assert_eq!(localize_validation_err(&I64, &l), "Must be an integer".to_string());
+        assert_eq!(localize_validation_err(&F64, &l), "Must be a float".to_string());
+        assert_eq!(localize_validation_err(&BOOL, &l), "Must be a boolean".to_string());
+        assert_eq!(localize_validation_err(&STR, &l), "Must be a string".to_string());
+        assert_eq!(localize_validation_err(&EMAIL, &l), "Must be an e-mail".to_string());
+        assert_eq!(localize_validation_err(&DATE, &l), "Must be a date".to_string());
+        assert_eq!(localize_validation_err(&TIME, &l), "Must be a time".to_string());
+        assert_eq!(localize_validation_err(&DATE_TIME, &l), "Must be a date and time".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_U64_EQ, &l), "Must be equals to 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_NE, &l), "Must be different from 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_GT, &l), "Must be greater than 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_GE, &l), "Must be greater than or equals to 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_LT, &l), "Must be smaller than 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_LE, &l), "Must be smaller than or equals to 34".to_string());
-        assert_eq!(validation_err_to_locale(&OP_U64_BTWN, &l), "Must be between 34 and 43".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_EQ, &l), "Must be equals to 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_NE, &l), "Must be different from 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_GT, &l), "Must be greater than 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_GE, &l), "Must be greater than or equals to 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_LT, &l), "Must be smaller than 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_LE, &l), "Must be smaller than or equals to 34".to_string());
+        assert_eq!(localize_validation_err(&OP_U64_BTWN, &l), "Must be between 34 and 43".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_I64_EQ, &l), "Must be equals to -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_NE, &l), "Must be different from -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_GT, &l), "Must be greater than -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_GE, &l), "Must be greater than or equals to -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_LT, &l), "Must be smaller than -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_LE, &l), "Must be smaller than or equals to -4".to_string());
-        assert_eq!(validation_err_to_locale(&OP_I64_BTWN, &l), "Must be between -4 and 4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_EQ, &l), "Must be equals to -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_NE, &l), "Must be different from -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_GT, &l), "Must be greater than -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_GE, &l), "Must be greater than or equals to -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_LT, &l), "Must be smaller than -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_LE, &l), "Must be smaller than or equals to -4".to_string());
+        assert_eq!(localize_validation_err(&OP_I64_BTWN, &l), "Must be between -4 and 4".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_F64_EQ, &l), "Must be equals to -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_NE, &l), "Must be different from -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_GT, &l), "Must be greater than -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_GE, &l), "Must be greater than or equals to -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_LT, &l), "Must be smaller than -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_LE, &l), "Must be smaller than or equals to -4.6".to_string());
-        assert_eq!(validation_err_to_locale(&OP_F64_BTWN, &l), "Must be between -4.6 and -2.4".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_EQ, &l), "Must be equals to -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_NE, &l), "Must be different from -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_GT, &l), "Must be greater than -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_GE, &l), "Must be greater than or equals to -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_LT, &l), "Must be smaller than -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_LE, &l), "Must be smaller than or equals to -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_F64_BTWN, &l), "Must be between -4.6 and -2.4".to_string());
 
-        assert_eq!(validation_err_to_locale(&OP_BOOL_EQ, &l), "Must be equals to false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_NE, &l), "Must be different from false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_GT, &l), "Must be greater than false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_GE, &l), "Must be greater than or equals to false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_LT, &l), "Must be smaller than false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_LE, &l), "Must be smaller than or equals to false".to_string());
-        assert_eq!(validation_err_to_locale(&OP_BOOL_BTWN, &l), "Must be between false and true".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_EQ, &l), "Must be equals to false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_NE, &l), "Must be different from false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_GT, &l), "Must be greater than false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_GE, &l), "Must be greater than or equals to false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_LT, &l), "Must be smaller than false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_LE, &l), "Must be smaller than or equals to false".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL_BTWN, &l), "Must be between false and true".to_string());
 
-        assert_eq!(validation_err_to_locale(&operation_str_eq, &l), r#"Must be equals to "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_ne, &l), r#"Must be different from "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_gt, &l), r#"Must be greater than "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_ge, &l), r#"Must be greater than or equals to "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_lt, &l), r#"Must be smaller than "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_le, &l), r#"Must be smaller than or equals to "aurorae""#.to_string());
-        assert_eq!(validation_err_to_locale(&operation_str_btwn, &l), r#"Must be between "aurorae" and "crespúculum""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_eq, &l), r#"Must be equals to "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_ne, &l), r#"Must be different from "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_gt, &l), r#"Must be greater than "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_ge, &l), r#"Must be greater than or equals to "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_lt, &l), r#"Must be smaller than "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_le, &l), r#"Must be smaller than or equals to "aurorae""#.to_string());
+        assert_eq!(localize_validation_err(&operation_str_btwn, &l), r#"Must be between "aurorae" and "crespúculum""#.to_string());
 
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_EQ, &l), "The length of bytes must be equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_NE, &l), "The length of bytes must be different from 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_GT, &l), "The length of bytes must be greater than 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_GE, &l), "The length of bytes must be greater than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_LT, &l), "The length of bytes must be smaller than 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_LE, &l), "The length of bytes must be smaller than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&BYTES_LEN_BTWN, &l), "The length of bytes must be between 27 and 39".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_EQ, &l), "The length of bytes must be equals to 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_NE, &l), "The length of bytes must be different from 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_GT, &l), "The length of bytes must be greater than 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_GE, &l), "The length of bytes must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_LT, &l), "The length of bytes must be smaller than 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_LE, &l), "The length of bytes must be smaller than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&BYTES_LEN_BTWN, &l), "The length of bytes must be between 27 and 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_EQ, &l), "The length of characters must be equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_NE, &l), "The length of characters must be different from 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_GT, &l), "The length of characters must be greater than 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_GE, &l), "The length of characters must be greater than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_LT, &l), "The length of characters must be smaller than 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_LE, &l), "The length of characters must be smaller than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&CHARS_LEN_BTWN, &l), "The length of characters must be between 27 and 39".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_EQ, &l), "The length of characters must be equals to 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_NE, &l), "The length of characters must be different from 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_GT, &l), "The length of characters must be greater than 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_GE, &l), "The length of characters must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_LT, &l), "The length of characters must be smaller than 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_LE, &l), "The length of characters must be smaller than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&CHARS_LEN_BTWN, &l), "The length of characters must be between 27 and 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_EQ, &l), "The length of graphemes must be equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_NE, &l), "The length of graphemes must be different from 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_GT, &l), "The length of graphemes must be greater than 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_GE, &l), "The length of graphemes must be greater than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_LT, &l), "The length of graphemes must be smaller than 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_LE, &l), "The length of graphemes must be smaller than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&GRAPHEMES_LEN_BTWN, &l), "The length of graphemes must be between 27 and 39".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_EQ, &l), "The length of graphemes must be equals to 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_NE, &l), "The length of graphemes must be different from 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_GT, &l), "The length of graphemes must be greater than 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_GE, &l), "The length of graphemes must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_LT, &l), "The length of graphemes must be smaller than 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_LE, &l), "The length of graphemes must be smaller than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&GRAPHEMES_LEN_BTWN, &l), "The length of graphemes must be between 27 and 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_EQ, &l), "The length of lowercase characters must be equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_NE, &l), "The length of lowercase characters must be different from 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_GT, &l), "The length of lowercase characters must be greater than 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_GE, &l), "The length of lowercase characters must be greater than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_LT, &l), "The length of lowercase characters must be smaller than 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_LE, &l), "The length of lowercase characters must be smaller than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&LOWER_LEN_BTWN, &l), "The length of lowercase characters must be between 27 and 39".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_EQ, &l), "The length of lowercase characters must be equals to 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_NE, &l), "The length of lowercase characters must be different from 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_GT, &l), "The length of lowercase characters must be greater than 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_GE, &l), "The length of lowercase characters must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_LT, &l), "The length of lowercase characters must be smaller than 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_LE, &l), "The length of lowercase characters must be smaller than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&LOWER_LEN_BTWN, &l), "The length of lowercase characters must be between 27 and 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_EQ, &l), "The length of uppercase characters must be equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_NE, &l), "The length of uppercase characters must be different from 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_GT, &l), "The length of uppercase characters must be greater than 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_GE, &l), "The length of uppercase characters must be greater than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_LT, &l), "The length of uppercase characters must be smaller than 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_LE, &l), "The length of uppercase characters must be smaller than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&UPPER_LEN_BTWN, &l), "The length of uppercase characters must be between 27 and 39".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_EQ, &l), "The length of uppercase characters must be equals to 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_NE, &l), "The length of uppercase characters must be different from 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_GT, &l), "The length of uppercase characters must be greater than 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_GE, &l), "The length of uppercase characters must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_LT, &l), "The length of uppercase characters must be smaller than 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_LE, &l), "The length of uppercase characters must be smaller than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&UPPER_LEN_BTWN, &l), "The length of uppercase characters must be between 27 and 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_EQ, &l), "The length of numbers must be equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_NE, &l), "The length of numbers must be different from 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_GT, &l), "The length of numbers must be greater than 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_GE, &l), "The length of numbers must be greater than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_LT, &l), "The length of numbers must be smaller than 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_LE, &l), "The length of numbers must be smaller than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&NUMBERS_LEN_BTWN, &l), "The length of numbers must be between 27 and 39".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_EQ, &l), "The length of numbers must be equals to 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_NE, &l), "The length of numbers must be different from 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_GT, &l), "The length of numbers must be greater than 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_GE, &l), "The length of numbers must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_LT, &l), "The length of numbers must be smaller than 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_LE, &l), "The length of numbers must be smaller than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&NUMBERS_LEN_BTWN, &l), "The length of numbers must be between 27 and 39".to_string());
 
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_EQ, &l), "The length of symbols must be equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_NE, &l), "The length of symbols must be different from 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_GT, &l), "The length of symbols must be greater than 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_GE, &l), "The length of symbols must be greater than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_LT, &l), "The length of symbols must be smaller than 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_LE, &l), "The length of symbols must be smaller than or equals to 27".to_string());
-        assert_eq!(validation_err_to_locale(&SYMBOLS_LEN_BTWN, &l), "The length of symbols must be between 27 and 39".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_EQ, &l), "The length of symbols must be equals to 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_NE, &l), "The length of symbols must be different from 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_GT, &l), "The length of symbols must be greater than 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_GE, &l), "The length of symbols must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_LT, &l), "The length of symbols must be smaller than 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_LE, &l), "The length of symbols must be smaller than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&SYMBOLS_LEN_BTWN, &l), "The length of symbols must be between 27 and 39".to_string());
     }
 }
