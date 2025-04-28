@@ -257,8 +257,6 @@ mod tests {
         assert_eq!(validate_enforce_required(&v, &value_nested_missing_field), Ok(()));
     }
 
-
-
     #[test]
     fn validate_enforce_optional_not_nested_required_ok() {
         let v_u64 = Validation::U64(U64Validation::default().eq(1917));
