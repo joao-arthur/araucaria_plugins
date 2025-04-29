@@ -1,189 +1,4 @@
-use std::collections::BTreeMap;
-
-use araucaria::{
-    error::{SchemaErr, ValidationErr},
-    operation::Operation,
-};
-
-pub struct Locale {
-    required: String,
-    u64: String,
-    i64: String,
-    f64: String,
-    usize: String,
-    isize: String,
-    bool: String,
-    str: String,
-    email: String,
-    date: String,
-    time: String,
-    date_time: String,
-    eq: String,
-    ne: String,
-    gt: String,
-    lt: String,
-    ge: String,
-    le: String,
-    btwn: String,
-    bytes_len_eq: String,
-    bytes_len_ne: String,
-    bytes_len_gt: String,
-    bytes_len_ge: String,
-    bytes_len_lt: String,
-    bytes_len_le: String,
-    bytes_len_btwn: String,
-    chars_len_eq: String,
-    chars_len_ne: String,
-    chars_len_gt: String,
-    chars_len_ge: String,
-    chars_len_lt: String,
-    chars_len_le: String,
-    chars_len_btwn: String,
-    graphemes_len_eq: String,
-    graphemes_len_ne: String,
-    graphemes_len_gt: String,
-    graphemes_len_ge: String,
-    graphemes_len_lt: String,
-    graphemes_len_le: String,
-    graphemes_len_btwn: String,
-    lowercase_len_eq: String,
-    lowercase_len_ne: String,
-    lowercase_len_gt: String,
-    lowercase_len_ge: String,
-    lowercase_len_lt: String,
-    lowercase_len_le: String,
-    lowercase_len_btwn: String,
-    uppercase_len_eq: String,
-    uppercase_len_ne: String,
-    uppercase_len_gt: String,
-    uppercase_len_ge: String,
-    uppercase_len_lt: String,
-    uppercase_len_le: String,
-    uppercase_len_btwn: String,
-    number_len_eq: String,
-    number_len_ne: String,
-    number_len_gt: String,
-    number_len_ge: String,
-    number_len_lt: String,
-    number_len_le: String,
-    number_len_btwn: String,
-    symbols_eq: String,
-    symbols_ne: String,
-    symbols_gt: String,
-    symbols_ge: String,
-    symbols_lt: String,
-    symbols_le: String,
-    symbols_btwn: String,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum SchemaLocalizedErr {
-    Arr(Vec<String>),
-    Obj(BTreeMap<String, SchemaLocalizedErr>),
-}
-
-pub fn localize_schema_err(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
-    match err {
-        SchemaErr::Arr(arr) => SchemaLocalizedErr::Arr(arr.iter().map(|item| localize_validation_err(item, locale)).collect()),
-        SchemaErr::Obj(obj) => {
-            let mut result: BTreeMap<String, SchemaLocalizedErr> = BTreeMap::new();
-            for (key, item) in obj {
-                result.insert(key.clone(), localize_schema_err(item, locale));
-            }
-            SchemaLocalizedErr::Obj(result)
-        }
-    }
-}
-
-pub fn localize_validation_err(error: &ValidationErr, locale: &Locale) -> String {
-    match error {
-        ValidationErr::Required => locale.required.clone(),
-        ValidationErr::U64 => locale.u64.clone(),
-        ValidationErr::I64 => locale.i64.clone(),
-        ValidationErr::F64 => locale.f64.clone(),
-        ValidationErr::USize => locale.usize.clone(),
-        ValidationErr::ISize => locale.isize.clone(),
-        ValidationErr::Bool => locale.bool.clone(),
-        ValidationErr::Str => locale.str.clone(),
-        ValidationErr::Email => locale.email.clone(),
-        ValidationErr::Date => locale.date.clone(),
-        ValidationErr::Time => locale.time.clone(),
-        ValidationErr::DateTime => locale.date_time.clone(),
-        ValidationErr::Operation(operation) => match operation {
-            Operation::Eq(v) => locale.eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        ValidationErr::BytesLen(operation) => match operation {
-            Operation::Eq(v) => locale.bytes_len_eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.bytes_len_ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.bytes_len_gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.bytes_len_ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.bytes_len_lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.bytes_len_le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.bytes_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        ValidationErr::CharsLen(operation) => match operation {
-            Operation::Eq(v) => locale.chars_len_eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.chars_len_ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.chars_len_gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.chars_len_ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.chars_len_lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.chars_len_le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.chars_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        ValidationErr::GraphemesLen(operation) => match operation {
-            Operation::Eq(v) => locale.graphemes_len_eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.graphemes_len_ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.graphemes_len_gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.graphemes_len_ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.graphemes_len_lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.graphemes_len_le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.graphemes_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        ValidationErr::LowercaseLen(operation) => match operation {
-            Operation::Eq(v) => locale.lowercase_len_eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.lowercase_len_ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.lowercase_len_gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.lowercase_len_ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.lowercase_len_lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.lowercase_len_le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.lowercase_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        ValidationErr::UppercaseLen(operation) => match operation {
-            Operation::Eq(v) => locale.uppercase_len_eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.uppercase_len_ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.uppercase_len_gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.uppercase_len_ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.uppercase_len_lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.uppercase_len_le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.uppercase_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        ValidationErr::NumbersLen(operation) => match operation {
-            Operation::Eq(v) => locale.number_len_eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.number_len_ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.number_len_gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.number_len_ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.number_len_lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.number_len_le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.number_len_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        ValidationErr::SymbolsLen(operation) => match operation {
-            Operation::Eq(v) => locale.symbols_eq.replace("%value%", &v.to_string()),
-            Operation::Ne(v) => locale.symbols_ne.replace("%value%", &v.to_string()),
-            Operation::Gt(v) => locale.symbols_gt.replace("%value%", &v.to_string()),
-            Operation::Ge(v) => locale.symbols_ge.replace("%value%", &v.to_string()),
-            Operation::Lt(v) => locale.symbols_lt.replace("%value%", &v.to_string()),
-            Operation::Le(v) => locale.symbols_le.replace("%value%", &v.to_string()),
-            Operation::Btwn(a, b) => locale.symbols_btwn.replace("%value_a%", &a.to_string()).replace("%value_b%", &b.to_string()),
-        },
-        _ => "".into(),
-    }
-}
+use araucaria::locale::Locale;
 
 pub fn locale_pt_long() -> Locale {
     Locale {
@@ -206,6 +21,12 @@ pub fn locale_pt_long() -> Locale {
         lt: "Deve ser menor que %value%".into(),
         le: "Deve ser menor ou igual a %value%".into(),
         btwn: "Deve estar entre %value_a% e %value_b%".into(),
+        eq_field: "Deve ser igual ao campo %value%".into(),
+        ne_field: "Deve ser diferente do campo %value%".into(),
+        gt_field: "Deve ser maior que o campo %value%".into(),
+        ge_field: "Deve ser maior ou igual ao campo %value%".into(),
+        lt_field: "Deve ser menor que o campo %value%".into(),
+        le_field: "Deve ser menor ou igual ao campo %value%".into(),
         bytes_len_eq: "A quantidade de bytes deve ser igual a %value%".into(),
         bytes_len_ne: "A quantidade de bytes deve ser diferente de %value%".into(),
         bytes_len_gt: "A quantidade de bytes deve ser maior que %value%".into(),
@@ -255,6 +76,7 @@ pub fn locale_pt_long() -> Locale {
         symbols_lt: "A quantidade de símbolos deve ser menor que %value%".into(),
         symbols_le: "A quantidade de símbolos deve ser menor ou igual a %value%".into(),
         symbols_btwn: "A quantidade de símbolos deve estar entre %value_a% e %value_b%".into(),
+        enumerated: "Deve ser um dos valores %value%".into(),
     }
 }
 
@@ -279,6 +101,12 @@ pub fn locale_es_long() -> Locale {
         lt: "Debe ser menor que %value%".into(),
         le: "Debe ser menor o igual a %value%".into(),
         btwn: "Debe estar entre %value_a% y %value_b%".into(),
+        eq_field: "Debe ser igual al campo %value%".into(),
+        ne_field: "Debe ser diferente del campo %value%".into(),
+        gt_field: "Debe ser mayor que el campo %value%".into(),
+        ge_field: "Debe ser mayor o igual al campo %value%".into(),
+        lt_field: "Debe ser menor que el campo %value%".into(),
+        le_field: "Debe ser menor o igual al campo %value%".into(),
         bytes_len_eq: "La cantidad de bytes debe ser igual a %value%".into(),
         bytes_len_ne: "La cantidad de bytes debe ser diferente de %value%".into(),
         bytes_len_gt: "La cantidad de bytes debe ser mayor que %value%".into(),
@@ -328,6 +156,7 @@ pub fn locale_es_long() -> Locale {
         symbols_lt: "La cantidad de símbolos debe ser menor que %value%".into(),
         symbols_le: "La cantidad de símbolos debe ser menor o igual a %value%".into(),
         symbols_btwn: "La cantidad de símbolos debe estar entre %value_a% y %value_b%".into(),
+        enumerated: "Debe ser uno de los valores %value%".into(),
     }
 }
 
@@ -352,6 +181,12 @@ pub fn locale_en_long() -> Locale {
         lt: "Must be smaller than %value%".into(),
         le: "Must be smaller than or equals to %value%".into(),
         btwn: "Must be between %value_a% and %value_b%".into(),
+        eq_field: "Must be equals to the field %value%".into(),
+        ne_field: "Must be different from the field %value%".into(),
+        gt_field: "Must be greater than the field %value%".into(),
+        ge_field: "Must be greater than or equals to the field %value%".into(),
+        lt_field: "Must be smaller than the field %value%".into(),
+        le_field: "Must be smaller than or equals to the field %value%".into(),
         bytes_len_eq: "The length of bytes must be equals to %value%".into(),
         bytes_len_ne: "The length of bytes must be different from %value%".into(),
         bytes_len_gt: "The length of bytes must be greater than %value%".into(),
@@ -401,6 +236,7 @@ pub fn locale_en_long() -> Locale {
         symbols_lt: "The length of symbols must be smaller than %value%".into(),
         symbols_le: "The length of symbols must be smaller than or equals to %value%".into(),
         symbols_btwn: "The length of symbols must be between %value_a% and %value_b%".into(),
+        enumerated: "Must be one of the values %value%".into(),
     }
 }
 
@@ -409,11 +245,10 @@ mod tests {
     use std::collections::BTreeMap;
 
     use araucaria::{
-        error::{SchemaErr, ValidationErr},
-        operation::{Operand, OperandValue, Operation},
+        error::{SchemaErr, ValidationErr}, locale::{localize_schema_err, localize_validation_err, SchemaLocalizedErr}, operation::{Operand, OperandValue, Operation}
     };
 
-    use super::{SchemaLocalizedErr, locale_en_long, locale_es_long, locale_pt_long, localize_schema_err, localize_validation_err};
+    use super::{locale_en_long, locale_es_long, locale_pt_long};
 
     const REQUIRED: ValidationErr = ValidationErr::Required;
     const U64: ValidationErr = ValidationErr::U64;
@@ -461,6 +296,20 @@ mod tests {
     const OP_F64_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(F64_VALUE_A));
     const OP_F64_LE: ValidationErr = ValidationErr::Operation(Operation::Le(F64_VALUE_A));
     const OP_F64_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(F64_VALUE_A, F64_VALUE_B));
+    const OP_USIZE_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(USIZE_VALUE_A));
+    const OP_USIZE_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(USIZE_VALUE_A));
+    const OP_USIZE_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(USIZE_VALUE_A));
+    const OP_USIZE_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(USIZE_VALUE_A));
+    const OP_USIZE_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(USIZE_VALUE_A));
+    const OP_USIZE_LE: ValidationErr = ValidationErr::Operation(Operation::Le(USIZE_VALUE_A));
+    const OP_USIZE_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
+    const OP_ISIZE_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(ISIZE_VALUE_A));
+    const OP_ISIZE_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(ISIZE_VALUE_A));
+    const OP_ISIZE_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(ISIZE_VALUE_A));
+    const OP_ISIZE_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(ISIZE_VALUE_A));
+    const OP_ISIZE_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(ISIZE_VALUE_A));
+    const OP_ISIZE_LE: ValidationErr = ValidationErr::Operation(Operation::Le(ISIZE_VALUE_A));
+    const OP_ISIZE_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(ISIZE_VALUE_A, ISIZE_VALUE_B));
     const OP_BOOL_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(BOOL_VALUE_A));
     const OP_BOOL_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(BOOL_VALUE_A));
     const OP_BOOL_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(BOOL_VALUE_A));
