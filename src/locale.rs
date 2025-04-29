@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize, Serializer};
 use std::collections::BTreeMap;
 
 use araucaria::{
@@ -77,22 +76,10 @@ pub struct Locale {
     symbols_btwn: String,
 }
 
-#[derive(Debug, PartialEq, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum SchemaLocalizedErr {
     Arr(Vec<String>),
     Obj(BTreeMap<String, SchemaLocalizedErr>),
-}
-
-impl Serialize for SchemaLocalizedErr {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            SchemaLocalizedErr::Arr(vec) => vec.serialize(serializer),
-            SchemaLocalizedErr::Obj(map) => map.serialize(serializer),
-        }
-    }
 }
 
 pub fn localize_schema_err(err: &SchemaErr, locale: &Locale) -> SchemaLocalizedErr {
@@ -573,30 +560,6 @@ mod tests {
             ),
         ]));
         assert_eq!(localize_schema_err(&err, &locale), localized_err);
-    }
-
-    // TODO REMOVE FROM HERE
-    #[test]
-    fn test_localize_schema_err_to_locale() {
-        let err = SchemaLocalizedErr::Obj(BTreeMap::from([
-            (
-                "name".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()]),
-            ),
-            (
-                "birthdate".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()]),
-            ),
-            ("alive".into(), SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()])),
-            (
-                "bands".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
-            ),
-        ]));
-        assert_eq!(
-            serde_json::to_string(&err).unwrap(),
-            r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"],"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""],"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""],"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""]}"#.to_string()
-        );
     }
 
     #[test]
