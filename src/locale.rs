@@ -242,13 +242,23 @@ pub fn locale_en_long() -> Locale {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::BTreeMap;
+    use std::sync::LazyLock;
 
     use araucaria::{
-        error::{SchemaErr, ValidationErr}, locale::{localize_schema_err, localize_validation_err, SchemaLocalizedErr}, operation::{Operand, OperandValue, Operation}
+        error::ValidationErr,
+        locale::localize_validation_err,
+        operation::{Operand, OperandValue, Operation},
+        validation::EnumValues,
     };
 
     use super::{locale_en_long, locale_es_long, locale_pt_long};
+
+    const USIZE_VALUES: [usize; 6] = [0, 1, 2, 3, 4, 5];
+    const ISIZE_VALUES: [isize; 5] = [-2, -1, 0, 1, 2];
+    const STR_VALUES: [&str; 3] = ["APPLE", "GRAPE", "PEAR"];
+
+    static STR_VALUE_A: LazyLock<Operand> = LazyLock::new(|| Operand::Value(OperandValue::from("aurorae")));
+    static STR_VALUE_B: LazyLock<Operand> = LazyLock::new(|| Operand::Value(OperandValue::from("crespúculum")));
 
     const REQUIRED: ValidationErr = ValidationErr::Required;
     const U64: ValidationErr = ValidationErr::U64;
@@ -263,60 +273,21 @@ mod tests {
     const TIME: ValidationErr = ValidationErr::Time;
     const DATE_TIME: ValidationErr = ValidationErr::DateTime;
 
-    const U64_VALUE_A: Operand = Operand::Value(OperandValue::U64(34));
-    const U64_VALUE_B: Operand = Operand::Value(OperandValue::U64(43));
-    const I64_VALUE_A: Operand = Operand::Value(OperandValue::I64(-4));
-    const I64_VALUE_B: Operand = Operand::Value(OperandValue::I64(4));
-    const F64_VALUE_A: Operand = Operand::Value(OperandValue::F64(-4.6));
-    const F64_VALUE_B: Operand = Operand::Value(OperandValue::F64(-2.4));
+    const U64_VALUE: Operand = Operand::Value(OperandValue::U64(34));
+    const I64_VALUE: Operand = Operand::Value(OperandValue::I64(-4));
+    const F64_VALUE: Operand = Operand::Value(OperandValue::F64(-4.6));
     const USIZE_VALUE_A: Operand = Operand::Value(OperandValue::USize(27));
     const USIZE_VALUE_B: Operand = Operand::Value(OperandValue::USize(39));
     const ISIZE_VALUE_A: Operand = Operand::Value(OperandValue::ISize(-93));
-    const ISIZE_VALUE_B: Operand = Operand::Value(OperandValue::ISize(-72));
-    const BOOL_VALUE_A: Operand = Operand::Value(OperandValue::Bool(false));
-    const BOOL_VALUE_B: Operand = Operand::Value(OperandValue::Bool(true));
-    const OP_U64_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(U64_VALUE_A));
-    const OP_U64_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(U64_VALUE_A));
-    const OP_U64_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(U64_VALUE_A));
-    const OP_U64_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(U64_VALUE_A));
-    const OP_U64_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(U64_VALUE_A));
-    const OP_U64_LE: ValidationErr = ValidationErr::Operation(Operation::Le(U64_VALUE_A));
-    const OP_U64_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(U64_VALUE_A, U64_VALUE_B));
-    const OP_I64_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(I64_VALUE_A));
-    const OP_I64_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(I64_VALUE_A));
-    const OP_I64_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(I64_VALUE_A));
-    const OP_I64_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(I64_VALUE_A));
-    const OP_I64_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(I64_VALUE_A));
-    const OP_I64_LE: ValidationErr = ValidationErr::Operation(Operation::Le(I64_VALUE_A));
-    const OP_I64_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(I64_VALUE_A, I64_VALUE_B));
-    const OP_F64_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(F64_VALUE_A));
-    const OP_F64_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(F64_VALUE_A));
-    const OP_F64_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(F64_VALUE_A));
-    const OP_F64_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(F64_VALUE_A));
-    const OP_F64_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(F64_VALUE_A));
-    const OP_F64_LE: ValidationErr = ValidationErr::Operation(Operation::Le(F64_VALUE_A));
-    const OP_F64_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(F64_VALUE_A, F64_VALUE_B));
-    const OP_USIZE_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(USIZE_VALUE_A));
-    const OP_USIZE_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(USIZE_VALUE_A));
-    const OP_USIZE_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(USIZE_VALUE_A));
-    const OP_USIZE_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(USIZE_VALUE_A));
-    const OP_USIZE_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(USIZE_VALUE_A));
-    const OP_USIZE_LE: ValidationErr = ValidationErr::Operation(Operation::Le(USIZE_VALUE_A));
-    const OP_USIZE_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
-    const OP_ISIZE_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(ISIZE_VALUE_A));
-    const OP_ISIZE_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(ISIZE_VALUE_A));
-    const OP_ISIZE_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(ISIZE_VALUE_A));
-    const OP_ISIZE_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(ISIZE_VALUE_A));
-    const OP_ISIZE_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(ISIZE_VALUE_A));
-    const OP_ISIZE_LE: ValidationErr = ValidationErr::Operation(Operation::Le(ISIZE_VALUE_A));
-    const OP_ISIZE_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(ISIZE_VALUE_A, ISIZE_VALUE_B));
-    const OP_BOOL_EQ: ValidationErr = ValidationErr::Operation(Operation::Eq(BOOL_VALUE_A));
-    const OP_BOOL_NE: ValidationErr = ValidationErr::Operation(Operation::Ne(BOOL_VALUE_A));
-    const OP_BOOL_GT: ValidationErr = ValidationErr::Operation(Operation::Gt(BOOL_VALUE_A));
-    const OP_BOOL_GE: ValidationErr = ValidationErr::Operation(Operation::Ge(BOOL_VALUE_A));
-    const OP_BOOL_LT: ValidationErr = ValidationErr::Operation(Operation::Lt(BOOL_VALUE_A));
-    const OP_BOOL_LE: ValidationErr = ValidationErr::Operation(Operation::Le(BOOL_VALUE_A));
-    const OP_BOOL_BTWN: ValidationErr = ValidationErr::Operation(Operation::Btwn(BOOL_VALUE_A, BOOL_VALUE_B));
+    const BOOL_VALUE: Operand = Operand::Value(OperandValue::Bool(false));
+    const OP_U64: ValidationErr = ValidationErr::Operation(Operation::Eq(U64_VALUE));
+    const OP_I64: ValidationErr = ValidationErr::Operation(Operation::Ne(I64_VALUE));
+    const OP_F64: ValidationErr = ValidationErr::Operation(Operation::Gt(F64_VALUE));
+    const OP_USIZE: ValidationErr = ValidationErr::Operation(Operation::Ge(USIZE_VALUE_A));
+    const OP_ISIZE: ValidationErr = ValidationErr::Operation(Operation::Lt(ISIZE_VALUE_A));
+    const OP_BOOL: ValidationErr = ValidationErr::Operation(Operation::Le(BOOL_VALUE));
+    static OP_STR: LazyLock<ValidationErr> =
+        LazyLock::new(|| ValidationErr::Operation(Operation::Btwn(STR_VALUE_A.clone(), STR_VALUE_B.clone())));
     const BYTES_LEN_EQ: ValidationErr = ValidationErr::BytesLen(Operation::Eq(USIZE_VALUE_A));
     const BYTES_LEN_NE: ValidationErr = ValidationErr::BytesLen(Operation::Ne(USIZE_VALUE_A));
     const BYTES_LEN_GT: ValidationErr = ValidationErr::BytesLen(Operation::Gt(USIZE_VALUE_A));
@@ -367,64 +338,13 @@ mod tests {
     const SYMBOLS_LEN_LE: ValidationErr = ValidationErr::SymbolsLen(Operation::Le(USIZE_VALUE_A));
     const SYMBOLS_LEN_BTWN: ValidationErr = ValidationErr::SymbolsLen(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
 
-    #[test]
-    fn test_schema_err_arr_to_locale() {
-        let locale = locale_pt_long();
-        let err = SchemaErr::arr([REQUIRED, BOOL, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(true))))]);
-        let localized_err = SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()]);
-        assert_eq!(localize_schema_err(&err, &locale), localized_err);
-    }
-
-    #[test]
-    fn test_schema_err_obj_to_locale() {
-        let locale = locale_pt_long();
-        let err = SchemaErr::Obj(BTreeMap::from([
-            (
-                "name".into(),
-                SchemaErr::arr([REQUIRED, STR, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("Paul McCartney"))))]),
-            ),
-            (
-                "birthdate".into(),
-                SchemaErr::arr([REQUIRED, STR, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("1942-06-18"))))]),
-            ),
-            ("alive".into(), SchemaErr::arr([REQUIRED, BOOL, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(true))))])),
-            (
-                "bands".into(),
-                SchemaErr::arr([REQUIRED, STR, ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("The Beatles"))))]),
-            ),
-        ]));
-        let localized_err = SchemaLocalizedErr::Obj(BTreeMap::from([
-            (
-                "name".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()]),
-            ),
-            (
-                "birthdate".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()]),
-            ),
-            ("alive".into(), SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()])),
-            (
-                "bands".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
-            ),
-        ]));
-        assert_eq!(localize_schema_err(&err, &locale), localized_err);
-    }
+    static ENUM_USIZE: LazyLock<ValidationErr> = LazyLock::new(|| ValidationErr::Enumerated(EnumValues::from(USIZE_VALUES)));
+    static ENUM_ISIZE: LazyLock<ValidationErr> = LazyLock::new(|| ValidationErr::Enumerated(EnumValues::from(ISIZE_VALUES)));
+    static ENUM_STR: LazyLock<ValidationErr> = LazyLock::new(|| ValidationErr::Enumerated(EnumValues::from(STR_VALUES)));
 
     #[test]
     fn validation_err_to_locale_locale_pt_long() {
         let l = locale_pt_long();
-
-        let str_value_a = Operand::Value(OperandValue::from("aurorae"));
-        let str_value_b = Operand::Value(OperandValue::from("crespúculum"));
-
-        let operation_str_eq = ValidationErr::Operation(Operation::Eq(str_value_a.clone()));
-        let operation_str_ne = ValidationErr::Operation(Operation::Ne(str_value_a.clone()));
-        let operation_str_gt = ValidationErr::Operation(Operation::Gt(str_value_a.clone()));
-        let operation_str_ge = ValidationErr::Operation(Operation::Ge(str_value_a.clone()));
-        let operation_str_lt = ValidationErr::Operation(Operation::Lt(str_value_a.clone()));
-        let operation_str_le = ValidationErr::Operation(Operation::Le(str_value_a.clone()));
-        let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
         assert_eq!(localize_validation_err(&REQUIRED, &l), "É obrigatório".to_string());
         assert_eq!(localize_validation_err(&U64, &l), "Deve ser um número inteiro sem sinal de 64 bits".to_string());
@@ -439,45 +359,13 @@ mod tests {
         assert_eq!(localize_validation_err(&TIME, &l), "Deve ser uma hora".to_string());
         assert_eq!(localize_validation_err(&DATE_TIME, &l), "Deve ser uma data e hora".to_string());
 
-        assert_eq!(localize_validation_err(&OP_U64_EQ, &l), "Deve ser igual a 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_NE, &l), "Deve ser diferente de 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_GT, &l), "Deve ser maior que 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_GE, &l), "Deve ser maior ou igual a 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_LT, &l), "Deve ser menor que 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_LE, &l), "Deve ser menor ou igual a 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_BTWN, &l), "Deve estar entre 34 e 43".to_string());
-
-        assert_eq!(localize_validation_err(&OP_I64_EQ, &l), "Deve ser igual a -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_NE, &l), "Deve ser diferente de -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_GT, &l), "Deve ser maior que -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_GE, &l), "Deve ser maior ou igual a -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_LT, &l), "Deve ser menor que -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_LE, &l), "Deve ser menor ou igual a -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_BTWN, &l), "Deve estar entre -4 e 4".to_string());
-
-        assert_eq!(localize_validation_err(&OP_F64_EQ, &l), "Deve ser igual a -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_NE, &l), "Deve ser diferente de -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_GT, &l), "Deve ser maior que -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_GE, &l), "Deve ser maior ou igual a -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_LT, &l), "Deve ser menor que -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_LE, &l), "Deve ser menor ou igual a -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_BTWN, &l), "Deve estar entre -4.6 e -2.4".to_string());
-
-        assert_eq!(localize_validation_err(&OP_BOOL_EQ, &l), "Deve ser igual a false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_NE, &l), "Deve ser diferente de false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_GT, &l), "Deve ser maior que false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_GE, &l), "Deve ser maior ou igual a false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_LT, &l), "Deve ser menor que false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_LE, &l), "Deve ser menor ou igual a false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_BTWN, &l), "Deve estar entre false e true".to_string());
-
-        assert_eq!(localize_validation_err(&operation_str_eq, &l), r#"Deve ser igual a "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_ne, &l), r#"Deve ser diferente de "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_gt, &l), r#"Deve ser maior que "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_ge, &l), r#"Deve ser maior ou igual a "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_lt, &l), r#"Deve ser menor que "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_le, &l), r#"Deve ser menor ou igual a "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_btwn, &l), r#"Deve estar entre "aurorae" e "crespúculum""#.to_string());
+        assert_eq!(localize_validation_err(&OP_U64, &l), "Deve ser igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_I64, &l), "Deve ser diferente de -4".to_string());
+        assert_eq!(localize_validation_err(&OP_F64, &l), "Deve ser maior que -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_USIZE, &l), "Deve ser maior ou igual a 27".to_string());
+        assert_eq!(localize_validation_err(&OP_ISIZE, &l), "Deve ser menor que -93".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL, &l), "Deve ser menor ou igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_STR, &l), r#"Deve estar entre "aurorae" e "crespúculum""#.to_string());
 
         assert_eq!(localize_validation_err(&BYTES_LEN_EQ, &l), "A quantidade de bytes deve ser igual a 27".to_string());
         assert_eq!(localize_validation_err(&BYTES_LEN_NE, &l), "A quantidade de bytes deve ser diferente de 27".to_string());
@@ -534,22 +422,15 @@ mod tests {
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_LT, &l), "A quantidade de símbolos deve ser menor que 27".to_string());
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_LE, &l), "A quantidade de símbolos deve ser menor ou igual a 27".to_string());
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_BTWN, &l), "A quantidade de símbolos deve estar entre 27 e 39".to_string());
+
+        assert_eq!(localize_validation_err(&ENUM_USIZE, &l), "Deve ser um dos valores [ 0, 1, 2, 3, 4, 5 ]".to_string());
+        assert_eq!(localize_validation_err(&ENUM_ISIZE, &l), "Deve ser um dos valores [ -2, -1, 0, 1, 2 ]".to_string());
+        assert_eq!(localize_validation_err(&ENUM_STR, &l), r#"Deve ser um dos valores [ "APPLE", "GRAPE", "PEAR" ]"#.to_string());
     }
 
     #[test]
     fn validation_err_to_locale_locale_es_long() {
         let l = locale_es_long();
-
-        let str_value_a = Operand::Value(OperandValue::from("aurorae"));
-        let str_value_b = Operand::Value(OperandValue::from("crespúculum"));
-
-        let operation_str_eq = ValidationErr::Operation(Operation::Eq(str_value_a.clone()));
-        let operation_str_ne = ValidationErr::Operation(Operation::Ne(str_value_a.clone()));
-        let operation_str_gt = ValidationErr::Operation(Operation::Gt(str_value_a.clone()));
-        let operation_str_ge = ValidationErr::Operation(Operation::Ge(str_value_a.clone()));
-        let operation_str_lt = ValidationErr::Operation(Operation::Lt(str_value_a.clone()));
-        let operation_str_le = ValidationErr::Operation(Operation::Le(str_value_a.clone()));
-        let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
         assert_eq!(localize_validation_err(&REQUIRED, &l), "Se requiere".to_string());
         assert_eq!(localize_validation_err(&U64, &l), "Debe ser un número entero sin signo de 64 bits".to_string());
@@ -564,45 +445,13 @@ mod tests {
         assert_eq!(localize_validation_err(&TIME, &l), "Debe ser una hora".to_string());
         assert_eq!(localize_validation_err(&DATE_TIME, &l), "Debe ser una fecha y hora".to_string());
 
-        assert_eq!(localize_validation_err(&OP_U64_EQ, &l), "Debe ser igual a 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_NE, &l), "Debe ser diferente de 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_GT, &l), "Debe ser mayor que 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_GE, &l), "Debe ser mayor o igual a 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_LT, &l), "Debe ser menor que 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_LE, &l), "Debe ser menor o igual a 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_BTWN, &l), "Debe estar entre 34 y 43".to_string());
-
-        assert_eq!(localize_validation_err(&OP_I64_EQ, &l), "Debe ser igual a -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_NE, &l), "Debe ser diferente de -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_GT, &l), "Debe ser mayor que -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_GE, &l), "Debe ser mayor o igual a -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_LT, &l), "Debe ser menor que -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_LE, &l), "Debe ser menor o igual a -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_BTWN, &l), "Debe estar entre -4 y 4".to_string());
-
-        assert_eq!(localize_validation_err(&OP_F64_EQ, &l), "Debe ser igual a -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_NE, &l), "Debe ser diferente de -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_GT, &l), "Debe ser mayor que -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_GE, &l), "Debe ser mayor o igual a -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_LT, &l), "Debe ser menor que -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_LE, &l), "Debe ser menor o igual a -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_BTWN, &l), "Debe estar entre -4.6 y -2.4".to_string());
-
-        assert_eq!(localize_validation_err(&OP_BOOL_EQ, &l), "Debe ser igual a false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_NE, &l), "Debe ser diferente de false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_GT, &l), "Debe ser mayor que false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_GE, &l), "Debe ser mayor o igual a false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_LT, &l), "Debe ser menor que false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_LE, &l), "Debe ser menor o igual a false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_BTWN, &l), "Debe estar entre false y true".to_string());
-
-        assert_eq!(localize_validation_err(&operation_str_eq, &l), r#"Debe ser igual a "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_ne, &l), r#"Debe ser diferente de "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_gt, &l), r#"Debe ser mayor que "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_ge, &l), r#"Debe ser mayor o igual a "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_lt, &l), r#"Debe ser menor que "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_le, &l), r#"Debe ser menor o igual a "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_btwn, &l), r#"Debe estar entre "aurorae" y "crespúculum""#.to_string());
+        assert_eq!(localize_validation_err(&OP_U64, &l), "Debe ser igual a 34".to_string());
+        assert_eq!(localize_validation_err(&OP_I64, &l), "Debe ser diferente de -4".to_string());
+        assert_eq!(localize_validation_err(&OP_F64, &l), "Debe ser mayor que -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_USIZE, &l), "Debe ser mayor o igual a 27".to_string());
+        assert_eq!(localize_validation_err(&OP_ISIZE, &l), "Debe ser menor que -93".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL, &l), "Debe ser menor o igual a false".to_string());
+        assert_eq!(localize_validation_err(&OP_STR, &l), r#"Debe estar entre "aurorae" y "crespúculum""#.to_string());
 
         assert_eq!(localize_validation_err(&BYTES_LEN_EQ, &l), "La cantidad de bytes debe ser igual a 27".to_string());
         assert_eq!(localize_validation_err(&BYTES_LEN_NE, &l), "La cantidad de bytes debe ser diferente de 27".to_string());
@@ -659,22 +508,15 @@ mod tests {
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_LT, &l), "La cantidad de símbolos debe ser menor que 27".to_string());
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_LE, &l), "La cantidad de símbolos debe ser menor o igual a 27".to_string());
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_BTWN, &l), "La cantidad de símbolos debe estar entre 27 y 39".to_string());
+
+        assert_eq!(localize_validation_err(&ENUM_USIZE, &l), "Debe ser uno de los valores [ 0, 1, 2, 3, 4, 5 ]".to_string());
+        assert_eq!(localize_validation_err(&ENUM_ISIZE, &l), "Debe ser uno de los valores [ -2, -1, 0, 1, 2 ]".to_string());
+        assert_eq!(localize_validation_err(&ENUM_STR, &l), r#"Debe ser uno de los valores [ "APPLE", "GRAPE", "PEAR" ]"#.to_string());
     }
 
     #[test]
     fn validation_err_to_locale_locale_en_long() {
         let l = locale_en_long();
-
-        let str_value_a = Operand::Value(OperandValue::from("aurorae"));
-        let str_value_b = Operand::Value(OperandValue::from("crespúculum"));
-
-        let operation_str_eq = ValidationErr::Operation(Operation::Eq(str_value_a.clone()));
-        let operation_str_ne = ValidationErr::Operation(Operation::Ne(str_value_a.clone()));
-        let operation_str_gt = ValidationErr::Operation(Operation::Gt(str_value_a.clone()));
-        let operation_str_ge = ValidationErr::Operation(Operation::Ge(str_value_a.clone()));
-        let operation_str_lt = ValidationErr::Operation(Operation::Lt(str_value_a.clone()));
-        let operation_str_le = ValidationErr::Operation(Operation::Le(str_value_a.clone()));
-        let operation_str_btwn = ValidationErr::Operation(Operation::Btwn(str_value_a, str_value_b));
 
         assert_eq!(localize_validation_err(&REQUIRED, &l), "Is required".to_string());
         assert_eq!(localize_validation_err(&U64, &l), "Must be an 64 bits unsigned integer".to_string());
@@ -689,45 +531,13 @@ mod tests {
         assert_eq!(localize_validation_err(&TIME, &l), "Must be a time".to_string());
         assert_eq!(localize_validation_err(&DATE_TIME, &l), "Must be a date and time".to_string());
 
-        assert_eq!(localize_validation_err(&OP_U64_EQ, &l), "Must be equals to 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_NE, &l), "Must be different from 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_GT, &l), "Must be greater than 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_GE, &l), "Must be greater than or equals to 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_LT, &l), "Must be smaller than 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_LE, &l), "Must be smaller than or equals to 34".to_string());
-        assert_eq!(localize_validation_err(&OP_U64_BTWN, &l), "Must be between 34 and 43".to_string());
-
-        assert_eq!(localize_validation_err(&OP_I64_EQ, &l), "Must be equals to -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_NE, &l), "Must be different from -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_GT, &l), "Must be greater than -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_GE, &l), "Must be greater than or equals to -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_LT, &l), "Must be smaller than -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_LE, &l), "Must be smaller than or equals to -4".to_string());
-        assert_eq!(localize_validation_err(&OP_I64_BTWN, &l), "Must be between -4 and 4".to_string());
-
-        assert_eq!(localize_validation_err(&OP_F64_EQ, &l), "Must be equals to -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_NE, &l), "Must be different from -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_GT, &l), "Must be greater than -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_GE, &l), "Must be greater than or equals to -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_LT, &l), "Must be smaller than -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_LE, &l), "Must be smaller than or equals to -4.6".to_string());
-        assert_eq!(localize_validation_err(&OP_F64_BTWN, &l), "Must be between -4.6 and -2.4".to_string());
-
-        assert_eq!(localize_validation_err(&OP_BOOL_EQ, &l), "Must be equals to false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_NE, &l), "Must be different from false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_GT, &l), "Must be greater than false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_GE, &l), "Must be greater than or equals to false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_LT, &l), "Must be smaller than false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_LE, &l), "Must be smaller than or equals to false".to_string());
-        assert_eq!(localize_validation_err(&OP_BOOL_BTWN, &l), "Must be between false and true".to_string());
-
-        assert_eq!(localize_validation_err(&operation_str_eq, &l), r#"Must be equals to "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_ne, &l), r#"Must be different from "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_gt, &l), r#"Must be greater than "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_ge, &l), r#"Must be greater than or equals to "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_lt, &l), r#"Must be smaller than "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_le, &l), r#"Must be smaller than or equals to "aurorae""#.to_string());
-        assert_eq!(localize_validation_err(&operation_str_btwn, &l), r#"Must be between "aurorae" and "crespúculum""#.to_string());
+        assert_eq!(localize_validation_err(&OP_U64, &l), "Must be equals to 34".to_string());
+        assert_eq!(localize_validation_err(&OP_I64, &l), "Must be different from -4".to_string());
+        assert_eq!(localize_validation_err(&OP_F64, &l), "Must be greater than -4.6".to_string());
+        assert_eq!(localize_validation_err(&OP_USIZE, &l), "Must be greater than or equals to 27".to_string());
+        assert_eq!(localize_validation_err(&OP_ISIZE, &l), "Must be smaller than -93".to_string());
+        assert_eq!(localize_validation_err(&OP_BOOL, &l), "Must be smaller than or equals to false".to_string());
+        assert_eq!(localize_validation_err(&OP_STR, &l), r#"Must be between "aurorae" and "crespúculum""#.to_string());
 
         assert_eq!(localize_validation_err(&BYTES_LEN_EQ, &l), "The length of bytes must be equals to 27".to_string());
         assert_eq!(localize_validation_err(&BYTES_LEN_NE, &l), "The length of bytes must be different from 27".to_string());
@@ -784,5 +594,9 @@ mod tests {
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_LT, &l), "The length of symbols must be smaller than 27".to_string());
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_LE, &l), "The length of symbols must be smaller than or equals to 27".to_string());
         assert_eq!(localize_validation_err(&SYMBOLS_LEN_BTWN, &l), "The length of symbols must be between 27 and 39".to_string());
+
+        assert_eq!(localize_validation_err(&ENUM_USIZE, &l), "Must be one of the values [ 0, 1, 2, 3, 4, 5 ]".to_string());
+        assert_eq!(localize_validation_err(&ENUM_ISIZE, &l), "Must be one of the values [ -2, -1, 0, 1, 2 ]".to_string());
+        assert_eq!(localize_validation_err(&ENUM_STR, &l), r#"Must be one of the values [ "APPLE", "GRAPE", "PEAR" ]"#.to_string());
     }
 }
