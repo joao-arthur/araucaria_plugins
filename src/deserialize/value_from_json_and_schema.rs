@@ -361,6 +361,30 @@ mod tests {
     }
 
     #[test]
+    fn value_from_json_and_schema_obj_other_type() {
+        let validation = Validation::U64(U64Validation::default());
+        let value = Value::Obj(BTreeMap::from([
+            ("u64".into(), Value::U64(27)),
+            ("i64".into(), Value::I64(-28)),
+            ("f64".into(), Value::F64(-29.5)),
+            ("usize".into(), Value::U64(30)),
+            ("isize".into(), Value::I64(-31)),
+            ("bool".into(), Value::Bool(true)),
+            ("datetime".into(), Value::Str("2025-04-26T18:27Z".into())),
+        ]));
+        let mut json_map = serde_json::Map::new();
+        json_map.insert("u64".into(), serde_json::Value::Number(serde_json::Number::from_u128(27).unwrap()));
+        json_map.insert("i64".into(), serde_json::Value::Number(serde_json::Number::from_i128(-28).unwrap()));
+        json_map.insert("f64".into(), serde_json::Value::Number(serde_json::Number::from_f64(-29.5).unwrap()));
+        json_map.insert("usize".into(), serde_json::Value::Number(serde_json::Number::from_u128(30).unwrap()));
+        json_map.insert("isize".into(), serde_json::Value::Number(serde_json::Number::from_i128(-31).unwrap()));
+        json_map.insert("bool".into(), serde_json::Value::Bool(true));
+        json_map.insert("datetime".into(), serde_json::Value::String("2025-04-26T18:27Z".into()));
+        let json_value = serde_json::Value::Object(json_map);
+        assert_eq!(value_from_json_and_schema(&json_value, &validation), value);
+    }
+
+    #[test]
     fn value_from_json_and_schema_arr() {
         let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
             ("u64".into(), Validation::U64(U64Validation::default())),
