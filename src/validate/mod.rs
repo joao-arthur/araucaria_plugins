@@ -209,7 +209,7 @@ mod tests {
         assert_eq!(validate_enforce_required(&v, &value_nested_none), Err(err_nested_none.clone()));
         assert_eq!(validate_enforce_required(&v, &value_nested_other_type), Err(err_nested_other_type.clone()));
         assert_eq!(validate_enforce_required(&v, &value_nested_missing_field), Err(err.clone()));
-        //
+
         assert_eq!(validate_enforce_required(&v, &Value::None), Err(err.clone()));
         assert_eq!(validate_enforce_required(&v, &Value::None), Err(err.clone()));
         assert_eq!(validate_enforce_required(&v, &bool_stub()), Err(err.clone()));
@@ -234,7 +234,7 @@ mod tests {
         assert_eq!(validate_enforce_required(&v, &value_nested_none), Err(err_nested_none.clone()));
         assert_eq!(validate_enforce_required(&v, &value_nested_other_type), Err(err_nested_other_type.clone()));
         assert_eq!(validate_enforce_required(&v, &value_nested_missing_field), Err(err.clone()));
-        //
+
         assert_eq!(validate_enforce_required(&v, &Value::None), Ok(()));
         assert_eq!(validate_enforce_required(&v, &bool_stub()), Err(err.clone()));
     }
@@ -360,7 +360,7 @@ mod tests {
         assert_eq!(validate_enforce_optional(&v, &value_nested_none), Err(err_nested_none.clone()));
         assert_eq!(validate_enforce_optional(&v, &value_nested_other_type), Err(err_nested_other_type.clone()));
         assert_eq!(validate_enforce_optional(&v, &value_nested_missing_field), Err(err.clone()));
-        //
+
         assert_eq!(validate_enforce_optional(&v, &Value::None), Err(err.clone()));
         assert_eq!(validate_enforce_optional(&v, &bool_stub()), Err(err.clone()));
     }

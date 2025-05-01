@@ -95,4 +95,17 @@ mod tests {
         let json_value = serde_json::Value::Object(json_map);
         assert_eq!(value_from_json(&json_value), value);
     }
+
+    #[test]
+    fn value_from_json_and_schema_arr() {
+        let json_value = serde_json::Value::Array(vec![
+            serde_json::Value::Number(serde_json::Number::from_u128(27).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_i128(-28).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_f64(-29.5).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_u128(30).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_i128(-31).unwrap()),
+        ]);
+        let value = Value::Arr(vec![Value::U64(27), Value::I64(-28), Value::F64(-29.5), Value::U64(30), Value::I64(-31)]);
+        assert_eq!(value_from_json(&json_value), value);
+    }
 }

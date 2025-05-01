@@ -119,7 +119,7 @@ mod tests {
         assert_eq!(value_from_json_and_schema(&json_u64, &v), Value::U64(192));
         assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::U64(192));
 
-        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
         assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::I64(-192));
         assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
@@ -142,8 +142,8 @@ mod tests {
         assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::I64(192));
         assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::I64(-192));
 
-        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
-        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0)); // Not worth to fix
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
+        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
         assert_eq!(value_from_json_and_schema(&json_f64_neg_float, &v), Value::F64(-192.5));
     }
@@ -186,7 +186,7 @@ mod tests {
         assert_eq!(value_from_json_and_schema(&json_u64, &v), Value::USize(192));
         assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::USize(192));
 
-        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
         assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::I64(-192));
         assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
@@ -209,8 +209,8 @@ mod tests {
         assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::ISize(192));
         assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::ISize(-192));
 
-        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
-        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0)); // Not worth to fix
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
+        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
         assert_eq!(value_from_json_and_schema(&json_f64_neg_float, &v), Value::F64(-192.5));
     }
@@ -231,7 +231,7 @@ mod tests {
         assert_eq!(value_from_json_and_schema(&json_u64, &v), Value::USize(192));
         assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::USize(192));
 
-        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
         assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::I64(-192));
         assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
@@ -255,8 +255,8 @@ mod tests {
         assert_eq!(value_from_json_and_schema(&json_i64_pos, &v), Value::ISize(192));
         assert_eq!(value_from_json_and_schema(&json_i64_neg, &v), Value::ISize(-192));
 
-        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0)); // Not worth to fix
-        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0)); // Not worth to fix
+        assert_eq!(value_from_json_and_schema(&json_f64_pos, &v), Value::F64(192.0));
+        assert_eq!(value_from_json_and_schema(&json_f64_neg, &v), Value::F64(-192.0));
         assert_eq!(value_from_json_and_schema(&json_f64_pos_float, &v), Value::F64(192.5));
         assert_eq!(value_from_json_and_schema(&json_f64_neg_float, &v), Value::F64(-192.5));
     }
@@ -362,7 +362,21 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_arr() {
-        // TODO
+        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
+            ("u64".into(), Validation::U64(U64Validation::default())),
+            ("f64".into(), Validation::F64(F64Validation::default())),
+            ("usize".into(), Validation::USize(USizeValidation::default())),
+            ("isize".into(), Validation::ISize(ISizeValidation::default())),
+        ])));
+        let json_value = serde_json::Value::Array(vec![
+            serde_json::Value::Number(serde_json::Number::from_u128(27).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_i128(-28).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_f64(-29.5).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_u128(30).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_i128(-31).unwrap()),
+        ]);
+        let value = Value::Arr(vec![Value::U64(27), Value::I64(-28), Value::F64(-29.5), Value::U64(30), Value::I64(-31)]);
+        assert_eq!(value_from_json_and_schema(&json_value, &validation), value);
     }
 
     #[test]
