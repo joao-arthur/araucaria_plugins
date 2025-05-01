@@ -85,6 +85,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT, false), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, BOOL, op_err.clone()])));
         assert_eq!(validate_bool(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, BOOL, op_err.clone()])));
         assert_eq!(validate_bool(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([BOOL, op_err.clone()])));
     }
@@ -95,6 +96,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("bool_value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT, false), Ok(()));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, BOOL, op_err.clone()])));
         assert_eq!(validate_bool(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, BOOL, op_err.clone()])));
         assert_eq!(validate_bool(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([BOOL, op_err.clone()])));
     }

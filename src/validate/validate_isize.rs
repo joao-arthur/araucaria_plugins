@@ -85,6 +85,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::ISize(-42))));
         assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT, false), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(-418), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, ISIZE, op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, ISIZE, op_err.clone()])));
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT, false), Err(SchemaErr::arr([ISIZE, op_err.clone()])));
     }
@@ -95,6 +96,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("isize_value".into())));
         assert_eq!(validate_isize(&v, &Value::ISize(418), &ROOT, false), Ok(()));
         assert_eq!(validate_isize(&v, &Value::ISize(42), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, ISIZE, op_err.clone()])));
         assert_eq!(validate_isize(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, ISIZE, op_err.clone()])));
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT, false), Err(SchemaErr::arr([ISIZE, op_err.clone()])));
     }

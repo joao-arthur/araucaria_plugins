@@ -91,6 +91,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("2026-10-28"))));
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT, false), Ok(()));
         assert_eq!(validate_date(&v, &Value::from("2025-04-18"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, DATE, op_err.clone()])));
         assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE, op_err.clone()])));
         assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE, op_err.clone()])));
     }
@@ -101,6 +102,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("date_value".into())));
         assert_eq!(validate_date(&v, &Value::from("2028-11-19"), &ROOT, false), Ok(()));
         assert_eq!(validate_date(&v, &Value::from("2026-10-28"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_date(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, DATE, op_err.clone()])));
         assert_eq!(validate_date(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, DATE, op_err.clone()])));
         assert_eq!(validate_date(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([DATE, op_err.clone()])));
     }

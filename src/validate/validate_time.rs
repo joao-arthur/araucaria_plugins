@@ -93,6 +93,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::from("11:27"))));
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT, false), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("23:18"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, TIME, op_err.clone()])));
         assert_eq!(validate_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, TIME, op_err.clone()])));
         assert_eq!(validate_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([TIME, op_err.clone()])));
     }
@@ -103,6 +104,7 @@ mod tests {
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("time_value".into())));
         assert_eq!(validate_time(&v, &Value::from("02:18"), &ROOT, false), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT, false), Err(SchemaErr::arr([op_err.clone()])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT, true), Err(SchemaErr::arr([REQUIRED, TIME, op_err.clone()])));
         assert_eq!(validate_time(&v, &Value::None, &ROOT, false), Err(SchemaErr::arr([REQUIRED, TIME, op_err.clone()])));
         assert_eq!(validate_time(&v, &u64_stub(), &ROOT, false), Err(SchemaErr::arr([TIME, op_err.clone()])));
     }

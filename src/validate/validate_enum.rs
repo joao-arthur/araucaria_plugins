@@ -92,8 +92,6 @@ pub fn validate_enum(validation: &EnumValidation, value: &Value, enforce_optiona
 
 #[cfg(test)]
 mod tests {
-    use std::sync::LazyLock;
-
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         validation::{EnumValidation, EnumValues},
