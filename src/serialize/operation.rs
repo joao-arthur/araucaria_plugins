@@ -57,20 +57,20 @@ pub enum Operation {
     Btwn(Operand, Operand),
 }
 
-pub fn to_operand_value(value: araucaria::operation::OperandValue) -> OperandValue {
-    match value {
-        araucaria::operation::OperandValue::U64(value) => OperandValue::U64(value),
-        araucaria::operation::OperandValue::I64(value) => OperandValue::I64(value),
-        araucaria::operation::OperandValue::F64(value) => OperandValue::F64(value),
-        araucaria::operation::OperandValue::Bool(value) => OperandValue::Bool(value),
-        araucaria::operation::OperandValue::USize(value) => OperandValue::USize(value),
-        araucaria::operation::OperandValue::ISize(value) => OperandValue::ISize(value),
-        araucaria::operation::OperandValue::Str(value) => OperandValue::Str(value),
+pub fn to_operand_value(operand_value: araucaria::operation::OperandValue) -> OperandValue {
+    match operand_value {
+        araucaria::operation::OperandValue::U64(operand_value) => OperandValue::U64(operand_value),
+        araucaria::operation::OperandValue::I64(operand_value) => OperandValue::I64(operand_value),
+        araucaria::operation::OperandValue::F64(operand_value) => OperandValue::F64(operand_value),
+        araucaria::operation::OperandValue::Bool(operand_value) => OperandValue::Bool(operand_value),
+        araucaria::operation::OperandValue::USize(operand_value) => OperandValue::USize(operand_value),
+        araucaria::operation::OperandValue::ISize(operand_value) => OperandValue::ISize(operand_value),
+        araucaria::operation::OperandValue::Str(operand_value) => OperandValue::Str(operand_value),
     }
 }
 
-pub fn to_operand(operation: araucaria::operation::Operand) -> Operand {
-    match operation {
+pub fn to_operand(operand: araucaria::operation::Operand) -> Operand {
+    match operand {
         araucaria::operation::Operand::Value(operand_value) => Operand::Value(to_operand_value(operand_value)),
         araucaria::operation::Operand::FieldPath(path) => Operand::FieldPath(path.clone()),
     }

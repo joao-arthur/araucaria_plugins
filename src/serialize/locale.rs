@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use serde::{Serialize, Serializer};
+use std::collections::BTreeMap;
 
 pub struct Locale {
     required: String,
@@ -101,7 +101,7 @@ impl Serialize for SchemaLocalizedErr {
 mod tests {
     use std::collections::BTreeMap;
 
-    use super::{SchemaLocalizedErr, Locale};
+    use super::{Locale, SchemaLocalizedErr};
 
     #[test]
     fn serialize_schema_localized_err_obj() {
@@ -126,4 +126,3 @@ mod tests {
         );
     }
 }
-
