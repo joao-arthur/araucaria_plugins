@@ -286,8 +286,7 @@ mod tests {
     const OP_USIZE: ValidationErr = ValidationErr::Operation(Operation::Ge(USIZE_VALUE_A));
     const OP_ISIZE: ValidationErr = ValidationErr::Operation(Operation::Lt(ISIZE_VALUE_A));
     const OP_BOOL: ValidationErr = ValidationErr::Operation(Operation::Le(BOOL_VALUE));
-    static OP_STR: LazyLock<ValidationErr> =
-        LazyLock::new(|| ValidationErr::Operation(Operation::Btwn(STR_VALUE_A.clone(), STR_VALUE_B.clone())));
+    static OP_STR: LazyLock<ValidationErr> = LazyLock::new(|| ValidationErr::Operation(Operation::Btwn(STR_VALUE_A.clone(), STR_VALUE_B.clone())));
     const BYTES_LEN_EQ: ValidationErr = ValidationErr::BytesLen(Operation::Eq(USIZE_VALUE_A));
     const BYTES_LEN_NE: ValidationErr = ValidationErr::BytesLen(Operation::Ne(USIZE_VALUE_A));
     const BYTES_LEN_GT: ValidationErr = ValidationErr::BytesLen(Operation::Gt(USIZE_VALUE_A));
