@@ -121,10 +121,9 @@ mod tests {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         validation::{
-            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, EnumValidation, F64Validation, I64Validation, ISizeValidation,
-            ObjValidation, StrValidation, TimeValidation, U64Validation, USizeValidation, Validation,
+            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, EnumValidation, EnumValues, F64Validation, I64Validation, ISizeValidation, ObjValidation, StrValidation, TimeValidation, U64Validation, USizeValidation, Validation
         },
-        value::{Value, stub::bool_stub},
+        value::{stub::bool_stub, Value},
     };
 
     use super::{validate_enforce_optional, validate_enforce_required};
@@ -313,7 +312,7 @@ mod tests {
         assert_eq!(validate_enforce_optional(&v_date, &Value::None), Err(SchemaErr::arr([ValidationErr::Date])));
         assert_eq!(validate_enforce_optional(&v_time, &Value::None), Err(SchemaErr::arr([ValidationErr::Time])));
         assert_eq!(validate_enforce_optional(&v_date_time, &Value::None), Err(SchemaErr::arr([ValidationErr::DateTime])));
-        assert_eq!(validate_enforce_optional(&v_enum, &Value::None), Err(SchemaErr::arr([ValidationErr::StrEnum(str_values.clone())])));
+        assert_eq!(validate_enforce_optional(&v_enum, &Value::None), Err(SchemaErr::arr([ValidationErr::Enumerated(EnumValues::from(str_values.clone()))])));
     }
 
     #[test]
@@ -333,7 +332,7 @@ mod tests {
         assert_eq!(validate_enforce_optional(&v, &value_nested_none), Err(err_nested_none.clone()));
         assert_eq!(validate_enforce_optional(&v, &value_nested_other_type), Err(err_nested_other_type.clone()));
         assert_eq!(validate_enforce_optional(&v, &value_nested_missing_field), Err(err.clone()));
-        //
+
         assert_eq!(validate_enforce_optional(&v, &Value::None), Err(err.clone()));
         assert_eq!(validate_enforce_optional(&v, &bool_stub()), Err(err.clone()));
     }

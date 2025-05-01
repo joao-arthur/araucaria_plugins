@@ -11,7 +11,7 @@ pub fn validate_enum(validation: &EnumValidation, value: &Value, enforce_optiona
             match value {
                 Value::USize(usize_value) => {
                     if !usize_enum.contains(usize_value) {
-                        base.push(ValidationErr::USizeEnum(usize_enum.clone()));
+                        base.push(ValidationErr::Enumerated(validation.values.clone()));
                     }
                 }
                 Value::None => {
@@ -19,16 +19,16 @@ pub fn validate_enum(validation: &EnumValidation, value: &Value, enforce_optiona
                         if validation.required {
                             base.push(ValidationErr::Required);
                         }
-                        base.push(ValidationErr::USizeEnum(usize_enum.clone()));
+                        base.push(ValidationErr::Enumerated(validation.values.clone()));
                     } else {
                         if validation.required {
                             base.push(ValidationErr::Required);
-                            base.push(ValidationErr::USizeEnum(usize_enum.clone()));
+                            base.push(ValidationErr::Enumerated(validation.values.clone()));
                         }
                     }
                 }
                 _ => {
-                    base.push(ValidationErr::USizeEnum(usize_enum.clone()));
+                    base.push(ValidationErr::Enumerated(validation.values.clone()));
                 }
             }
             if !base.is_empty() { Err(SchemaErr::Arr(base)) } else { Ok(()) }
@@ -38,7 +38,7 @@ pub fn validate_enum(validation: &EnumValidation, value: &Value, enforce_optiona
             match value {
                 Value::ISize(isize_value) => {
                     if !isize_enum.contains(isize_value) {
-                        base.push(ValidationErr::ISizeEnum(isize_enum.clone()));
+                        base.push(ValidationErr::Enumerated(validation.values.clone()));
                     }
                 }
                 Value::None => {
@@ -46,16 +46,16 @@ pub fn validate_enum(validation: &EnumValidation, value: &Value, enforce_optiona
                         if validation.required {
                             base.push(ValidationErr::Required);
                         }
-                        base.push(ValidationErr::ISizeEnum(isize_enum.clone()));
+                        base.push(ValidationErr::Enumerated(validation.values.clone()));
                     } else {
                         if validation.required {
                             base.push(ValidationErr::Required);
-                            base.push(ValidationErr::ISizeEnum(isize_enum.clone()));
+                            base.push(ValidationErr::Enumerated(validation.values.clone()));
                         }
                     }
                 }
                 _ => {
-                    base.push(ValidationErr::ISizeEnum(isize_enum.clone()));
+                    base.push(ValidationErr::Enumerated(validation.values.clone()));
                 }
             }
             if !base.is_empty() { Err(SchemaErr::Arr(base)) } else { Ok(()) }
@@ -65,7 +65,7 @@ pub fn validate_enum(validation: &EnumValidation, value: &Value, enforce_optiona
             match value {
                 Value::Str(str_value) => {
                     if !str_enum.contains(str_value) {
-                        base.push(ValidationErr::StrEnum(str_enum.clone()));
+                        base.push(ValidationErr::Enumerated(validation.values.clone()));
                     }
                 }
                 Value::None => {
@@ -73,16 +73,16 @@ pub fn validate_enum(validation: &EnumValidation, value: &Value, enforce_optiona
                         if validation.required {
                             base.push(ValidationErr::Required);
                         }
-                        base.push(ValidationErr::StrEnum(str_enum.clone()));
+                        base.push(ValidationErr::Enumerated(validation.values.clone()));
                     } else {
                         if validation.required {
                             base.push(ValidationErr::Required);
-                            base.push(ValidationErr::StrEnum(str_enum.clone()));
+                            base.push(ValidationErr::Enumerated(validation.values.clone()));
                         }
                     }
                 }
                 _ => {
-                    base.push(ValidationErr::StrEnum(str_enum.clone()));
+                    base.push(ValidationErr::Enumerated(validation.values.clone()));
                 }
             }
             if !base.is_empty() { Err(SchemaErr::Arr(base)) } else { Ok(()) }
@@ -96,22 +96,22 @@ mod tests {
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
-        validation::EnumValidation,
+        validation::{EnumValidation, EnumValues},
         value::{Value, stub::bool_stub},
     };
 
     use super::validate_enum;
 
-    static USIZE_VALUES: LazyLock<Vec<usize>> = LazyLock::new(|| vec![10, 20, 30, 40, 50]);
-    static ISIZE_VALUES: LazyLock<Vec<isize>> = LazyLock::new(|| vec![0, -1, -2, -3, -4, -5]);
-    static STR_VALUES: LazyLock<Vec<String>> =
-        LazyLock::new(|| vec!["APPLE".into(), "BANANA".into(), "GRAPE".into(), "ORANGE".into(), "PEACH".into()]);
     const REQUIRED: ValidationErr = ValidationErr::Required;
+
+    const USIZE_VALUES: [usize; 5] = [10, 20, 30, 40, 50];
+    const ISIZE_VALUES: [isize; 6] = [0, -1, -2, -3, -4, -5];
+    const STR_VALUES: [&str; 5] = ["APPLE", "BANANA", "GRAPE", "ORANGE", "PEACH"];
 
     #[test]
     fn validate_enum_usize_default() {
-        let v = EnumValidation::from(USIZE_VALUES.clone());
-        let enum_err = ValidationErr::USizeEnum(USIZE_VALUES.clone());
+        let v = EnumValidation::from(USIZE_VALUES);
+        let enum_err = ValidationErr::Enumerated(EnumValues::from(USIZE_VALUES));
         assert_eq!(validate_enum(&v, &Value::USize(10), false), Ok(()));
         assert_eq!(validate_enum(&v, &Value::USize(3), false), Err(SchemaErr::arr([enum_err.clone()])));
         assert_eq!(validate_enum(&v, &Value::None, true), Err(SchemaErr::arr([REQUIRED, enum_err.clone()])));
@@ -121,8 +121,8 @@ mod tests {
 
     #[test]
     fn validate_enum_usize_optional() {
-        let v = EnumValidation::from(USIZE_VALUES.clone()).optional();
-        let enum_err = ValidationErr::USizeEnum(USIZE_VALUES.clone());
+        let v = EnumValidation::from(USIZE_VALUES).optional();
+        let enum_err = ValidationErr::Enumerated(EnumValues::from(USIZE_VALUES));
         assert_eq!(validate_enum(&v, &Value::USize(10), false), Ok(()));
         assert_eq!(validate_enum(&v, &Value::USize(3), false), Err(SchemaErr::arr([enum_err.clone()])));
         assert_eq!(validate_enum(&v, &Value::None, true), Err(SchemaErr::arr([enum_err.clone()])));
@@ -133,7 +133,7 @@ mod tests {
     #[test]
     fn validate_enum_isize_default() {
         let v = EnumValidation::from(ISIZE_VALUES.clone());
-        let enum_err = ValidationErr::ISizeEnum(ISIZE_VALUES.clone());
+        let enum_err = ValidationErr::Enumerated(EnumValues::from(ISIZE_VALUES));
         assert_eq!(validate_enum(&v, &Value::ISize(-3), false), Ok(()));
         assert_eq!(validate_enum(&v, &Value::ISize(1), false), Err(SchemaErr::arr([enum_err.clone()])));
         assert_eq!(validate_enum(&v, &Value::None, true), Err(SchemaErr::arr([REQUIRED, enum_err.clone()])));
@@ -144,7 +144,7 @@ mod tests {
     #[test]
     fn validate_enum_isize_optional() {
         let v = EnumValidation::from(ISIZE_VALUES.clone()).optional();
-        let enum_err = ValidationErr::ISizeEnum(ISIZE_VALUES.clone());
+        let enum_err = ValidationErr::Enumerated(EnumValues::from(ISIZE_VALUES));
         assert_eq!(validate_enum(&v, &Value::ISize(-3), false), Ok(()));
         assert_eq!(validate_enum(&v, &Value::ISize(1), false), Err(SchemaErr::arr([enum_err.clone()])));
         assert_eq!(validate_enum(&v, &Value::None, true), Err(SchemaErr::arr([enum_err.clone()])));
@@ -155,7 +155,7 @@ mod tests {
     #[test]
     fn validate_enum_str_default() {
         let v = EnumValidation::from(STR_VALUES.clone());
-        let enum_err = ValidationErr::StrEnum(STR_VALUES.clone());
+        let enum_err = ValidationErr::Enumerated(EnumValues::from(STR_VALUES));
         assert_eq!(validate_enum(&v, &Value::from("GRAPE"), false), Ok(()));
         assert_eq!(validate_enum(&v, &Value::from("TOMATO"), false), Err(SchemaErr::arr([enum_err.clone()])));
         assert_eq!(validate_enum(&v, &Value::None, true), Err(SchemaErr::arr([REQUIRED, enum_err.clone()])));
@@ -166,7 +166,7 @@ mod tests {
     #[test]
     fn validate_enum_str_optional() {
         let v = EnumValidation::from(STR_VALUES.clone()).optional();
-        let enum_err = ValidationErr::StrEnum(STR_VALUES.clone());
+        let enum_err = ValidationErr::Enumerated(EnumValues::from(STR_VALUES));
         assert_eq!(validate_enum(&v, &Value::from("GRAPE"), false), Ok(()));
         assert_eq!(validate_enum(&v, &Value::from("TOMATO"), false), Err(SchemaErr::arr([enum_err.clone()])));
         assert_eq!(validate_enum(&v, &Value::None, true), Err(SchemaErr::arr([enum_err.clone()])));
