@@ -1,84 +1,6 @@
 use serde::{Serialize, Serializer};
 use std::collections::BTreeMap;
 
-pub struct Locale {
-    required: String,
-    u64: String,
-    i64: String,
-    f64: String,
-    usize: String,
-    isize: String,
-    bool: String,
-    str: String,
-    email: String,
-    date: String,
-    time: String,
-    date_time: String,
-    eq: String,
-    ne: String,
-    gt: String,
-    lt: String,
-    ge: String,
-    le: String,
-    btwn: String,
-    eq_field: String,
-    ne_field: String,
-    gt_field: String,
-    lt_field: String,
-    ge_field: String,
-    le_field: String,
-    bytes_len_eq: String,
-    bytes_len_ne: String,
-    bytes_len_gt: String,
-    bytes_len_ge: String,
-    bytes_len_lt: String,
-    bytes_len_le: String,
-    bytes_len_btwn: String,
-    chars_len_eq: String,
-    chars_len_ne: String,
-    chars_len_gt: String,
-    chars_len_ge: String,
-    chars_len_lt: String,
-    chars_len_le: String,
-    chars_len_btwn: String,
-    graphemes_len_eq: String,
-    graphemes_len_ne: String,
-    graphemes_len_gt: String,
-    graphemes_len_ge: String,
-    graphemes_len_lt: String,
-    graphemes_len_le: String,
-    graphemes_len_btwn: String,
-    lowercase_len_eq: String,
-    lowercase_len_ne: String,
-    lowercase_len_gt: String,
-    lowercase_len_ge: String,
-    lowercase_len_lt: String,
-    lowercase_len_le: String,
-    lowercase_len_btwn: String,
-    uppercase_len_eq: String,
-    uppercase_len_ne: String,
-    uppercase_len_gt: String,
-    uppercase_len_ge: String,
-    uppercase_len_lt: String,
-    uppercase_len_le: String,
-    uppercase_len_btwn: String,
-    number_len_eq: String,
-    number_len_ne: String,
-    number_len_gt: String,
-    number_len_ge: String,
-    number_len_lt: String,
-    number_len_le: String,
-    number_len_btwn: String,
-    symbols_eq: String,
-    symbols_ne: String,
-    symbols_gt: String,
-    symbols_ge: String,
-    symbols_lt: String,
-    symbols_le: String,
-    symbols_btwn: String,
-    enumerated: String,
-}
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum SchemaLocalizedErr {
     Arr(Vec<String>),
@@ -97,32 +19,82 @@ impl Serialize for SchemaLocalizedErr {
     }
 }
 
+pub fn to_schema_localized_err(value: araucaria::locale::SchemaLocalizedErr) -> SchemaLocalizedErr {
+    match value {
+        araucaria::locale::SchemaLocalizedErr::Arr(value) => SchemaLocalizedErr::Arr(value.into_iter().collect()),
+        araucaria::locale::SchemaLocalizedErr::Obj(value) => {
+            SchemaLocalizedErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), to_schema_localized_err(v))).collect())
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::BTreeMap;
 
-    use super::{Locale, SchemaLocalizedErr};
+    use super::{SchemaLocalizedErr, to_schema_localized_err};
+
+    #[test]
+    fn araucaria_schema_localized_arr_to_schema_localized_err() {
+        let araucaria_err = araucaria::locale::SchemaLocalizedErr::Obj(BTreeMap::from([
+            ("name".into(), araucaria::locale::SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+            ("birthdate".into(), araucaria::locale::SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+            ("bands".into(), araucaria::locale::SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+        ]));
+        let err = SchemaLocalizedErr::Obj(BTreeMap::from([
+            ("name".into(), SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+            ("birthdate".into(), SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+            ("bands".into(), SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+        ]));
+        assert_eq!(to_schema_localized_err(araucaria_err), err);
+    }
 
     #[test]
     fn serialize_schema_localized_err_obj() {
+        let err_name = SchemaLocalizedErr::Obj(BTreeMap::from([(
+            "name".into(),
+            SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()]),
+        )]));
+        let err_birthdate = SchemaLocalizedErr::Obj(BTreeMap::from([(
+            "birthdate".into(),
+            SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()]),
+        )]));
+        let err_alive = SchemaLocalizedErr::Obj(BTreeMap::from([(
+            "alive".into(),
+            SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()]),
+        )]));
+        let err_bands = SchemaLocalizedErr::Obj(BTreeMap::from([(
+            "bands".into(),
+            SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
+        )]));
+        assert_eq!(
+            serde_json::to_string(&err_name).unwrap(),
+            r#"{"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""]}"#.to_string()
+        );
+        assert_eq!(
+            serde_json::to_string(&err_birthdate).unwrap(),
+            r#"{"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""]}"#.to_string()
+        );
+        assert_eq!(
+            serde_json::to_string(&err_alive).unwrap(),
+            r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"]}"#.to_string()
+        );
+        assert_eq!(
+            serde_json::to_string(&err_bands).unwrap(),
+            r#"{"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""]}"#.to_string()
+        );
+    }
+
+    #[test]
+    fn serialize_schema_localized_err_obj_order() {
         let err = SchemaLocalizedErr::Obj(BTreeMap::from([
-            (
-                "name".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()]),
-            ),
-            (
-                "birthdate".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()]),
-            ),
-            ("alive".into(), SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()])),
-            (
-                "bands".into(),
-                SchemaLocalizedErr::Arr(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
-            ),
+            ("name".into(), SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+            ("birthdate".into(), SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
+            ("bands".into(), SchemaLocalizedErr::Arr(vec!["Deve ser uma string".into()])),
         ]));
         assert_eq!(
             serde_json::to_string(&err).unwrap(),
-            r#"{"alive":["É obrigatório","Deve ser um booleano","Deve ser igual a true"],"bands":["É obrigatório","Deve ser uma string","Deve ser igual a \"The Beatles\""],"birthdate":["É obrigatório","Deve ser uma string","Deve ser igual a \"1942-06-18\""],"name":["É obrigatório","Deve ser uma string","Deve ser igual a \"Paul McCartney\""]}"#.to_string()
+            r#"{"bands":["Deve ser uma string"],"birthdate":["Deve ser uma string"],"name":["Deve ser uma string"]}"#.to_string()
         );
     }
 }
