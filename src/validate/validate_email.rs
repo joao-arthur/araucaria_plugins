@@ -31,7 +31,7 @@ pub fn validate_email(validation: &EmailValidation, value: &Value, enforce_optio
             base.push(ValidationErr::Email);
         }
     }
-    if !base.is_empty() { Err(SchemaErr::Arr(base)) } else { Ok(()) }
+    if !base.is_empty() { Err(SchemaErr::Validation(base)) } else { Ok(()) }
 }
 
 #[cfg(test)]
@@ -50,17 +50,17 @@ mod tests {
     #[test]
     fn validate_email_default() {
         let v = EmailValidation::default();
-        assert_eq!(validate_email(&v, &Value::None, true), Err(SchemaErr::arr([REQUIRED, EMAIL])));
-        assert_eq!(validate_email(&v, &Value::None, false), Err(SchemaErr::arr([REQUIRED, EMAIL])));
-        assert_eq!(validate_email(&v, &u64_stub(), false), Err(SchemaErr::arr([EMAIL])));
+        assert_eq!(validate_email(&v, &Value::None, true), Err(SchemaErr::validation([REQUIRED, EMAIL])));
+        assert_eq!(validate_email(&v, &Value::None, false), Err(SchemaErr::validation([REQUIRED, EMAIL])));
+        assert_eq!(validate_email(&v, &u64_stub(), false), Err(SchemaErr::validation([EMAIL])));
     }
 
     #[test]
     fn validate_email_optional() {
         let v = EmailValidation::default().optional();
-        assert_eq!(validate_email(&v, &Value::None, true), Err(SchemaErr::arr([EMAIL])));
+        assert_eq!(validate_email(&v, &Value::None, true), Err(SchemaErr::validation([EMAIL])));
         assert_eq!(validate_email(&v, &Value::None, false), Ok(()));
-        assert_eq!(validate_email(&v, &u64_stub(), false), Err(SchemaErr::arr([EMAIL])));
+        assert_eq!(validate_email(&v, &u64_stub(), false), Err(SchemaErr::validation([EMAIL])));
     }
 
     #[test]
@@ -72,6 +72,6 @@ mod tests {
     #[test]
     fn validate_email_invalid() {
         let v = EmailValidation::default();
-        assert_eq!(validate_email(&v, &Value::from("paullivecom"), false), Err(SchemaErr::arr([EMAIL])));
+        assert_eq!(validate_email(&v, &Value::from("paullivecom"), false), Err(SchemaErr::validation([EMAIL])));
     }
 }

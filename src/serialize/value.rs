@@ -79,7 +79,7 @@ mod tests {
                 ]),
             ),
             ("start_year".into(), Value::U64(1960)),
-            ("end_year".into(), Value::U64(1960)),
+            ("end_year".into(), Value::U64(1969)),
             ("number_of_albums".into(), Value::U64(13)),
             ("greatest_band".into(), Value::Bool(true)),
         ]));
