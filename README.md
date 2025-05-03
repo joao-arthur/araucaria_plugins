@@ -6,6 +6,6 @@ A set of optional plugins to make [Araucaria](https://github.com/joao-arthur/ara
 
 ```toml
 araucaria = { git = "https://github.com/joao-arthur/araucaria", rev = "16c95329da335cc09c037e4d73ee477aa1bb6f7c" }
-araucaria_plugins = { git = "https://github.com/joao-arthur/araucaria_plugins", rev = "e35f6093467489d18f6da551f8c271adeaefcf42" }
+araucaria_plugins = { git = "https://github.com/joao-arthur/araucaria_plugins", rev = "4f06fd55c8ab5d0f09602e567f6b509b821e7a37" }
 ```
 
