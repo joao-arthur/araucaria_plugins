@@ -24,9 +24,7 @@ impl Serialize for SchemaLocalizedErr {
 pub fn to_schema_localized_err(value: araucaria::locale::SchemaLocalizedErr) -> SchemaLocalizedErr {
     match value {
         araucaria::locale::SchemaLocalizedErr::Validation(value) => SchemaLocalizedErr::Validation(value.into_iter().collect()),
-        araucaria::locale::SchemaLocalizedErr::Arr(value) => {
-            SchemaLocalizedErr::Arr(value.into_iter().map(to_schema_localized_err).collect())
-        },
+        araucaria::locale::SchemaLocalizedErr::Arr(value) => SchemaLocalizedErr::Arr(value.into_iter().map(to_schema_localized_err).collect()),
         araucaria::locale::SchemaLocalizedErr::Obj(value) => {
             SchemaLocalizedErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), to_schema_localized_err(v))).collect())
         }
