@@ -34,6 +34,7 @@ pub enum ValidationErr {
 #[derive(Debug, PartialEq, Clone)]
 pub enum SchemaErr {
     Validation(Vec<ValidationErr>),
+    Arr(Vec<SchemaErr>),
     Obj(BTreeMap<String, SchemaErr>),
 }
 
@@ -44,6 +45,7 @@ impl Serialize for SchemaErr {
     {
         match self {
             SchemaErr::Validation(vec) => vec.serialize(serializer),
+            SchemaErr::Arr(vec) => vec.serialize(serializer),
             SchemaErr::Obj(map) => map.serialize(serializer),
         }
     }
@@ -77,8 +79,9 @@ pub fn to_validation_err(validation_err: araucaria::error::ValidationErr) -> Val
 
 pub fn to_schema_err(schema_err: araucaria::error::SchemaErr) -> SchemaErr {
     match schema_err {
-        araucaria::error::SchemaErr::Validation(value) => SchemaErr::Validation(value.into_iter().map(to_validation_err).collect()),
-        araucaria::error::SchemaErr::Obj(value) => SchemaErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), to_schema_err(v))).collect()),
+        araucaria::error::SchemaErr::Validation(v) => SchemaErr::Validation(v.into_iter().map(to_validation_err).collect()),
+        araucaria::error::SchemaErr::Arr(arr) => SchemaErr::Arr(arr.into_iter().map(to_schema_err).collect()),
+        araucaria::error::SchemaErr::Obj(obj) => SchemaErr::Obj(obj.into_iter().map(|(k, v)| (k.clone(), to_schema_err(v))).collect()),
     }
 }
 
