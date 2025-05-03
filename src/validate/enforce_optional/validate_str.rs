@@ -61,34 +61,34 @@ pub fn validate_str(validation: &StrValidation, value: &Value, root: &Value) -> 
             }
         }
         Value::None => {
-                if validation.required {
-                    base.push(ValidationErr::Required);
-                }
-                base.push(ValidationErr::Str);
-                if let Some(operation) = &validation.operation {
-                    base.push(ValidationErr::Operation(operation.clone()));
-                }
-                if let Some(bytes_len_operation) = &validation.bytes_len {
-                    base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
-                }
-                if let Some(chars_len_operation) = &validation.chars_len {
-                    base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
-                }
-                if let Some(graphemes_len_operation) = &validation.graphemes_len {
-                    base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
-                }
-                if let Some(lowercase_len_operation) = &validation.lowercase_len {
-                    base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
-                }
-                if let Some(uppercase_len_operation) = &validation.uppercase_len {
-                    base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
-                }
-                if let Some(numbers_len_operation) = &validation.numbers_len {
-                    base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
-                }
-                if let Some(symbols_len_operation) = &validation.symbols_len {
-                    base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
-                }
+            if validation.required {
+                base.push(ValidationErr::Required);
+            }
+            base.push(ValidationErr::Str);
+            if let Some(operation) = &validation.operation {
+                base.push(ValidationErr::Operation(operation.clone()));
+            }
+            if let Some(bytes_len_operation) = &validation.bytes_len {
+                base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
+            }
+            if let Some(chars_len_operation) = &validation.chars_len {
+                base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
+            }
+            if let Some(graphemes_len_operation) = &validation.graphemes_len {
+                base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
+            }
+            if let Some(lowercase_len_operation) = &validation.lowercase_len {
+                base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
+            }
+            if let Some(uppercase_len_operation) = &validation.uppercase_len {
+                base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
+            }
+            if let Some(numbers_len_operation) = &validation.numbers_len {
+                base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
+            }
+            if let Some(symbols_len_operation) = &validation.symbols_len {
+                base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
+            }
         }
         _ => {
             base.push(ValidationErr::Str);
