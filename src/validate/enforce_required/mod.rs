@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use araucaria::{
-    error::{SchemaErr, ValidationErr, schema_err_has_required},
+    error::{SchemaErr, ValidationErr},
     validation::Validation,
     value::Value,
 };
@@ -57,22 +57,22 @@ fn internal_validate(validation: &Validation, value: &Value, root: &Value) -> Re
                 if result.is_empty() { Ok(()) } else { Err(SchemaErr::Obj(result)) }
             }
             Value::None => {
-                let result: BTreeMap<String, SchemaErr> = v
-                    .validation
-                    .clone()
-                    .into_iter()
-                    .map(|(k, v)| (k.clone(), internal_validate(&v, &Value::None, root)))
-                    .filter(|(_k, v)| v.is_err())
-                    .map(|(k, v)| (k, v.unwrap_err()))
-                    .collect();
-                if result.is_empty() {
-                    return Ok(());
-                } else {
-                    if v.required {
-                        return Err(SchemaErr::arr([SchemaErr::validation([ValidationErr::Required]), SchemaErr::Obj(result)]));
+                if v.required {
+                    let result: BTreeMap<String, SchemaErr> = v
+                        .validation
+                        .clone()
+                        .into_iter()
+                        .map(|(k, v)| (k.clone(), internal_validate(&v, &Value::None, root)))
+                        .filter(|(_k, v)| v.is_err())
+                        .map(|(k, v)| (k, v.unwrap_err()))
+                        .collect();
+                    if result.is_empty() {
+                        return Ok(());
                     } else {
                         return Err(SchemaErr::Obj(result));
                     }
+                } else {
+                    return Ok(());
                 }
             }
             _ => {
@@ -90,16 +90,7 @@ fn internal_validate(validation: &Validation, value: &Value, root: &Value) -> Re
         Validation::Enum(v) => validate_enum(v, value),
     };
 
-    match result {
-        Ok(()) => Ok(()),
-        Err(err) => {
-            if schema_err_has_required(err.clone()) {
-                Err(err)
-            } else {
-                Ok(())
-            }
-        }
-    }
+    result
 }
 
 pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
@@ -137,7 +128,7 @@ mod tests {
 
     #[test]
     fn validate_default() {
-        let str_values = vec!["UNIX".to_string(), "LINUX".to_string(), "FREEBSD".to_string()];
+        let enum_str = vec!["UNIX", "LINUX", "FREEBSD"];
         let v_u64 = Validation::U64(U64Validation::default());
         let v_i64 = Validation::I64(I64Validation::default());
         let v_f64 = Validation::F64(F64Validation::default());
@@ -149,7 +140,7 @@ mod tests {
         let v_date = Validation::Date(DateValidation::default());
         let v_time = Validation::Time(TimeValidation::default());
         let v_date_time = Validation::DateTime(DateTimeValidation::default());
-        let v_enum = Validation::Enum(EnumValidation::from(str_values.clone()));
+        let v_enum = Validation::Enum(EnumValidation::from(enum_str.clone()));
 
         assert_eq!(validate(&v_u64, &Value::U64(1917)), Ok(()));
         assert_eq!(validate(&v_i64, &Value::I64(-800)), Ok(()));
@@ -164,7 +155,7 @@ mod tests {
         assert_eq!(validate(&v_date_time, &Value::from("2015-12-28T20:38Z")), Ok(()));
         assert_eq!(validate(&v_enum, &Value::from("LINUX")), Ok(()));
 
-        assert_eq!(validate(&v_u64, &Value::None), Err(SchemaErr::validation([REQUIRED, U64,])));
+        assert_eq!(validate(&v_u64, &Value::None), Err(SchemaErr::validation([REQUIRED, U64])));
         assert_eq!(validate(&v_i64, &Value::None), Err(SchemaErr::validation([REQUIRED, I64])));
         assert_eq!(validate(&v_f64, &Value::None), Err(SchemaErr::validation([REQUIRED, F64])));
         assert_eq!(validate(&v_usize, &Value::None), Err(SchemaErr::validation([REQUIRED, USIZE])));
@@ -177,13 +168,13 @@ mod tests {
         assert_eq!(validate(&v_date_time, &Value::None), Err(SchemaErr::validation([REQUIRED, DATE_TIME])));
         assert_eq!(
             validate(&v_enum, &Value::None),
-            Err(SchemaErr::validation([REQUIRED, ValidationErr::Enumerated(EnumValues::from(str_values.clone()))]))
+            Err(SchemaErr::validation([REQUIRED, ValidationErr::Enumerated(EnumValues::from(enum_str.clone()))]))
         );
     }
 
-    // #[test]
+    #[test]
     fn validate_optional() {
-        let str_values = vec!["UNIX".to_string(), "LINUX".to_string(), "FREEBSD".to_string()];
+        let enum_str = vec!["UNIX".to_string(), "LINUX".to_string(), "FREEBSD".to_string()];
         let v_u64 = Validation::U64(U64Validation::default().optional());
         let v_i64 = Validation::I64(I64Validation::default().optional());
         let v_f64 = Validation::F64(F64Validation::default().optional());
@@ -195,7 +186,7 @@ mod tests {
         let v_date = Validation::Date(DateValidation::default().optional());
         let v_time = Validation::Time(TimeValidation::default().optional());
         let v_date_time = Validation::DateTime(DateTimeValidation::default().optional());
-        let v_enum = Validation::Enum(EnumValidation::from(str_values.clone()).optional());
+        let v_enum = Validation::Enum(EnumValidation::from(enum_str.clone()).optional());
 
         assert_eq!(validate(&v_u64, &Value::U64(1917)), Ok(()));
         assert_eq!(validate(&v_i64, &Value::I64(-800)), Ok(()));
@@ -224,17 +215,14 @@ mod tests {
         assert_eq!(validate(&v_enum, &Value::None), Ok(()));
     }
 
-    // #[test]
+    #[test]
     fn validate_obj_required() {
         let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])));
-        assert_eq!(
-            validate(&v, &Value::None),
-            Err(SchemaErr::arr([SchemaErr::validation([REQUIRED]), SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])]))
-        );
+        assert_eq!(validate(&v, &Value::None), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
         assert_eq!(validate(&v, &bool_stub()), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
     }
 
-    //  #[test]
+    #[test]
     fn validate_obj_optional() {
         let v = Validation::Obj(
             ObjValidation::default().optional().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])),
@@ -243,97 +231,78 @@ mod tests {
         assert_eq!(validate(&v, &bool_stub()), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
     }
 
-    // #[test]
+    #[test]
     fn validate_obj_required_nested_required() {
-        //        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])));
-        //
-        //        let err = SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))]);
-        //
-        //        let value_nested_bool = Value::from([("bool".into(), Value::Bool(false))]);
-        //        let value_nested_none = Value::from([("bool".into(), Value::None)]);
-        //        let value_nested_other_type = Value::from([("bool".into(), Value::U64(19))]);
-        //        let value_nested_missing_field = Value::from([("u64".into(), Value::U64(19))]);
-        //
-        //        let err_nested_none = SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))]);
-        //        let err_nested_other_type = SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))]);
-        //
-        //        assert_eq!(validate(&v, &value_nested_bool), Ok(()));
-        //        assert_eq!(validate(&v, &value_nested_none), Err(err_nested_none.clone()));
-        //        assert_eq!(validate(&v, &value_nested_other_type), Err(err_nested_other_type.clone()));
-        //        assert_eq!(validate(&v, &value_nested_missing_field), Err(err.clone()));
-        //        assert_eq!(validate(&v, &Value::None), Err(err.clone()));
-        //        assert_eq!(validate(&v, &bool_stub()), Err(err.clone()));
+        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])));
+
+        let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
+        let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
+        let value_none = Value::from([("bool".into(), Value::None)]);
+        let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
+        assert_eq!(validate(&v, &value_bool), Ok(()));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
     }
 
     #[test]
-    fn validate_obj_required_nested_optional() {}
+    fn validate_obj_optional_nested_required() {
+        let v = Validation::Obj(
+            ObjValidation::default().optional().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])),
+        );
+        let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
+        let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
+        let value_none = Value::from([("bool".into(), Value::None)]);
+        let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
+        assert_eq!(validate(&v, &value_bool), Ok(()));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
+    }
 
     #[test]
-    fn validate_obj_optional_nested_optional() {}
+    fn validate_obj_required_nested_optional() {
+        let v = Validation::Obj(
+            ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default().optional()))])),
+        );
+        let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
+        let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
+        let value_none = Value::from([("bool".into(), Value::None)]);
+        let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
+        assert_eq!(validate(&v, &value_bool), Ok(()));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Ok(()));
+        assert_eq!(validate(&v, &value_missing_field), Ok(()));
+    }
 
     #[test]
-    fn validate_obj_optional_nested_optional__() {}
+    fn validate_obj_optional_nested_optional() {
+        let v = Validation::Obj(
+            ObjValidation::default().optional().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default().optional()))])),
+        );
+        let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
+        let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
+        let value_none = Value::from([("bool".into(), Value::None)]);
+        let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
+        assert_eq!(validate(&v, &value_bool), Ok(()));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Ok(()));
+        assert_eq!(validate(&v, &value_missing_field), Ok(()));
+    }
 
-    //    #[test]
-    //    fn validate_enforce_optional_obj_optional() {
-    //        let v = Validation::Obj(
-    //            ObjValidation::default().optional().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])),
-    //        );
-    //        let err = SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))]);
-    //
-    //        let value_nested_ok = Value::Obj(BTreeMap::from([("bool".into(), Value::Bool(false))]));
-    //        let value_nested_none = Value::Obj(BTreeMap::from([("bool".into(), Value::None)]));
-    //        let value_nested_other_type = Value::Obj(BTreeMap::from([("bool".into(), Value::U64(19))]));
-    //        let value_nested_missing_field = Value::Obj(BTreeMap::from([("u64".into(), Value::U64(19))]));
-    //
-    //        let err_nested_none = SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))]);
-    //        let err_nested_other_type = SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))]);
-    //
-    //        assert_eq!(validate(&v, &value_nested_ok), Ok(()));
-    //        assert_eq!(validate(&v, &value_nested_none), Err(err_nested_none.clone()));
-    //        assert_eq!(validate(&v, &value_nested_other_type), Err(err_nested_other_type.clone()));
-    //        assert_eq!(validate(&v, &value_nested_missing_field), Err(err.clone()));
-    //
-    //        assert_eq!(validate(&v, &Value::None), Err(err.clone()));
-    //        assert_eq!(validate(&v, &bool_stub()), Err(err.clone()));
-    //    }
-    //
-    //    #[test]
-    //    fn validate_enforce_optional_obj_default_optional() {
-    //        let v = Validation::Obj(
-    //            ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default().optional()))])),
-    //        );
-    //        let err = SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))]);
-    //
-    //        let value_nested_ok = Value::Obj(BTreeMap::from([("bool".into(), Value::Bool(false))]));
-    //        let value_nested_none = Value::Obj(BTreeMap::from([("bool".into(), Value::None)]));
-    //        let value_nested_other_type = Value::Obj(BTreeMap::from([("bool".into(), Value::U64(19))]));
-    //        let value_nested_missing_field = Value::Obj(BTreeMap::from([("u64".into(), Value::U64(19))]));
-    //
-    //        assert_eq!(validate(&v, &value_nested_ok), Ok(()));
-    //        assert_eq!(validate(&v, &value_nested_none), Err(err.clone()));
-    //        assert_eq!(validate(&v, &value_nested_other_type), Err(err.clone()));
-    //        assert_eq!(validate(&v, &value_nested_missing_field), Err(err.clone()));
-    //
-    //        assert_eq!(validate(&v, &Value::None), Err(err.clone()));
-    //        assert_eq!(validate(&v, &bool_stub()), Err(err.clone()));
-    //    }
-    //
-    //    #[test]
-    //    fn validate_enforce_optional_empty_obj() {
-    //        let v = Validation::Obj(ObjValidation::default());
-    //
-    //        let value_nested_ok = Value::Obj(BTreeMap::from([("bool".into(), Value::Bool(false))]));
-    //        let value_nested_none = Value::Obj(BTreeMap::from([("bool".into(), Value::None)]));
-    //        let value_nested_other_type = Value::Obj(BTreeMap::from([("bool".into(), Value::U64(19))]));
-    //        let value_nested_missing_field = Value::Obj(BTreeMap::from([("u64".into(), Value::U64(19))]));
-    //
-    //        assert_eq!(validate(&v, &value_nested_ok), Ok(()));
-    //        assert_eq!(validate(&v, &value_nested_none), Ok(()));
-    //        assert_eq!(validate(&v, &value_nested_other_type), Ok(()));
-    //        assert_eq!(validate(&v, &value_nested_missing_field), Ok(()));
-    //
-    //        assert_eq!(validate(&v, &Value::None), Ok(()));
-    //        assert_eq!(validate(&v, &bool_stub()), Ok(()));
-    //    }
+    #[test]
+    fn validate_obj_empty_required() {
+        let v = Validation::Obj(ObjValidation::default());
+        assert_eq!(validate(&v, &Value::Obj(BTreeMap::new())), Ok(()));
+        assert_eq!(validate(&v, &Value::None), Ok(()));
+        assert_eq!(validate(&v, &bool_stub()), Ok(()));
+    }
+
+    #[test]
+    fn validate_obj_empty_optional() {
+        let v = Validation::Obj(ObjValidation::default().optional());
+        assert_eq!(validate(&v, &Value::Obj(BTreeMap::new())), Ok(()));
+        assert_eq!(validate(&v, &Value::None), Ok(()));
+        assert_eq!(validate(&v, &bool_stub()), Ok(()));
+    }
 }

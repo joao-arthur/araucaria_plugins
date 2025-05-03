@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use araucaria::{
-    error::{SchemaErr, ValidationErr, schema_err_has_required},
+    error::{SchemaErr, ValidationErr},
     validation::Validation,
     value::Value,
 };
@@ -90,16 +90,7 @@ fn internal_validate(validation: &Validation, value: &Value, root: &Value) -> Re
         Validation::Enum(v) => validate_enum(v, value),
     };
 
-    match result {
-        Ok(()) => Ok(()),
-        Err(err) => {
-            if schema_err_has_required(err.clone()) {
-                Err(err)
-            } else {
-                Ok(())
-            }
-        }
-    }
+    result
 }
 
 pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
@@ -164,7 +155,7 @@ mod tests {
         assert_eq!(validate(&v_date_time, &Value::from("2015-12-28T20:38Z")), Ok(()));
         assert_eq!(validate(&v_enum, &Value::from("LINUX")), Ok(()));
 
-        assert_eq!(validate(&v_u64, &Value::None), Err(SchemaErr::validation([REQUIRED, U64,])));
+        assert_eq!(validate(&v_u64, &Value::None), Err(SchemaErr::validation([REQUIRED, U64])));
         assert_eq!(validate(&v_i64, &Value::None), Err(SchemaErr::validation([REQUIRED, I64])));
         assert_eq!(validate(&v_f64, &Value::None), Err(SchemaErr::validation([REQUIRED, F64])));
         assert_eq!(validate(&v_usize, &Value::None), Err(SchemaErr::validation([REQUIRED, USIZE])));
