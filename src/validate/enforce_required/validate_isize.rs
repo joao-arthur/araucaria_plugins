@@ -63,7 +63,7 @@ mod tests {
     fn validate_isize_optional() {
         let v = ISizeValidation::default().optional();
         assert_eq!(validate_isize(&v, &Value::ISize(-42), &ROOT), Ok(()));
-        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([ISIZE])));
+        assert_eq!(validate_isize(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_isize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([ISIZE])));
     }
 

@@ -63,7 +63,7 @@ mod tests {
     fn validate_i64_optional() {
         let v = I64Validation::default().optional();
         assert_eq!(validate_i64(&v, &Value::I64(-42), &ROOT), Ok(()));
-        assert_eq!(validate_i64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([I64])));
+        assert_eq!(validate_i64(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_i64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([I64])));
     }
 

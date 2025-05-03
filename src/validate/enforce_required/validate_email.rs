@@ -50,7 +50,7 @@ mod tests {
     #[test]
     fn validate_email_optional() {
         let v = EmailValidation::default().optional();
-        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([EMAIL])));
+        assert_eq!(validate_email(&v, &Value::None), Ok(()));
         assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([EMAIL])));
     }
 

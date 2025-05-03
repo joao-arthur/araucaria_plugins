@@ -63,7 +63,7 @@ mod tests {
     fn validate_bool_optional() {
         let v = BoolValidation::default().optional();
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([BOOL])));
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([BOOL])));
     }
 

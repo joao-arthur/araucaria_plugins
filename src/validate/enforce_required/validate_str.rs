@@ -169,7 +169,7 @@ mod tests {
     fn validate_str_optional() {
         let v = StrValidation::default().optional();
         assert_eq!(validate_str(&v, &Value::from("Cogito ergo sum"), &ROOT), Ok(()));
-        assert_eq!(validate_str(&v, &Value::None, &ROOT), Err(SchemaErr::validation([STR])));
+        assert_eq!(validate_str(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_str(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([STR])));
     }
 

@@ -71,7 +71,7 @@ mod tests {
         let v = TimeValidation::default().optional();
         assert_eq!(validate_time(&v, &Value::from("11:27"), &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &Value::from("not a time"), &ROOT), Err(SchemaErr::validation([TIME])));
-        assert_eq!(validate_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([TIME])));
+        assert_eq!(validate_time(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([TIME])));
     }
 

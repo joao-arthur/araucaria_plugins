@@ -63,7 +63,7 @@ mod tests {
     fn validate_f64_optional() {
         let v = F64Validation::default().optional();
         assert_eq!(validate_f64(&v, &Value::F64(-42.5), &ROOT), Ok(()));
-        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([F64])));
+        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([F64])));
     }
 

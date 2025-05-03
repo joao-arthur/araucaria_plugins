@@ -69,7 +69,7 @@ mod tests {
     fn validate_date_time_optional() {
         let v = DateTimeValidation::default().optional();
         assert_eq!(validate_date_time(&v, &Value::from("2026-10-28T11:27Z"), &ROOT), Ok(()));
-        assert_eq!(validate_date_time(&v, &Value::None, &ROOT), Err(SchemaErr::validation([DATE_TIME])));
+        assert_eq!(validate_date_time(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_date_time(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([DATE_TIME])));
     }
 

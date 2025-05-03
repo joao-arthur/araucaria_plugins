@@ -63,7 +63,7 @@ mod tests {
     fn validate_u64_optional() {
         let v = U64Validation::default().optional();
         assert_eq!(validate_u64(&v, &Value::U64(42), &ROOT), Ok(()));
-        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([U64])));
+        assert_eq!(validate_u64(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_u64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([U64])));
     }
 

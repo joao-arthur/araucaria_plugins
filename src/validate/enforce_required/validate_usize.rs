@@ -63,7 +63,7 @@ mod tests {
     fn validate_usize_optional() {
         let v = USizeValidation::default().optional();
         assert_eq!(validate_usize(&v, &Value::USize(42), &ROOT), Ok(()));
-        assert_eq!(validate_usize(&v, &Value::None, &ROOT), Err(SchemaErr::validation([USIZE])));
+        assert_eq!(validate_usize(&v, &Value::None, &ROOT), Ok(()));
         assert_eq!(validate_usize(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([USIZE])));
     }
 
