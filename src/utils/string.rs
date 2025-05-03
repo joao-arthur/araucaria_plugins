@@ -38,7 +38,7 @@ mod tests {
     use super::{bytes_len, chars_len, graphemes_len, lowercase_len, normalize_nfc, numbers_len, symbols_len, uppercase_len};
 
     #[test]
-    fn test_bytes_len() {
+    fn bytes_len_multiple_scripts() {
         assert_eq!(bytes_len(&"veni, vidi, vici".into()), 16);
         assert_eq!(bytes_len(&"ὅσον ζῇς, φαίνου".into()), 31);
         assert_eq!(bytes_len(&"группа крови".into()), 23);
@@ -53,7 +53,7 @@ mod tests {
     }
 
     #[test]
-    fn test_chars_len() {
+    fn chars_len_multiple_scripts() {
         assert_eq!(chars_len(&"veni, vidi, vici".into()), 16);
         assert_eq!(chars_len(&"ὅσον ζῇς, φαίνου".into()), 16);
         assert_eq!(chars_len(&"группа крови".into()), 12);
@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn test_graphemes_len() {
+    fn graphemes_len_multiple_scripts() {
         assert_eq!(graphemes_len(&"veni, vidi, vici".into()), 16);
         assert_eq!(graphemes_len(&"ὅσον ζῇς, φαίνου".into()), 16);
         assert_eq!(graphemes_len(&"группа крови".into()), 12);
@@ -83,14 +83,14 @@ mod tests {
     }
 
     #[test]
-    fn lowercase_len_lowercase() {
+    fn lowercase_len_lowercase_multiple_scripts() {
         assert_eq!(lowercase_len(&"группа крови".into()), 11);
         assert_eq!(lowercase_len(&"veni, vidi, vici".into()), 12);
         assert_eq!(lowercase_len(&"ὅσον ζῇς, φαίνου".into()), 13);
     }
 
     #[test]
-    fn lowercase_len_uppercase() {
+    fn lowercase_len_uppercase_multiple_scripts() {
         assert_eq!(lowercase_len(&"ГРУППА КРОВИ".into()), 0);
         assert_eq!(lowercase_len(&"VENI, VIDI, VICI".into()), 0);
         assert_eq!(lowercase_len(&"ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ".into()), 0);
@@ -105,14 +105,14 @@ mod tests {
     }
 
     #[test]
-    fn uppercase_len_lowercase() {
+    fn uppercase_len_lowercase_multiple_scripts() {
         assert_eq!(uppercase_len(&"группа крови".into()), 0);
         assert_eq!(uppercase_len(&"veni, vidi, vici".into()), 0);
         assert_eq!(uppercase_len(&"ὅσον ζῇς, φαίνου".into()), 0);
     }
 
     #[test]
-    fn uppercase_len_uppercase() {
+    fn uppercase_len_uppercase_multiple_scripts() {
         assert_eq!(uppercase_len(&"ГРУППА КРОВИ".into()), 11);
         assert_eq!(uppercase_len(&"VENI, VIDI, VICI".into()), 12);
         assert_eq!(uppercase_len(&"ὍΣΟΝ ΖΗ͂ΙΣ, ΦΑΊΝΟΥ".into()), 14);
@@ -127,7 +127,7 @@ mod tests {
     }
 
     #[test]
-    fn test_numbers_len() {
+    fn numbers_len_multiple_scripts() {
         assert_eq!(numbers_len(&"veni, vidi, vici".into()), 0);
         assert_eq!(numbers_len(&"ὅσον ζῇς, φαίνου".into()), 0);
         assert_eq!(numbers_len(&"группа крови".into()), 0);
@@ -138,7 +138,7 @@ mod tests {
     }
 
     #[test]
-    fn test_symbols_len() {
+    fn symbols_len_multiple_scripts() {
         assert_eq!(symbols_len(&"veni, vidi, vici".into()), 2);
         assert_eq!(symbols_len(&"ὅσον ζῇς, φαίνου".into()), 1);
         assert_eq!(symbols_len(&"группа крови".into()), 0);

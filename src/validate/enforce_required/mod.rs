@@ -1,10 +1,6 @@
 use std::collections::BTreeMap;
 
-use araucaria::{
-    error::SchemaErr,
-    validation::Validation,
-    value::Value,
-};
+use araucaria::{error::SchemaErr, validation::Validation, value::Value};
 use validate_bool::validate_bool;
 use validate_date::validate_date;
 use validate_date_time::validate_date_time;
