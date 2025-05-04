@@ -97,7 +97,7 @@ mod tests {
     fn araucaria_validation_err_to_validation_err() {
         let araucaria_enum_usize = araucaria::schema::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
         let araucaria_enum_isize = araucaria::schema::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
-        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
+        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()]);
 
         let araucaria_operand_u64 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::U64(12));
         let araucaria_operand_usize_1 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::USize(84));
@@ -164,7 +164,7 @@ mod tests {
         let err_symbols_len = ValidationErr::SymbolsLen(Operation::Btwn(Operand::FieldPath("c.len".into()), Operand::FieldPath("d.len".into())));
         let err_enum_usize = ValidationErr::Enumerated(EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]));
         let err_enum_isize = ValidationErr::Enumerated(EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]));
-        let err_enum_str = ValidationErr::Enumerated(EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]));
+        let err_enum_str = ValidationErr::Enumerated(EnumValues::Str(vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()]));
 
         assert_eq!(to_validation_err(araucaria_err_required), err_required);
         assert_eq!(to_validation_err(araucaria_err_u64), err_u64);
@@ -195,7 +195,7 @@ mod tests {
     fn araucaria_schema_err_to_schema_err() {
         let araucaria_enum_usize = araucaria::schema::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
         let araucaria_enum_isize = araucaria::schema::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
-        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
+        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()]);
 
         let araucaria_operand_u64 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::U64(12));
         let araucaria_operand_usize_1 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::USize(84));
@@ -240,7 +240,7 @@ mod tests {
         let araucaria_err_enum_isize = araucaria::error::ValidationErr::Enumerated(araucaria_enum_isize);
         let araucaria_err_enum_str = araucaria::error::ValidationErr::Enumerated(araucaria_enum_str);
 
-        let araucaria_schema_err_arr = araucaria::error::SchemaErr::from([
+        let araucaria_schema_err_validation = araucaria::error::SchemaErr::from([
             araucaria_err_required.clone(),
             araucaria_err_u64.clone(),
             araucaria_err_i64.clone(),
@@ -264,6 +264,31 @@ mod tests {
             araucaria_err_enum_usize.clone(),
             araucaria_err_enum_isize.clone(),
             araucaria_err_enum_str.clone(),
+        ]);
+        let araucaria_schema_err_arr = araucaria::error::SchemaErr::Arr(vec![
+            araucaria::error::SchemaErr::from([araucaria_err_required.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_u64.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_i64.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_f64.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_usize.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_isize.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_bool.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_str.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_email.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_date.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_time.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_datetime.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_operation.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_bytes_len.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_chars_len.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_graphemes_len.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_lowercase_len.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_uppercase_len.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_numbers_len.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_symbols_len.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_enum_usize.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_enum_isize.clone()]),
+            araucaria::error::SchemaErr::from([araucaria_err_enum_str.clone()]),
         ]);
         let araucaria_schema_err_obj = araucaria::error::SchemaErr::Obj(BTreeMap::from([
             ("required".into(), araucaria::error::SchemaErr::from([araucaria_err_required])),
@@ -313,9 +338,9 @@ mod tests {
         let err_symbols_len = ValidationErr::SymbolsLen(Operation::Btwn(Operand::FieldPath("c.len".into()), Operand::FieldPath("d.len".into())));
         let err_enum_usize = ValidationErr::Enumerated(EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]));
         let err_enum_isize = ValidationErr::Enumerated(EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]));
-        let err_enum_str = ValidationErr::Enumerated(EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]));
+        let err_enum_str = ValidationErr::Enumerated(EnumValues::Str(vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()]));
 
-        let schema_err_arr = SchemaErr::Validation(vec![
+        let schema_err_validation = SchemaErr::Validation(vec![
             err_required.clone(),
             err_u64.clone(),
             err_i64.clone(),
@@ -339,6 +364,31 @@ mod tests {
             err_enum_usize.clone(),
             err_enum_isize.clone(),
             err_enum_str.clone(),
+        ]);
+        let schema_err_arr = SchemaErr::Arr(vec![
+            SchemaErr::Validation(vec![err_required.clone()]),
+            SchemaErr::Validation(vec![err_u64.clone()]),
+            SchemaErr::Validation(vec![err_i64.clone()]),
+            SchemaErr::Validation(vec![err_f64.clone()]),
+            SchemaErr::Validation(vec![err_usize.clone()]),
+            SchemaErr::Validation(vec![err_isize.clone()]),
+            SchemaErr::Validation(vec![err_bool.clone()]),
+            SchemaErr::Validation(vec![err_str.clone()]),
+            SchemaErr::Validation(vec![err_email.clone()]),
+            SchemaErr::Validation(vec![err_date.clone()]),
+            SchemaErr::Validation(vec![err_time.clone()]),
+            SchemaErr::Validation(vec![err_datetime.clone()]),
+            SchemaErr::Validation(vec![err_operation.clone()]),
+            SchemaErr::Validation(vec![err_bytes_len.clone()]),
+            SchemaErr::Validation(vec![err_chars_len.clone()]),
+            SchemaErr::Validation(vec![err_graphemes_len.clone()]),
+            SchemaErr::Validation(vec![err_lowercase_len.clone()]),
+            SchemaErr::Validation(vec![err_uppercase_len.clone()]),
+            SchemaErr::Validation(vec![err_numbers_len.clone()]),
+            SchemaErr::Validation(vec![err_symbols_len.clone()]),
+            SchemaErr::Validation(vec![err_enum_usize.clone()]),
+            SchemaErr::Validation(vec![err_enum_isize.clone()]),
+            SchemaErr::Validation(vec![err_enum_str.clone()]),
         ]);
         let schema_err_obj = SchemaErr::Obj(BTreeMap::from([
             ("required".into(), SchemaErr::Validation(vec![err_required])),
@@ -366,6 +416,7 @@ mod tests {
             ("enum_str".into(), SchemaErr::Validation(vec![err_enum_str])),
         ]));
 
+        assert_eq!(to_schema_err(araucaria_schema_err_validation), schema_err_validation);
         assert_eq!(to_schema_err(araucaria_schema_err_arr), schema_err_arr);
         assert_eq!(to_schema_err(araucaria_schema_err_obj), schema_err_obj);
     }
@@ -382,7 +433,7 @@ mod tests {
         let err_symbols_len = ValidationErr::SymbolsLen(Operation::Btwn(Operand::FieldPath("c.len".into()), Operand::FieldPath("d.len".into())));
         let err_enum_usize = ValidationErr::Enumerated(EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]));
         let err_enum_isize = ValidationErr::Enumerated(EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]));
-        let err_enum_str = ValidationErr::Enumerated(EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]));
+        let err_enum_str = ValidationErr::Enumerated(EnumValues::Str(vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()]));
 
         assert_eq!(serde_json::to_string(&ValidationErr::Required).unwrap(), r#""Required""#.to_string());
         assert_eq!(serde_json::to_string(&ValidationErr::U64).unwrap(), r#""U64""#.to_string());
@@ -406,12 +457,12 @@ mod tests {
         assert_eq!(serde_json::to_string(&err_symbols_len).unwrap(), r#"{"SymbolsLen":{"Btwn":["c.len","d.len"]}}"#.to_string());
         assert_eq!(serde_json::to_string(&err_enum_usize).unwrap(), r#"{"Enumerated":[0,3,6,9,12,15,18]}"#.to_string());
         assert_eq!(serde_json::to_string(&err_enum_isize).unwrap(), r#"{"Enumerated":[0,-3,6,-9,12,-15]}"#.to_string());
-        assert_eq!(serde_json::to_string(&err_enum_str).unwrap(), r#"{"Enumerated":["PEDRA","PAPEL","TESOURA"]}"#.to_string());
+        assert_eq!(serde_json::to_string(&err_enum_str).unwrap(), r#"{"Enumerated":["ROCK","PAPER","SCISSORS"]}"#.to_string());
     }
 
     #[test]
     fn serialize_schema_err_arr() {
-        let schema_err_arr = SchemaErr::Validation(vec![
+        let schema_err_validation = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::U64,
             ValidationErr::I64,
@@ -419,37 +470,37 @@ mod tests {
             ValidationErr::USize,
             ValidationErr::ISize,
         ]);
-        let schema_err_arr_u64 = SchemaErr::Validation(vec![
+        let schema_err_validation_u64 = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::U64,
             ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::U64(73)))),
         ]);
-        let schema_err_arr_i64 = SchemaErr::Validation(vec![
+        let schema_err_validation_i64 = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::I64,
             ValidationErr::Operation(Operation::Ne(Operand::Value(OperandValue::I64(-84)))),
         ]);
-        let schema_err_arr_f64 = SchemaErr::Validation(vec![
+        let schema_err_validation_f64 = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::F64,
             ValidationErr::Operation(Operation::Gt(Operand::Value(OperandValue::F64(-28.75)))),
         ]);
-        let schema_err_arr_usize = SchemaErr::Validation(vec![
+        let schema_err_validation_usize = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::USize,
             ValidationErr::Operation(Operation::Ge(Operand::Value(OperandValue::USize(92)))),
         ]);
-        let schema_err_arr_isize = SchemaErr::Validation(vec![
+        let schema_err_validation_isize = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::ISize,
             ValidationErr::Operation(Operation::Lt(Operand::Value(OperandValue::ISize(42)))),
         ]);
-        let schema_err_arr_bool = SchemaErr::Validation(vec![
+        let schema_err_validation_bool = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::Bool,
             ValidationErr::Operation(Operation::Le(Operand::Value(OperandValue::Bool(false)))),
         ]);
-        let schema_err_arr_str = SchemaErr::Validation(vec![
+        let schema_err_validation_str = SchemaErr::Validation(vec![
             ValidationErr::Required,
             ValidationErr::Str,
             ValidationErr::Operation(Operation::Btwn(
@@ -457,14 +508,14 @@ mod tests {
                 Operand::Value(OperandValue::Str("Saturno".into())),
             )),
         ]);
-        assert_eq!(serde_json::to_string(&schema_err_arr).unwrap(), r#"["Required","U64","I64","F64","USize","ISize"]"#.to_string());
-        assert_eq!(serde_json::to_string(&schema_err_arr_u64).unwrap(), r#"["Required","U64",{"Operation":{"Eq":73}}]"#.to_string());
-        assert_eq!(serde_json::to_string(&schema_err_arr_i64).unwrap(), r#"["Required","I64",{"Operation":{"Ne":-84}}]"#.to_string());
-        assert_eq!(serde_json::to_string(&schema_err_arr_f64).unwrap(), r#"["Required","F64",{"Operation":{"Gt":-28.75}}]"#.to_string());
-        assert_eq!(serde_json::to_string(&schema_err_arr_usize).unwrap(), r#"["Required","USize",{"Operation":{"Ge":92}}]"#.to_string());
-        assert_eq!(serde_json::to_string(&schema_err_arr_isize).unwrap(), r#"["Required","ISize",{"Operation":{"Lt":42}}]"#.to_string());
-        assert_eq!(serde_json::to_string(&schema_err_arr_bool).unwrap(), r#"["Required","Bool",{"Operation":{"Le":false}}]"#.to_string());
-        assert_eq!(serde_json::to_string(&schema_err_arr_str).unwrap(), r#"["Required","Str",{"Operation":{"Btwn":["Lua","Saturno"]}}]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation).unwrap(), r#"["Required","U64","I64","F64","USize","ISize"]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation_u64).unwrap(), r#"["Required","U64",{"Operation":{"Eq":73}}]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation_i64).unwrap(), r#"["Required","I64",{"Operation":{"Ne":-84}}]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation_f64).unwrap(), r#"["Required","F64",{"Operation":{"Gt":-28.75}}]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation_usize).unwrap(), r#"["Required","USize",{"Operation":{"Ge":92}}]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation_isize).unwrap(), r#"["Required","ISize",{"Operation":{"Lt":42}}]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation_bool).unwrap(), r#"["Required","Bool",{"Operation":{"Le":false}}]"#.to_string());
+        assert_eq!(serde_json::to_string(&schema_err_validation_str).unwrap(), r#"["Required","Str",{"Operation":{"Btwn":["Lua","Saturno"]}}]"#.to_string());
     }
 
     #[test]

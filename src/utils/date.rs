@@ -20,7 +20,6 @@ pub fn parse_date(s: &str) -> Result<Dt, ()> {
 
 #[cfg(test)]
 mod tests {
-
     use super::{Dt, parse_date};
 
     #[test]

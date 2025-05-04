@@ -95,7 +95,6 @@ pub fn validate(schema: &Schema, value: &Value) -> Result<(), SchemaErr> {
 
 #[cfg(test)]
 mod tests {
-
     use std::{collections::BTreeMap, sync::LazyLock};
 
     use araucaria::{
