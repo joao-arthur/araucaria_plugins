@@ -1,12 +1,12 @@
 use araucaria::{
     error::{SchemaErr, ValidationErr},
-    validation::EmailValidation,
+    schema::EmailSchema,
     value::Value,
 };
 
 use crate::utils::email::email_is_valid;
 
-pub fn validate_email(validation: &EmailValidation, value: &Value) -> Result<(), SchemaErr> {
+pub fn validate_email(validation: &EmailSchema, value: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
@@ -31,7 +31,7 @@ pub fn validate_email(validation: &EmailValidation, value: &Value) -> Result<(),
 mod tests {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
-        validation::EmailValidation,
+        schema::EmailSchema,
         value::{Value, stub::u64_stub},
     };
 
@@ -42,27 +42,27 @@ mod tests {
 
     #[test]
     fn validate_email_default() {
-        let v = EmailValidation::default();
-        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([REQUIRED, EMAIL])));
-        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([EMAIL])));
+        let v = EmailSchema::default();
+        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::from([REQUIRED, EMAIL])));
+        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::from([EMAIL])));
     }
 
     #[test]
     fn validate_email_optional() {
-        let v = EmailValidation::default().optional();
-        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::validation([EMAIL])));
-        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::validation([EMAIL])));
+        let v = EmailSchema::default().optional();
+        assert_eq!(validate_email(&v, &Value::None), Err(SchemaErr::from([EMAIL])));
+        assert_eq!(validate_email(&v, &u64_stub()), Err(SchemaErr::from([EMAIL])));
     }
 
     #[test]
     fn validate_email_valid() {
-        let v = EmailValidation::default();
+        let v = EmailSchema::default();
         assert_eq!(validate_email(&v, &Value::from("john.lennon@gmail.com")), Ok(()));
     }
 
     #[test]
     fn validate_email_invalid() {
-        let v = EmailValidation::default();
-        assert_eq!(validate_email(&v, &Value::from("paullivecom")), Err(SchemaErr::validation([EMAIL])));
+        let v = EmailSchema::default();
+        assert_eq!(validate_email(&v, &Value::from("paullivecom")), Err(SchemaErr::from([EMAIL])));
     }
 }

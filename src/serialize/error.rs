@@ -95,9 +95,9 @@ mod tests {
 
     #[test]
     fn araucaria_validation_err_to_validation_err() {
-        let araucaria_enum_usize = araucaria::validation::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
-        let araucaria_enum_isize = araucaria::validation::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
-        let araucaria_enum_str = araucaria::validation::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
+        let araucaria_enum_usize = araucaria::schema::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
+        let araucaria_enum_isize = araucaria::schema::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
+        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
 
         let araucaria_operand_u64 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::U64(12));
         let araucaria_operand_usize_1 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::USize(84));
@@ -193,9 +193,9 @@ mod tests {
 
     #[test]
     fn araucaria_schema_err_to_schema_err() {
-        let araucaria_enum_usize = araucaria::validation::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
-        let araucaria_enum_isize = araucaria::validation::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
-        let araucaria_enum_str = araucaria::validation::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
+        let araucaria_enum_usize = araucaria::schema::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
+        let araucaria_enum_isize = araucaria::schema::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
+        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
 
         let araucaria_operand_u64 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::U64(12));
         let araucaria_operand_usize_1 = araucaria::operation::Operand::Value(araucaria::operation::OperandValue::USize(84));
@@ -240,7 +240,7 @@ mod tests {
         let araucaria_err_enum_isize = araucaria::error::ValidationErr::Enumerated(araucaria_enum_isize);
         let araucaria_err_enum_str = araucaria::error::ValidationErr::Enumerated(araucaria_enum_str);
 
-        let araucaria_schema_err_arr = araucaria::error::SchemaErr::Validation(vec![
+        let araucaria_schema_err_arr = araucaria::error::SchemaErr::from([
             araucaria_err_required.clone(),
             araucaria_err_u64.clone(),
             araucaria_err_i64.clone(),
@@ -266,29 +266,29 @@ mod tests {
             araucaria_err_enum_str.clone(),
         ]);
         let araucaria_schema_err_obj = araucaria::error::SchemaErr::Obj(BTreeMap::from([
-            ("required".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_required])),
-            ("u64".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_u64])),
-            ("i64".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_i64])),
-            ("f64".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_f64])),
-            ("usize".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_usize])),
-            ("isize".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_isize])),
-            ("bool".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_bool])),
-            ("str".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_str])),
-            ("email".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_email])),
-            ("date".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_date])),
-            ("time".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_time])),
-            ("datetime".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_datetime])),
-            ("operation".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_operation])),
-            ("bytes_len".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_bytes_len])),
-            ("chars_len".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_chars_len])),
-            ("graphemes_len".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_graphemes_len])),
-            ("lowercase_len".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_lowercase_len])),
-            ("uppercase_len".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_uppercase_len])),
-            ("numbers_len".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_numbers_len])),
-            ("symbols_len".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_symbols_len])),
-            ("enum_usize".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_enum_usize])),
-            ("enum_isize".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_enum_isize])),
-            ("enum_str".into(), araucaria::error::SchemaErr::Validation(vec![araucaria_err_enum_str])),
+            ("required".into(), araucaria::error::SchemaErr::from([araucaria_err_required])),
+            ("u64".into(), araucaria::error::SchemaErr::from([araucaria_err_u64])),
+            ("i64".into(), araucaria::error::SchemaErr::from([araucaria_err_i64])),
+            ("f64".into(), araucaria::error::SchemaErr::from([araucaria_err_f64])),
+            ("usize".into(), araucaria::error::SchemaErr::from([araucaria_err_usize])),
+            ("isize".into(), araucaria::error::SchemaErr::from([araucaria_err_isize])),
+            ("bool".into(), araucaria::error::SchemaErr::from([araucaria_err_bool])),
+            ("str".into(), araucaria::error::SchemaErr::from([araucaria_err_str])),
+            ("email".into(), araucaria::error::SchemaErr::from([araucaria_err_email])),
+            ("date".into(), araucaria::error::SchemaErr::from([araucaria_err_date])),
+            ("time".into(), araucaria::error::SchemaErr::from([araucaria_err_time])),
+            ("datetime".into(), araucaria::error::SchemaErr::from([araucaria_err_datetime])),
+            ("operation".into(), araucaria::error::SchemaErr::from([araucaria_err_operation])),
+            ("bytes_len".into(), araucaria::error::SchemaErr::from([araucaria_err_bytes_len])),
+            ("chars_len".into(), araucaria::error::SchemaErr::from([araucaria_err_chars_len])),
+            ("graphemes_len".into(), araucaria::error::SchemaErr::from([araucaria_err_graphemes_len])),
+            ("lowercase_len".into(), araucaria::error::SchemaErr::from([araucaria_err_lowercase_len])),
+            ("uppercase_len".into(), araucaria::error::SchemaErr::from([araucaria_err_uppercase_len])),
+            ("numbers_len".into(), araucaria::error::SchemaErr::from([araucaria_err_numbers_len])),
+            ("symbols_len".into(), araucaria::error::SchemaErr::from([araucaria_err_symbols_len])),
+            ("enum_usize".into(), araucaria::error::SchemaErr::from([araucaria_err_enum_usize])),
+            ("enum_isize".into(), araucaria::error::SchemaErr::from([araucaria_err_enum_isize])),
+            ("enum_str".into(), araucaria::error::SchemaErr::from([araucaria_err_enum_str])),
         ]));
 
         let err_required = ValidationErr::Required;
@@ -469,10 +469,6 @@ mod tests {
 
     #[test]
     fn serialize_schema_err_obj() {
-        let bool_op = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))));
-        let u64_op = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::U64(73))));
-        let i64_op = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::I64(-84))));
-        let f64_op = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::F64(-28.75))));
         let schema_err = SchemaErr::Obj(BTreeMap::from([
             ("bool".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::Bool])),
             ("u64".into(), SchemaErr::Validation(vec![ValidationErr::Required, ValidationErr::U64])),

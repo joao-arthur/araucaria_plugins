@@ -248,7 +248,7 @@ mod tests {
         error::ValidationErr,
         locale::localize_validation_err,
         operation::{Operand, OperandValue, Operation},
-        validation::EnumValues,
+        schema::EnumValues,
     };
 
     use super::{locale_en_long, locale_es_long, locale_pt_long};

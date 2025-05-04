@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use araucaria::{error::SchemaErr, validation::Validation, value::Value};
+use araucaria::{error::SchemaErr, schema::Schema, value::Value};
 use validate_bool::validate_bool;
 use validate_date::validate_date;
 use validate_date_time::validate_date_time;
@@ -27,20 +27,20 @@ mod validate_time;
 mod validate_u64;
 mod validate_usize;
 
-fn internal_validate(validation: &Validation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+fn internal_validate(validation: &Schema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let result = match validation {
-        Validation::U64(v) => validate_u64(v, value, root),
-        Validation::I64(v) => validate_i64(v, value, root),
-        Validation::F64(v) => validate_f64(v, value, root),
-        Validation::USize(v) => validate_usize(v, value, root),
-        Validation::ISize(v) => validate_isize(v, value, root),
-        Validation::Bool(v) => validate_bool(v, value, root),
-        Validation::Str(v) => validate_str(v, value, root),
-        Validation::Date(v) => validate_date(v, value, root),
-        Validation::Time(v) => validate_time(v, value, root),
-        Validation::DateTime(v) => validate_date_time(v, value, root),
-        Validation::Email(v) => validate_email(v, value),
-        Validation::Obj(v) => match value {
+        Schema::U64(v) => validate_u64(v, value, root),
+        Schema::I64(v) => validate_i64(v, value, root),
+        Schema::F64(v) => validate_f64(v, value, root),
+        Schema::USize(v) => validate_usize(v, value, root),
+        Schema::ISize(v) => validate_isize(v, value, root),
+        Schema::Bool(v) => validate_bool(v, value, root),
+        Schema::Str(v) => validate_str(v, value, root),
+        Schema::Date(v) => validate_date(v, value, root),
+        Schema::Time(v) => validate_time(v, value, root),
+        Schema::DateTime(v) => validate_date_time(v, value, root),
+        Schema::Email(v) => validate_email(v, value),
+        Schema::Obj(v) => match value {
             Value::Obj(value) => {
                 let result: BTreeMap<String, SchemaErr> = v
                     .validation
@@ -79,13 +79,13 @@ fn internal_validate(validation: &Validation, value: &Value, root: &Value) -> Re
                 if result.is_empty() { Ok(()) } else { Err(SchemaErr::Obj(result)) }
             }
         },
-        Validation::Enum(v) => validate_enum(v, value),
+        Schema::Enum(v) => validate_enum(v, value),
     };
 
     result
 }
 
-pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
+pub fn validate(validation: &Schema, value: &Value) -> Result<(), SchemaErr> {
     internal_validate(validation, value, value)
 }
 
@@ -96,9 +96,9 @@ mod tests {
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
-        validation::{
-            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, EnumValidation, EnumValues, F64Validation, I64Validation,
-            ISizeValidation, ObjValidation, StrValidation, TimeValidation, U64Validation, USizeValidation, Validation,
+        schema::{
+            BoolSchema, DateTimeSchema, DateSchema, EmailSchema, EnumSchema, EnumValues, F64Schema, I64Schema,
+            ISizeSchema, ObjSchema, StrSchema, TimeSchema, U64Schema, USizeSchema, Schema,
         },
         value::{Value, stub::bool_stub},
     };
@@ -119,31 +119,31 @@ mod tests {
     const TIME: ValidationErr = ValidationErr::Time;
     const DATE_TIME: ValidationErr = ValidationErr::DateTime;
 
-    static V_U64: LazyLock<Validation> = LazyLock::new(|| Validation::U64(U64Validation::default()));
-    static V_I64: LazyLock<Validation> = LazyLock::new(|| Validation::I64(I64Validation::default()));
-    static V_F64: LazyLock<Validation> = LazyLock::new(|| Validation::F64(F64Validation::default()));
-    static V_USIZE: LazyLock<Validation> = LazyLock::new(|| Validation::USize(USizeValidation::default()));
-    static V_ISIZE: LazyLock<Validation> = LazyLock::new(|| Validation::ISize(ISizeValidation::default()));
-    static V_BOOL: LazyLock<Validation> = LazyLock::new(|| Validation::Bool(BoolValidation::default()));
-    static V_STR: LazyLock<Validation> = LazyLock::new(|| Validation::Str(StrValidation::default()));
-    static V_EMAIL: LazyLock<Validation> = LazyLock::new(|| Validation::Email(EmailValidation::default()));
-    static V_DATE: LazyLock<Validation> = LazyLock::new(|| Validation::Date(DateValidation::default()));
-    static V_TIME: LazyLock<Validation> = LazyLock::new(|| Validation::Time(TimeValidation::default()));
-    static V_DATE_TIME: LazyLock<Validation> = LazyLock::new(|| Validation::DateTime(DateTimeValidation::default()));
-    static V_ENUM: LazyLock<Validation> = LazyLock::new(|| Validation::Enum(EnumValidation::from(ENUM_STR)));
+    static V_U64: LazyLock<Schema> = LazyLock::new(|| Schema::U64(U64Schema::default()));
+    static V_I64: LazyLock<Schema> = LazyLock::new(|| Schema::I64(I64Schema::default()));
+    static V_F64: LazyLock<Schema> = LazyLock::new(|| Schema::F64(F64Schema::default()));
+    static V_USIZE: LazyLock<Schema> = LazyLock::new(|| Schema::USize(USizeSchema::default()));
+    static V_ISIZE: LazyLock<Schema> = LazyLock::new(|| Schema::ISize(ISizeSchema::default()));
+    static V_BOOL: LazyLock<Schema> = LazyLock::new(|| Schema::Bool(BoolSchema::default()));
+    static V_STR: LazyLock<Schema> = LazyLock::new(|| Schema::Str(StrSchema::default()));
+    static V_EMAIL: LazyLock<Schema> = LazyLock::new(|| Schema::Email(EmailSchema::default()));
+    static V_DATE: LazyLock<Schema> = LazyLock::new(|| Schema::Date(DateSchema::default()));
+    static V_TIME: LazyLock<Schema> = LazyLock::new(|| Schema::Time(TimeSchema::default()));
+    static V_DATE_TIME: LazyLock<Schema> = LazyLock::new(|| Schema::DateTime(DateTimeSchema::default()));
+    static V_ENUM: LazyLock<Schema> = LazyLock::new(|| Schema::Enum(EnumSchema::from(ENUM_STR)));
 
-    static V_U64_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::U64(U64Validation::default().optional()));
-    static V_I64_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::I64(I64Validation::default().optional()));
-    static V_F64_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::F64(F64Validation::default().optional()));
-    static V_USIZE_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::USize(USizeValidation::default().optional()));
-    static V_ISIZE_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::ISize(ISizeValidation::default().optional()));
-    static V_BOOL_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::Bool(BoolValidation::default().optional()));
-    static V_STR_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::Str(StrValidation::default().optional()));
-    static V_EMAIL_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::Email(EmailValidation::default().optional()));
-    static V_DATE_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::Date(DateValidation::default().optional()));
-    static V_TIME_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::Time(TimeValidation::default().optional()));
-    static V_DATE_TIME_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::DateTime(DateTimeValidation::default().optional()));
-    static V_ENUM_OPTIONAL: LazyLock<Validation> = LazyLock::new(|| Validation::Enum(EnumValidation::from(ENUM_STR).optional()));
+    static V_U64_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::U64(U64Schema::default().optional()));
+    static V_I64_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::I64(I64Schema::default().optional()));
+    static V_F64_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::F64(F64Schema::default().optional()));
+    static V_USIZE_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::USize(USizeSchema::default().optional()));
+    static V_ISIZE_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::ISize(ISizeSchema::default().optional()));
+    static V_BOOL_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::Bool(BoolSchema::default().optional()));
+    static V_STR_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::Str(StrSchema::default().optional()));
+    static V_EMAIL_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::Email(EmailSchema::default().optional()));
+    static V_DATE_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::Date(DateSchema::default().optional()));
+    static V_TIME_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::Time(TimeSchema::default().optional()));
+    static V_DATE_TIME_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::DateTime(DateTimeSchema::default().optional()));
+    static V_ENUM_OPTIONAL: LazyLock<Schema> = LazyLock::new(|| Schema::Enum(EnumSchema::from(ENUM_STR).optional()));
 
     #[test]
     fn validate_default_correct_value() {
@@ -163,18 +163,18 @@ mod tests {
 
     #[test]
     fn validate_default_none_value() {
-        assert_eq!(validate(&V_U64, &Value::None), Err(SchemaErr::validation([REQUIRED, U64])));
-        assert_eq!(validate(&V_I64, &Value::None), Err(SchemaErr::validation([REQUIRED, I64])));
-        assert_eq!(validate(&V_F64, &Value::None), Err(SchemaErr::validation([REQUIRED, F64])));
-        assert_eq!(validate(&V_USIZE, &Value::None), Err(SchemaErr::validation([REQUIRED, USIZE])));
-        assert_eq!(validate(&V_ISIZE, &Value::None), Err(SchemaErr::validation([REQUIRED, ISIZE])));
-        assert_eq!(validate(&V_BOOL, &Value::None), Err(SchemaErr::validation([REQUIRED, BOOL])));
-        assert_eq!(validate(&V_STR, &Value::None), Err(SchemaErr::validation([REQUIRED, STR])));
-        assert_eq!(validate(&V_EMAIL, &Value::None), Err(SchemaErr::validation([REQUIRED, EMAIL])));
-        assert_eq!(validate(&V_DATE, &Value::None), Err(SchemaErr::validation([REQUIRED, DATE])));
-        assert_eq!(validate(&V_TIME, &Value::None), Err(SchemaErr::validation([REQUIRED, TIME])));
-        assert_eq!(validate(&V_DATE_TIME, &Value::None), Err(SchemaErr::validation([REQUIRED, DATE_TIME])));
-        assert_eq!(validate(&V_ENUM, &Value::None), Err(SchemaErr::validation([REQUIRED, ValidationErr::Enumerated(EnumValues::from(ENUM_STR))])));
+        assert_eq!(validate(&V_U64, &Value::None), Err(SchemaErr::from([REQUIRED, U64])));
+        assert_eq!(validate(&V_I64, &Value::None), Err(SchemaErr::from([REQUIRED, I64])));
+        assert_eq!(validate(&V_F64, &Value::None), Err(SchemaErr::from([REQUIRED, F64])));
+        assert_eq!(validate(&V_USIZE, &Value::None), Err(SchemaErr::from([REQUIRED, USIZE])));
+        assert_eq!(validate(&V_ISIZE, &Value::None), Err(SchemaErr::from([REQUIRED, ISIZE])));
+        assert_eq!(validate(&V_BOOL, &Value::None), Err(SchemaErr::from([REQUIRED, BOOL])));
+        assert_eq!(validate(&V_STR, &Value::None), Err(SchemaErr::from([REQUIRED, STR])));
+        assert_eq!(validate(&V_EMAIL, &Value::None), Err(SchemaErr::from([REQUIRED, EMAIL])));
+        assert_eq!(validate(&V_DATE, &Value::None), Err(SchemaErr::from([REQUIRED, DATE])));
+        assert_eq!(validate(&V_TIME, &Value::None), Err(SchemaErr::from([REQUIRED, TIME])));
+        assert_eq!(validate(&V_DATE_TIME, &Value::None), Err(SchemaErr::from([REQUIRED, DATE_TIME])));
+        assert_eq!(validate(&V_ENUM, &Value::None), Err(SchemaErr::from([REQUIRED, ValidationErr::Enumerated(EnumValues::from(ENUM_STR))])));
     }
 
     #[test]
@@ -195,98 +195,98 @@ mod tests {
 
     #[test]
     fn validate_optional_none_value() {
-        assert_eq!(validate(&V_U64_OPTIONAL, &Value::None), Err(SchemaErr::validation([U64])));
-        assert_eq!(validate(&V_I64_OPTIONAL, &Value::None), Err(SchemaErr::validation([I64])));
-        assert_eq!(validate(&V_F64_OPTIONAL, &Value::None), Err(SchemaErr::validation([F64])));
-        assert_eq!(validate(&V_USIZE_OPTIONAL, &Value::None), Err(SchemaErr::validation([USIZE])));
-        assert_eq!(validate(&V_ISIZE_OPTIONAL, &Value::None), Err(SchemaErr::validation([ISIZE])));
-        assert_eq!(validate(&V_BOOL_OPTIONAL, &Value::None), Err(SchemaErr::validation([BOOL])));
-        assert_eq!(validate(&V_STR_OPTIONAL, &Value::None), Err(SchemaErr::validation([STR])));
-        assert_eq!(validate(&V_EMAIL_OPTIONAL, &Value::None), Err(SchemaErr::validation([EMAIL])));
-        assert_eq!(validate(&V_DATE_OPTIONAL, &Value::None), Err(SchemaErr::validation([DATE])));
-        assert_eq!(validate(&V_TIME_OPTIONAL, &Value::None), Err(SchemaErr::validation([TIME])));
-        assert_eq!(validate(&V_DATE_TIME_OPTIONAL, &Value::None), Err(SchemaErr::validation([DATE_TIME])));
-        assert_eq!(validate(&V_ENUM_OPTIONAL, &Value::None), Err(SchemaErr::validation([ValidationErr::Enumerated(EnumValues::from(ENUM_STR))])));
+        assert_eq!(validate(&V_U64_OPTIONAL, &Value::None), Err(SchemaErr::from([U64])));
+        assert_eq!(validate(&V_I64_OPTIONAL, &Value::None), Err(SchemaErr::from([I64])));
+        assert_eq!(validate(&V_F64_OPTIONAL, &Value::None), Err(SchemaErr::from([F64])));
+        assert_eq!(validate(&V_USIZE_OPTIONAL, &Value::None), Err(SchemaErr::from([USIZE])));
+        assert_eq!(validate(&V_ISIZE_OPTIONAL, &Value::None), Err(SchemaErr::from([ISIZE])));
+        assert_eq!(validate(&V_BOOL_OPTIONAL, &Value::None), Err(SchemaErr::from([BOOL])));
+        assert_eq!(validate(&V_STR_OPTIONAL, &Value::None), Err(SchemaErr::from([STR])));
+        assert_eq!(validate(&V_EMAIL_OPTIONAL, &Value::None), Err(SchemaErr::from([EMAIL])));
+        assert_eq!(validate(&V_DATE_OPTIONAL, &Value::None), Err(SchemaErr::from([DATE])));
+        assert_eq!(validate(&V_TIME_OPTIONAL, &Value::None), Err(SchemaErr::from([TIME])));
+        assert_eq!(validate(&V_DATE_TIME_OPTIONAL, &Value::None), Err(SchemaErr::from([DATE_TIME])));
+        assert_eq!(validate(&V_ENUM_OPTIONAL, &Value::None), Err(SchemaErr::from([ValidationErr::Enumerated(EnumValues::from(ENUM_STR))])));
     }
 
     #[test]
     fn validate_obj_required() {
-        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])));
-        assert_eq!(validate(&v, &Value::None), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
-        assert_eq!(validate(&v, &bool_stub()), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])));
+        assert_eq!(validate(&v, &Value::None), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &bool_stub()), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
     }
 
     #[test]
     fn validate_obj_optional() {
-        let v = Validation::Obj(
-            ObjValidation::default().optional().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])),
+        let v = Schema::Obj(
+            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])).optional(),
         );
-        assert_eq!(validate(&v, &Value::None), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
-        assert_eq!(validate(&v, &bool_stub()), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &Value::None), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &bool_stub()), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
     }
 
     #[test]
     fn validate_obj_required_nested_required() {
-        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])));
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])));
 
         let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
         let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
         let value_none = Value::from([("bool".into(), Value::None)]);
         let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
         assert_eq!(validate(&v, &value_bool), Ok(()));
-        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
-        assert_eq!(validate(&v, &value_none), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
-        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
     }
 
     #[test]
     fn validate_obj_optional_nested_required() {
-        let v = Validation::Obj(
-            ObjValidation::default().optional().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default()))])),
+        let v = Schema::Obj(
+            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])).optional(),
         );
         let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
         let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
         let value_none = Value::from([("bool".into(), Value::None)]);
         let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
         assert_eq!(validate(&v, &value_bool), Ok(()));
-        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
-        assert_eq!(validate(&v, &value_none), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
-        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
+        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
     }
 
     #[test]
     fn validate_obj_required_nested_optional() {
-        let v = Validation::Obj(
-            ObjValidation::default().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default().optional()))])),
+        let v = Schema::Obj(
+            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default().optional()))])),
         );
         let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
         let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
         let value_none = Value::from([("bool".into(), Value::None)]);
         let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
         assert_eq!(validate(&v, &value_bool), Ok(()));
-        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
-        assert_eq!(validate(&v, &value_none), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
-        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
+        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
     }
 
     #[test]
     fn validate_obj_optional_nested_optional() {
-        let v = Validation::Obj(
-            ObjValidation::default().optional().validation(BTreeMap::from([("bool".into(), Validation::Bool(BoolValidation::default().optional()))])),
+        let v = Schema::Obj(
+            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default().optional()))])).optional(),
         );
         let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
         let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
         let value_none = Value::from([("bool".into(), Value::None)]);
         let value_missing_field = Value::from([("u64".into(), Value::U64(19))]);
         assert_eq!(validate(&v, &value_bool), Ok(()));
-        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
-        assert_eq!(validate(&v, &value_none), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
-        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::obj([("bool".into(), SchemaErr::validation([BOOL]))])));
+        assert_eq!(validate(&v, &value_other_type), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
+        assert_eq!(validate(&v, &value_none), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
+        assert_eq!(validate(&v, &value_missing_field), Err(SchemaErr::from([("bool".into(), SchemaErr::from([BOOL]))])));
     }
 
     #[test]
     fn validate_obj_empty_required() {
-        let v = Validation::Obj(ObjValidation::default());
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::new()));
         assert_eq!(validate(&v, &Value::Obj(BTreeMap::new())), Ok(()));
         assert_eq!(validate(&v, &Value::None), Ok(()));
         assert_eq!(validate(&v, &bool_stub()), Ok(()));
@@ -294,7 +294,7 @@ mod tests {
 
     #[test]
     fn validate_obj_empty_optional() {
-        let v = Validation::Obj(ObjValidation::default().optional());
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::new()).optional());
         assert_eq!(validate(&v, &Value::Obj(BTreeMap::new())), Ok(()));
         assert_eq!(validate(&v, &Value::None), Ok(()));
         assert_eq!(validate(&v, &bool_stub()), Ok(()));

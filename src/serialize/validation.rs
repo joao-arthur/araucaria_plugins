@@ -20,11 +20,11 @@ impl Serialize for EnumValues {
     }
 }
 
-pub fn to_enum_values(enum_values: araucaria::validation::EnumValues) -> EnumValues {
+pub fn to_enum_values(enum_values: araucaria::schema::EnumValues) -> EnumValues {
     match enum_values {
-        araucaria::validation::EnumValues::USize(values) => EnumValues::USize(values),
-        araucaria::validation::EnumValues::ISize(values) => EnumValues::ISize(values),
-        araucaria::validation::EnumValues::Str(values) => EnumValues::Str(values),
+        araucaria::schema::EnumValues::USize(values) => EnumValues::USize(values),
+        araucaria::schema::EnumValues::ISize(values) => EnumValues::ISize(values),
+        araucaria::schema::EnumValues::Str(values) => EnumValues::Str(values),
     }
 }
 
@@ -34,9 +34,9 @@ mod tests {
 
     #[test]
     fn araucaria_enum_values_to_enum_values() {
-        let araucaria_enum_usize = araucaria::validation::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
-        let araucaria_enum_isize = araucaria::validation::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
-        let araucaria_enum_str = araucaria::validation::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
+        let araucaria_enum_usize = araucaria::schema::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
+        let araucaria_enum_isize = araucaria::schema::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
+        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
 
         assert_eq!(to_enum_values(araucaria_enum_usize), EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]));
         assert_eq!(to_enum_values(araucaria_enum_isize), EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]));

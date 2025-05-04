@@ -1,9 +1,9 @@
-use araucaria::{error::SchemaErr, validation::Validation, value::Value};
+use araucaria::{error::SchemaErr, schema::Schema, value::Value};
 
 mod enforce_optional;
 mod enforce_required;
 
-pub fn validate(validation: &Validation, value: &Value) -> Result<(), SchemaErr> {
+pub fn validate(validation: &Schema, value: &Value) -> Result<(), SchemaErr> {
     let result = enforce_required::validate(validation, value);
 
     match result {
@@ -18,7 +18,7 @@ mod tests {
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
-        validation::{BoolValidation, F64Validation, ObjValidation, StrValidation, U64Validation, Validation},
+        schema::{BoolSchema, F64Schema, ObjSchema, StrSchema, U64Schema, Schema},
         value::Value,
     };
 
@@ -32,32 +32,32 @@ mod tests {
 
     #[test]
     fn validate_ok() {
-        assert_eq!(validate(&Validation::Bool(BoolValidation::default()), &Value::Bool(false)), Ok(()));
+        assert_eq!(validate(&Schema::Bool(BoolSchema::default()), &Value::Bool(false)), Ok(()));
     }
 
     #[test]
     fn validate_err() {
-        assert_eq!(validate(&Validation::Bool(BoolValidation::default()), &Value::U64(217)), Err(SchemaErr::validation([BOOL])));
+        assert_eq!(validate(&Schema::Bool(BoolSchema::default()), &Value::U64(217)), Err(SchemaErr::from([BOOL])));
     }
 
     #[test]
     fn validate_missing_required_field() {
-        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("name".into(), Validation::Str(StrValidation::default())),
-            ("age".into(), Validation::U64(U64Validation::default().optional())),
-            ("height".into(), Validation::F64(F64Validation::default().optional())),
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([
+            ("name".into(), Schema::Str(StrSchema::default())),
+            ("age".into(), Schema::U64(U64Schema::default().optional())),
+            ("height".into(), Schema::F64(F64Schema::default().optional())),
         ])));
         let value = Value::Obj(BTreeMap::from([("height".into(), Value::from(1.75))]));
-        let err = SchemaErr::obj([("name".into(), SchemaErr::validation([REQUIRED, STR])), ("age".into(), SchemaErr::validation([U64]))]);
+        let err = SchemaErr::from([("name".into(), SchemaErr::from([REQUIRED, STR])), ("age".into(), SchemaErr::from([U64]))]);
         assert_eq!(validate(&v, &value), Err(err));
     }
 
     #[test]
     fn validate_missing_optional_field() {
-        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("name".into(), Validation::Str(StrValidation::default())),
-            ("age".into(), Validation::U64(U64Validation::default().optional())),
-            ("height".into(), Validation::F64(F64Validation::default().optional())),
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([
+            ("name".into(), Schema::Str(StrSchema::default())),
+            ("age".into(), Schema::U64(U64Schema::default().optional())),
+            ("height".into(), Schema::F64(F64Schema::default().optional())),
         ])));
         let value = Value::Obj(BTreeMap::from([("name".into(), Value::from("John"))]));
         assert_eq!(validate(&v, &value), Ok(()));
@@ -65,24 +65,24 @@ mod tests {
 
     #[test]
     fn validate_missing_required_obj() {
-        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([
             (
                 "user".into(),
-                Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-                    ("name".into(), Validation::Str(StrValidation::default())),
-                    ("age".into(), Validation::U64(U64Validation::default().optional())),
-                    ("height".into(), Validation::F64(F64Validation::default().optional())),
+                Schema::Obj(ObjSchema::from(BTreeMap::from([
+                    ("name".into(), Schema::Str(StrSchema::default())),
+                    ("age".into(), Schema::U64(U64Schema::default().optional())),
+                    ("height".into(), Schema::F64(F64Schema::default().optional())),
                 ]))),
             ),
-            ("version".into(), Validation::U64(U64Validation::default().optional())),
+            ("version".into(), Schema::U64(U64Schema::default().optional())),
         ])));
         let value = Value::Obj(BTreeMap::from([("version".into(), Value::U64(2))]));
-        let err = SchemaErr::obj([(
+        let err = SchemaErr::from([(
             "user".into(),
-            SchemaErr::obj([
-                ("name".into(), SchemaErr::validation([REQUIRED, STR])),
-                ("age".into(), SchemaErr::validation([U64])),
-                ("height".into(), SchemaErr::validation([F64])),
+            SchemaErr::from([
+                ("name".into(), SchemaErr::from([REQUIRED, STR])),
+                ("age".into(), SchemaErr::from([U64])),
+                ("height".into(), SchemaErr::from([F64])),
             ]),
         )]);
         assert_eq!(validate(&v, &value), Err(err));
@@ -90,16 +90,16 @@ mod tests {
 
     #[test]
     fn validate_missing_optional_obj() {
-        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([
             (
                 "user".into(),
-                Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-                    ("name".into(), Validation::Str(StrValidation::default())),
-                    ("age".into(), Validation::U64(U64Validation::default().optional())),
-                    ("height".into(), Validation::F64(F64Validation::default().optional())),
+                Schema::Obj(ObjSchema::from(BTreeMap::from([
+                    ("name".into(), Schema::Str(StrSchema::default())),
+                    ("age".into(), Schema::U64(U64Schema::default().optional())),
+                    ("height".into(), Schema::F64(F64Schema::default().optional())),
                 ]))),
             ),
-            ("version".into(), Validation::U64(U64Validation::default().optional())),
+            ("version".into(), Schema::U64(U64Schema::default().optional())),
         ])));
         let value = Value::Obj(BTreeMap::from([("user".into(), Value::Obj(BTreeMap::from([("name".into(), Value::from("John"))])))]));
         assert_eq!(validate(&v, &value), Ok(()));

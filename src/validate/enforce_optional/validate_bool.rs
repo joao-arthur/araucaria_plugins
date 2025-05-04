@@ -1,11 +1,11 @@
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
-    validation::BoolValidation,
+    schema::BoolSchema,
     value::Value,
 };
 
-pub fn validate_bool(validation: &BoolValidation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_bool(validation: &BoolSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Bool(bool_value) => {
@@ -41,7 +41,7 @@ mod tests {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::BoolValidation,
+        schema::BoolSchema,
         value::{Value, stub::u64_stub},
     };
 
@@ -53,37 +53,37 @@ mod tests {
 
     #[test]
     fn validate_bool_default() {
-        let v = BoolValidation::default();
+        let v = BoolSchema::default();
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, BOOL])));
-        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([BOOL])));
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::from([REQUIRED, BOOL])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::from([BOOL])));
     }
 
     #[test]
     fn validate_bool_optional() {
-        let v = BoolValidation::default().optional();
+        let v = BoolSchema::default().optional();
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([BOOL])));
-        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([BOOL])));
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::from([BOOL])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::from([BOOL])));
     }
 
     #[test]
     fn validate_bool_operation_value() {
-        let v = BoolValidation::default().eq(false);
+        let v = BoolSchema::default().eq(false);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::Bool(false))));
         assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, BOOL, op_err.clone()])));
-        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([BOOL, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Err(SchemaErr::from([op_err.clone()])));
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::from([REQUIRED, BOOL, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::from([BOOL, op_err.clone()])));
     }
 
     #[test]
     fn validate_bool_operation_field() {
-        let v = BoolValidation::default().ne_field("bool_value".into());
+        let v = BoolSchema::default().ne_field("bool_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("bool_value".into())));
         assert_eq!(validate_bool(&v, &Value::Bool(true), &ROOT), Ok(()));
-        assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, BOOL, op_err.clone()])));
-        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::validation([BOOL, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &Value::Bool(false), &ROOT), Err(SchemaErr::from([op_err.clone()])));
+        assert_eq!(validate_bool(&v, &Value::None, &ROOT), Err(SchemaErr::from([REQUIRED, BOOL, op_err.clone()])));
+        assert_eq!(validate_bool(&v, &u64_stub(), &ROOT), Err(SchemaErr::from([BOOL, op_err.clone()])));
     }
 }

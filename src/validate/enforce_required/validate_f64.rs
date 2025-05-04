@@ -1,11 +1,11 @@
 use araucaria::{
     error::{SchemaErr, ValidationErr},
     operation::{OperandValue, compare},
-    validation::F64Validation,
+    schema::F64Schema,
     value::Value,
 };
 
-pub fn validate_f64(validation: &F64Validation, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_f64(validation: &F64Schema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::F64(f64_value) => {
@@ -41,7 +41,7 @@ mod tests {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         operation::{Operand, OperandValue, Operation},
-        validation::F64Validation,
+        schema::F64Schema,
         value::{Value, stub::bool_stub},
     };
 
@@ -53,37 +53,37 @@ mod tests {
 
     #[test]
     fn validate_f64_default() {
-        let v = F64Validation::default();
+        let v = F64Schema::default();
         assert_eq!(validate_f64(&v, &Value::F64(-42.5), &ROOT), Ok(()));
-        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, F64])));
-        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([F64])));
+        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Err(SchemaErr::from([REQUIRED, F64])));
+        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::from([F64])));
     }
 
     #[test]
     fn validate_f64_optional() {
-        let v = F64Validation::default().optional();
+        let v = F64Schema::default().optional();
         assert_eq!(validate_f64(&v, &Value::F64(-42.5), &ROOT), Ok(()));
         assert_eq!(validate_f64(&v, &Value::None, &ROOT), Ok(()));
-        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([F64])));
+        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::from([F64])));
     }
 
     #[test]
     fn validate_f64_operation_value() {
-        let v = F64Validation::default().eq(-42.5);
+        let v = F64Schema::default().eq(-42.5);
         let op_err = ValidationErr::Operation(Operation::Eq(Operand::Value(OperandValue::F64(-42.5))));
         assert_eq!(validate_f64(&v, &Value::F64(-42.5), &ROOT), Ok(()));
-        assert_eq!(validate_f64(&v, &Value::F64(-418.0), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, F64, op_err.clone()])));
-        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([F64, op_err.clone()])));
+        assert_eq!(validate_f64(&v, &Value::F64(-418.0), &ROOT), Err(SchemaErr::from([op_err.clone()])));
+        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Err(SchemaErr::from([REQUIRED, F64, op_err.clone()])));
+        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::from([F64, op_err.clone()])));
     }
 
     #[test]
     fn validate_i64_operation_field() {
-        let v = F64Validation::default().ne_field("f64_value".into());
+        let v = F64Schema::default().ne_field("f64_value".into());
         let op_err = ValidationErr::Operation(Operation::Ne(Operand::FieldPath("f64_value".into())));
         assert_eq!(validate_f64(&v, &Value::F64(-418.0), &ROOT), Ok(()));
-        assert_eq!(validate_f64(&v, &Value::F64(-42.5), &ROOT), Err(SchemaErr::validation([op_err.clone()])));
-        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Err(SchemaErr::validation([REQUIRED, F64, op_err.clone()])));
-        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::validation([F64, op_err.clone()])));
+        assert_eq!(validate_f64(&v, &Value::F64(-42.5), &ROOT), Err(SchemaErr::from([op_err.clone()])));
+        assert_eq!(validate_f64(&v, &Value::None, &ROOT), Err(SchemaErr::from([REQUIRED, F64, op_err.clone()])));
+        assert_eq!(validate_f64(&v, &bool_stub(), &ROOT), Err(SchemaErr::from([F64, op_err.clone()])));
     }
 }

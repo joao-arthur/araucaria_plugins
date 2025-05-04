@@ -2,31 +2,31 @@ use serde::{Serialize, Serializer};
 use std::collections::BTreeMap;
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum SchemaLocalizedErr {
+pub enum SchemaErrLocale {
     Validation(Vec<String>),
-    Arr(Vec<SchemaLocalizedErr>),
-    Obj(BTreeMap<String, SchemaLocalizedErr>),
+    Arr(Vec<SchemaErrLocale>),
+    Obj(BTreeMap<String, SchemaErrLocale>),
 }
 
-impl Serialize for SchemaLocalizedErr {
+impl Serialize for SchemaErrLocale {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         match self {
-            SchemaLocalizedErr::Validation(vec) => vec.serialize(serializer),
-            SchemaLocalizedErr::Arr(vec) => vec.serialize(serializer),
-            SchemaLocalizedErr::Obj(map) => map.serialize(serializer),
+            SchemaErrLocale::Validation(vec) => vec.serialize(serializer),
+            SchemaErrLocale::Arr(vec) => vec.serialize(serializer),
+            SchemaErrLocale::Obj(map) => map.serialize(serializer),
         }
     }
 }
 
-pub fn to_schema_localized_err(value: araucaria::locale::SchemaLocalizedErr) -> SchemaLocalizedErr {
+pub fn to_schema_localized_err(value: araucaria::locale::SchemaErrLocale) -> SchemaErrLocale {
     match value {
-        araucaria::locale::SchemaLocalizedErr::Validation(value) => SchemaLocalizedErr::Validation(value.into_iter().collect()),
-        araucaria::locale::SchemaLocalizedErr::Arr(value) => SchemaLocalizedErr::Arr(value.into_iter().map(to_schema_localized_err).collect()),
-        araucaria::locale::SchemaLocalizedErr::Obj(value) => {
-            SchemaLocalizedErr::Obj(value.into_iter().map(|(k, v)| (k.clone(), to_schema_localized_err(v))).collect())
+        araucaria::locale::SchemaErrLocale::Validation(value) => SchemaErrLocale::Validation(value.into_iter().collect()),
+        araucaria::locale::SchemaErrLocale::Arr(value) => SchemaErrLocale::Arr(value.into_iter().map(to_schema_localized_err).collect()),
+        araucaria::locale::SchemaErrLocale::Obj(value) => {
+            SchemaErrLocale::Obj(value.into_iter().map(|(k, v)| (k.clone(), to_schema_localized_err(v))).collect())
         }
     }
 }
@@ -35,40 +35,40 @@ pub fn to_schema_localized_err(value: araucaria::locale::SchemaLocalizedErr) -> 
 mod tests {
     use std::collections::BTreeMap;
 
-    use super::{SchemaLocalizedErr, to_schema_localized_err};
+    use super::{SchemaErrLocale, to_schema_localized_err};
 
     #[test]
     fn araucaria_schema_localized_arr_to_schema_localized_err() {
-        let araucaria_err = araucaria::locale::SchemaLocalizedErr::Obj(BTreeMap::from([
-            ("name".into(), araucaria::locale::SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
-            ("birthdate".into(), araucaria::locale::SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
-            ("bands".into(), araucaria::locale::SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
+        let araucaria_err = araucaria::locale::SchemaErrLocale::Obj(BTreeMap::from([
+            ("name".into(), araucaria::locale::SchemaErrLocale::from(["Deve ser uma string".to_string()])),
+            ("birthdate".into(), araucaria::locale::SchemaErrLocale::from(["Deve ser uma string".to_string()])),
+            ("bands".into(), araucaria::locale::SchemaErrLocale::from(["Deve ser uma string".to_string()])),
         ]));
-        let err = SchemaLocalizedErr::Obj(BTreeMap::from([
-            ("name".into(), SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
-            ("birthdate".into(), SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
-            ("bands".into(), SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
+        let err = SchemaErrLocale::Obj(BTreeMap::from([
+            ("name".into(), SchemaErrLocale::Validation(vec!["Deve ser uma string".into()])),
+            ("birthdate".into(), SchemaErrLocale::Validation(vec!["Deve ser uma string".into()])),
+            ("bands".into(), SchemaErrLocale::Validation(vec!["Deve ser uma string".into()])),
         ]));
         assert_eq!(to_schema_localized_err(araucaria_err), err);
     }
 
     #[test]
     fn serialize_schema_localized_err_obj() {
-        let err_name = SchemaLocalizedErr::Obj(BTreeMap::from([(
+        let err_name = SchemaErrLocale::Obj(BTreeMap::from([(
             "name".into(),
-            SchemaLocalizedErr::Validation(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()]),
+            SchemaErrLocale::Validation(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "Paul McCartney""#.into()]),
         )]));
-        let err_birthdate = SchemaLocalizedErr::Obj(BTreeMap::from([(
+        let err_birthdate = SchemaErrLocale::Obj(BTreeMap::from([(
             "birthdate".into(),
-            SchemaLocalizedErr::Validation(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()]),
+            SchemaErrLocale::Validation(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "1942-06-18""#.into()]),
         )]));
-        let err_alive = SchemaLocalizedErr::Obj(BTreeMap::from([(
+        let err_alive = SchemaErrLocale::Obj(BTreeMap::from([(
             "alive".into(),
-            SchemaLocalizedErr::Validation(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()]),
+            SchemaErrLocale::Validation(vec!["É obrigatório".into(), "Deve ser um booleano".into(), "Deve ser igual a true".into()]),
         )]));
-        let err_bands = SchemaLocalizedErr::Obj(BTreeMap::from([(
+        let err_bands = SchemaErrLocale::Obj(BTreeMap::from([(
             "bands".into(),
-            SchemaLocalizedErr::Validation(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
+            SchemaErrLocale::Validation(vec!["É obrigatório".into(), "Deve ser uma string".into(), r#"Deve ser igual a "The Beatles""#.into()]),
         )]));
         assert_eq!(
             serde_json::to_string(&err_name).unwrap(),
@@ -90,10 +90,10 @@ mod tests {
 
     #[test]
     fn serialize_schema_localized_err_obj_order() {
-        let err = SchemaLocalizedErr::Obj(BTreeMap::from([
-            ("name".into(), SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
-            ("birthdate".into(), SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
-            ("bands".into(), SchemaLocalizedErr::Validation(vec!["Deve ser uma string".into()])),
+        let err = SchemaErrLocale::Obj(BTreeMap::from([
+            ("name".into(), SchemaErrLocale::Validation(vec!["Deve ser uma string".into()])),
+            ("birthdate".into(), SchemaErrLocale::Validation(vec!["Deve ser uma string".into()])),
+            ("bands".into(), SchemaErrLocale::Validation(vec!["Deve ser uma string".into()])),
         ]));
         assert_eq!(
             serde_json::to_string(&err).unwrap(),

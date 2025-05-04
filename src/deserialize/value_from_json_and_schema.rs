@@ -1,43 +1,43 @@
 use std::collections::BTreeMap;
 
 use araucaria::{
-    validation::{EnumValues, Validation},
+    schema::{EnumValues, Schema},
     value::Value,
 };
 
-fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Option<&Validation>) -> Value {
+fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Option<&Schema>) -> Value {
     match value {
         serde_json::Value::Number(num) => {
-            if let Some(Validation::U64(_)) = validation {
+            if let Some(Schema::U64(_)) = validation {
                 if let Some(u64_num) = num.as_u64() {
                     return Value::U64(u64_num);
                 }
             }
-            if let Some(Validation::I64(_)) = validation {
+            if let Some(Schema::I64(_)) = validation {
                 if let Some(i64_num) = num.as_i64() {
                     return Value::I64(i64_num);
                 }
             }
-            if let Some(Validation::F64(_)) = validation {
+            if let Some(Schema::F64(_)) = validation {
                 if let Some(f64_num) = num.as_f64() {
                     return Value::F64(f64_num);
                 }
             }
-            if let Some(Validation::USize(_)) = validation {
+            if let Some(Schema::USize(_)) = validation {
                 if let Some(u64_num) = num.as_u64() {
                     if let Ok(usize_num) = usize::try_from(u64_num) {
                         return Value::USize(usize_num);
                     }
                 }
             }
-            if let Some(Validation::ISize(_)) = validation {
+            if let Some(Schema::ISize(_)) = validation {
                 if let Some(i64_num) = num.as_i64() {
                     if let Ok(isize_num) = isize::try_from(i64_num) {
                         return Value::ISize(isize_num);
                     }
                 }
             }
-            if let Some(Validation::Enum(v)) = validation {
+            if let Some(Schema::Enum(v)) = validation {
                 match v.values {
                     EnumValues::USize(_) => {
                         if let Some(u64_num) = num.as_u64() {
@@ -73,7 +73,7 @@ fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Op
         serde_json::Value::Object(obj) => {
             let mut result: BTreeMap<String, Value> = BTreeMap::new();
             for (key, item) in obj {
-                if let Some(Validation::Obj(obj_validation)) = validation {
+                if let Some(Schema::Obj(obj_validation)) = validation {
                     let fff = key.clone();
                     result.insert(key.clone(), internal_value_from_json_and_schema(item, obj_validation.validation.get(&fff)));
                 } else {
@@ -86,7 +86,7 @@ fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Op
     }
 }
 
-pub fn value_from_json_and_schema(value: &serde_json::Value, validation: &Validation) -> Value {
+pub fn value_from_json_and_schema(value: &serde_json::Value, validation: &Schema) -> Value {
     internal_value_from_json_and_schema(value, Some(validation))
 }
 
@@ -95,9 +95,9 @@ mod tests {
     use std::collections::BTreeMap;
 
     use araucaria::{
-        validation::{
-            BoolValidation, DateTimeValidation, DateValidation, EmailValidation, EnumValidation, F64Validation, I64Validation, ISizeValidation,
-            ObjValidation, StrValidation, TimeValidation, U64Validation, USizeValidation, Validation,
+        schema::{
+            BoolSchema, DateTimeSchema, DateSchema, EmailSchema, EnumSchema, F64Schema, I64Schema, ISizeSchema,
+            ObjSchema, StrSchema, TimeSchema, U64Schema, USizeSchema, Schema,
         },
         value::Value,
     };
@@ -106,7 +106,7 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_u64() {
-        let v = Validation::U64(U64Validation::default());
+        let v = Schema::U64(U64Schema::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
 
@@ -128,7 +128,7 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_i64() {
-        let v = Validation::I64(I64Validation::default());
+        let v = Schema::I64(I64Schema::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
         let json_i64_neg = serde_json::Value::Number(serde_json::Number::from_i128(-192).unwrap());
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_f64() {
-        let v = Validation::F64(F64Validation::default());
+        let v = Schema::F64(F64Schema::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
 
@@ -173,7 +173,7 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_usize() {
-        let v = Validation::USize(USizeValidation::default());
+        let v = Schema::USize(USizeSchema::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
 
@@ -195,7 +195,7 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_isize() {
-        let v = Validation::ISize(ISizeValidation::default());
+        let v = Schema::ISize(ISizeSchema::default());
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
         let json_i64_neg = serde_json::Value::Number(serde_json::Number::from_i128(-192).unwrap());
@@ -218,7 +218,7 @@ mod tests {
     #[test]
     fn value_from_json_and_schema_enum_usize() {
         let enum_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
-        let v = Validation::Enum(EnumValidation::from(enum_values));
+        let v = Schema::Enum(EnumSchema::from(enum_values));
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
 
@@ -241,7 +241,7 @@ mod tests {
     #[test]
     fn value_from_json_and_schema_enum_isize() {
         let enum_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
-        let v = Validation::Enum(EnumValidation::from(enum_values));
+        let v = Schema::Enum(EnumSchema::from(enum_values));
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
         let json_i64_neg = serde_json::Value::Number(serde_json::Number::from_i128(-192).unwrap());
@@ -264,7 +264,7 @@ mod tests {
     #[test]
     fn value_from_json_and_schema_enum_string() {
         let enum_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
-        let v = Validation::Enum(EnumValidation::from(enum_values));
+        let v = Schema::Enum(EnumSchema::from(enum_values));
         let json_u64 = serde_json::Value::Number(serde_json::Number::from_u128(192).unwrap());
         let json_i64_pos = serde_json::Value::Number(serde_json::Number::from_i128(192).unwrap());
         let json_i64_neg = serde_json::Value::Number(serde_json::Number::from_i128(-192).unwrap());
@@ -283,14 +283,14 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_bool() {
-        let v = Validation::Bool(BoolValidation::default());
+        let v = Schema::Bool(BoolSchema::default());
         assert_eq!(value_from_json_and_schema(&serde_json::Value::Bool(false), &v), Value::Bool(false));
         assert_eq!(value_from_json_and_schema(&serde_json::Value::Bool(true), &v), Value::Bool(true));
     }
 
     #[test]
     fn value_from_json_and_schema_string() {
-        let v = Validation::Str(StrValidation::default());
+        let v = Schema::Str(StrSchema::default());
         assert_eq!(value_from_json_and_schema(&serde_json::Value::String("Naruto".into()), &v), Value::Str("Naruto".into()));
         assert_eq!(value_from_json_and_schema(&serde_json::Value::String("chuck@gmail.com".into()), &v), Value::Str("chuck@gmail.com".into()));
         assert_eq!(value_from_json_and_schema(&serde_json::Value::String("2025-04-26".into()), &v), Value::Str("2025-04-26".into()));
@@ -300,7 +300,7 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_null() {
-        let v = Validation::U64(U64Validation::default());
+        let v = Schema::U64(U64Schema::default());
         assert_eq!(value_from_json_and_schema(&serde_json::Value::Null, &v), Value::None);
     }
 
@@ -309,21 +309,21 @@ mod tests {
         let usize_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
         let isize_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
         let string_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
-        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("u64".into(), Validation::U64(U64Validation::default())),
-            ("i64".into(), Validation::I64(I64Validation::default())),
-            ("f64".into(), Validation::F64(F64Validation::default())),
-            ("usize".into(), Validation::USize(USizeValidation::default())),
-            ("isize".into(), Validation::ISize(ISizeValidation::default())),
-            ("bool".into(), Validation::Bool(BoolValidation::default())),
-            ("str".into(), Validation::Str(StrValidation::default())),
-            ("email".into(), Validation::Email(EmailValidation::default())),
-            ("date".into(), Validation::Date(DateValidation::default())),
-            ("time".into(), Validation::Time(TimeValidation::default())),
-            ("datetime".into(), Validation::DateTime(DateTimeValidation::default())),
-            ("enum_usize".into(), Validation::Enum(EnumValidation::from(usize_values))),
-            ("enum_isize".into(), Validation::Enum(EnumValidation::from(isize_values))),
-            ("enum_str".into(), Validation::Enum(EnumValidation::from(string_values))),
+        let validation = Schema::Obj(ObjSchema::from(BTreeMap::from([
+            ("u64".into(), Schema::U64(U64Schema::default())),
+            ("i64".into(), Schema::I64(I64Schema::default())),
+            ("f64".into(), Schema::F64(F64Schema::default())),
+            ("usize".into(), Schema::USize(USizeSchema::default())),
+            ("isize".into(), Schema::ISize(ISizeSchema::default())),
+            ("bool".into(), Schema::Bool(BoolSchema::default())),
+            ("str".into(), Schema::Str(StrSchema::default())),
+            ("email".into(), Schema::Email(EmailSchema::default())),
+            ("date".into(), Schema::Date(DateSchema::default())),
+            ("time".into(), Schema::Time(TimeSchema::default())),
+            ("datetime".into(), Schema::DateTime(DateTimeSchema::default())),
+            ("enum_usize".into(), Schema::Enum(EnumSchema::from(usize_values))),
+            ("enum_isize".into(), Schema::Enum(EnumSchema::from(isize_values))),
+            ("enum_str".into(), Schema::Enum(EnumSchema::from(string_values))),
         ])));
         let value = Value::Obj(BTreeMap::from([
             ("u64".into(), Value::U64(27)),
@@ -362,7 +362,7 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_obj_other_type() {
-        let validation = Validation::U64(U64Validation::default());
+        let validation = Schema::U64(U64Schema::default());
         let value = Value::Obj(BTreeMap::from([
             ("u64".into(), Value::U64(27)),
             ("i64".into(), Value::I64(-28)),
@@ -386,11 +386,11 @@ mod tests {
 
     #[test]
     fn value_from_json_and_schema_arr() {
-        let validation = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-            ("u64".into(), Validation::U64(U64Validation::default())),
-            ("f64".into(), Validation::F64(F64Validation::default())),
-            ("usize".into(), Validation::USize(USizeValidation::default())),
-            ("isize".into(), Validation::ISize(ISizeValidation::default())),
+        let validation = Schema::Obj(ObjSchema::from(BTreeMap::from([
+            ("u64".into(), Schema::U64(U64Schema::default())),
+            ("f64".into(), Schema::F64(F64Schema::default())),
+            ("usize".into(), Schema::USize(USizeSchema::default())),
+            ("isize".into(), Schema::ISize(ISizeSchema::default())),
         ])));
         let json_value = serde_json::Value::Array(vec![
             serde_json::Value::Number(serde_json::Number::from_u128(27).unwrap()),
@@ -408,27 +408,27 @@ mod tests {
         let usize_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
         let isize_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
         let string_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
-        let v = Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([(
             "lvl_1".into(),
-            Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
+            Schema::Obj(ObjSchema::from(BTreeMap::from([(
                 "lvl_2".into(),
-                Validation::Obj(ObjValidation::default().validation(BTreeMap::from([(
+                Schema::Obj(ObjSchema::from(BTreeMap::from([(
                     "lvl_3".into(),
-                    Validation::Obj(ObjValidation::default().validation(BTreeMap::from([
-                        ("u64".into(), Validation::U64(U64Validation::default())),
-                        ("i64".into(), Validation::I64(I64Validation::default())),
-                        ("f64".into(), Validation::F64(F64Validation::default())),
-                        ("usize".into(), Validation::USize(USizeValidation::default())),
-                        ("isize".into(), Validation::ISize(ISizeValidation::default())),
-                        ("bool".into(), Validation::Bool(BoolValidation::default())),
-                        ("str".into(), Validation::Str(StrValidation::default())),
-                        ("email".into(), Validation::Email(EmailValidation::default())),
-                        ("date".into(), Validation::Date(DateValidation::default())),
-                        ("time".into(), Validation::Time(TimeValidation::default())),
-                        ("datetime".into(), Validation::DateTime(DateTimeValidation::default())),
-                        ("enum_usize".into(), Validation::Enum(EnumValidation::from(usize_values))),
-                        ("enum_isize".into(), Validation::Enum(EnumValidation::from(isize_values))),
-                        ("enum_str".into(), Validation::Enum(EnumValidation::from(string_values))),
+                    Schema::Obj(ObjSchema::from(BTreeMap::from([
+                        ("u64".into(), Schema::U64(U64Schema::default())),
+                        ("i64".into(), Schema::I64(I64Schema::default())),
+                        ("f64".into(), Schema::F64(F64Schema::default())),
+                        ("usize".into(), Schema::USize(USizeSchema::default())),
+                        ("isize".into(), Schema::ISize(ISizeSchema::default())),
+                        ("bool".into(), Schema::Bool(BoolSchema::default())),
+                        ("str".into(), Schema::Str(StrSchema::default())),
+                        ("email".into(), Schema::Email(EmailSchema::default())),
+                        ("date".into(), Schema::Date(DateSchema::default())),
+                        ("time".into(), Schema::Time(TimeSchema::default())),
+                        ("datetime".into(), Schema::DateTime(DateTimeSchema::default())),
+                        ("enum_usize".into(), Schema::Enum(EnumSchema::from(usize_values))),
+                        ("enum_isize".into(), Schema::Enum(EnumSchema::from(isize_values))),
+                        ("enum_str".into(), Schema::Enum(EnumSchema::from(string_values))),
                     ]))),
                 )]))),
             )]))),
