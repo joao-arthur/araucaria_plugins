@@ -5,8 +5,8 @@ use araucaria::{
     value::Value,
 };
 
-fn internal_value_from_json_and_schema(value: &serde_json::Value, schema: Option<&Schema>) -> Value {
-    match value {
+fn internal_value_from_json_and_schema(json: &serde_json::Value, schema: Option<&Schema>) -> Value {
+    match json {
         serde_json::Value::Number(num) => {
             if let Some(Schema::U64(_)) = schema {
                 if let Some(u64_num) = num.as_u64() {
@@ -86,8 +86,8 @@ fn internal_value_from_json_and_schema(value: &serde_json::Value, schema: Option
     }
 }
 
-pub fn value_from_json_and_schema(value: &serde_json::Value, schema: &Schema) -> Value {
-    internal_value_from_json_and_schema(value, Some(schema))
+pub fn value_from_json_and_schema(json: &serde_json::Value, schema: &Schema) -> Value {
+    internal_value_from_json_and_schema(json, Some(schema))
 }
 
 #[cfg(test)]

@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use araucaria::value::Value;
 
-pub fn value_from_json(value: &serde_json::Value) -> Value {
-    match value {
+pub fn value_from_json(json: &serde_json::Value) -> Value {
+    match json {
         serde_json::Value::Number(num) => {
             if let Some(num) = num.as_u64() {
                 return Value::U64(num);

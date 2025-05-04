@@ -21,12 +21,12 @@ impl Serialize for SchemaErrLocale {
     }
 }
 
-pub fn to_schema_localized_err(value: araucaria::locale::SchemaErrLocale) -> SchemaErrLocale {
+pub fn to_schema_err_locale(value: araucaria::locale::SchemaErrLocale) -> SchemaErrLocale {
     match value {
         araucaria::locale::SchemaErrLocale::Validation(value) => SchemaErrLocale::Validation(value.into_iter().collect()),
-        araucaria::locale::SchemaErrLocale::Arr(value) => SchemaErrLocale::Arr(value.into_iter().map(to_schema_localized_err).collect()),
+        araucaria::locale::SchemaErrLocale::Arr(value) => SchemaErrLocale::Arr(value.into_iter().map(to_schema_err_locale).collect()),
         araucaria::locale::SchemaErrLocale::Obj(value) => {
-            SchemaErrLocale::Obj(value.into_iter().map(|(k, v)| (k.clone(), to_schema_localized_err(v))).collect())
+            SchemaErrLocale::Obj(value.into_iter().map(|(k, v)| (k.clone(), to_schema_err_locale(v))).collect())
         }
     }
 }
@@ -35,13 +35,13 @@ pub fn to_schema_localized_err(value: araucaria::locale::SchemaErrLocale) -> Sch
 mod tests {
     use std::collections::BTreeMap;
 
-    use super::{SchemaErrLocale, to_schema_localized_err};
+    use super::{SchemaErrLocale, to_schema_err_locale};
 
     #[test]
     fn araucaria_schema_localized_arr_to_schema_localized_err_validation() {
         let araucaria_err = araucaria::locale::SchemaErrLocale::from(["required".to_string(), "str".to_string()]);
         let err = SchemaErrLocale::Validation(vec!["required".to_string(), "str".into()]);
-        assert_eq!(to_schema_localized_err(araucaria_err), err);
+        assert_eq!(to_schema_err_locale(araucaria_err), err);
     }
 
     #[test]
@@ -63,7 +63,7 @@ mod tests {
             ]),
             SchemaErrLocale::Arr(vec![SchemaErrLocale::Validation(vec!["str".to_string()]), SchemaErrLocale::Validation(vec!["str".to_string()])]),
         ]);
-        assert_eq!(to_schema_localized_err(araucaria_err), err);
+        assert_eq!(to_schema_err_locale(araucaria_err), err);
     }
 
     #[test]
@@ -78,7 +78,7 @@ mod tests {
             ("birthdate".into(), SchemaErrLocale::Validation(vec!["str".into()])),
             ("bands".into(), SchemaErrLocale::Validation(vec!["str".into()])),
         ]));
-        assert_eq!(to_schema_localized_err(araucaria_err), err);
+        assert_eq!(to_schema_err_locale(araucaria_err), err);
     }
 
     #[test]
