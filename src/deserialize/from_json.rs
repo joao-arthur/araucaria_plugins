@@ -57,8 +57,23 @@ mod tests {
         ]))
     });
 
+    #[derive(Debug, PartialEq, Deserialize)]
+    struct User {
+        name: String,
+        score: u64,
+        is_active: Option<bool>,
+    }
+
+    pub static USER_SCHEMA: LazyLock<Schema> = LazyLock::new(|| {
+        Schema::from(ObjSchema::from([
+            ("name".into(), Schema::from(StrSchema::default())),
+            ("score".into(), Schema::from(U64Schema::default())),
+            ("is_active".into(), Schema::from(BoolSchema::default().optional())),
+        ]))
+    });
+
     #[test]
-    fn deserialize_struct() {
+    fn deserialize_struct_ok() {
         let locale = locale_pt_long();
         let json = json!({
             "u64_field": 83,
@@ -69,5 +84,16 @@ mod tests {
         });
         let instance = NumberValues { u64_field: 83, i64_field: -12, f64_field: -3.75, usize_field: 27, isize_field: -34 };
         assert_eq!(deserialize_from_json(json, &FOO_BAR_SCHEMA, &locale), Ok(instance));
+    }
+
+    #[test]
+    fn deserialize_struct_optional_field_ok() {
+        let locale = locale_pt_long();
+        let json = json!({
+            "name": "John Lennon",
+            "score": 92,
+        });
+        let instance = User { name: "John Lennon".into(), score: 92, is_active: None};
+        assert_eq!(deserialize_from_json(json, &USER_SCHEMA, &locale), Ok(instance));
     }
 }
