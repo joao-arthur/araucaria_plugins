@@ -12,11 +12,13 @@ araucaria_plugins = { git = "https://github.com/joao-arthur/araucaria_plugins", 
 
 ## 🚧 TODO
 
-- `Schema::Arr`
-- Segregate modules by features
 - Create a function that receives `serde_json::Value`, `T: Deserialize`, and
   returns a `T` instance
+- Segregate modules by features
+- `Schema::Arr`
 - `value_from_json_and_schema`
   - parse `.0` float as integer
   - parse number as `date_time` (unixtime)
 - Swagger integration
+- readme documentation
+- mdBook documentation
