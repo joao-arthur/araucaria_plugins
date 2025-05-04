@@ -5,39 +5,39 @@ use araucaria::{
     value::Value,
 };
 
-fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Option<&Schema>) -> Value {
+fn internal_value_from_json_and_schema(value: &serde_json::Value, schema: Option<&Schema>) -> Value {
     match value {
         serde_json::Value::Number(num) => {
-            if let Some(Schema::U64(_)) = validation {
+            if let Some(Schema::U64(_)) = schema {
                 if let Some(u64_num) = num.as_u64() {
                     return Value::U64(u64_num);
                 }
             }
-            if let Some(Schema::I64(_)) = validation {
+            if let Some(Schema::I64(_)) = schema {
                 if let Some(i64_num) = num.as_i64() {
                     return Value::I64(i64_num);
                 }
             }
-            if let Some(Schema::F64(_)) = validation {
+            if let Some(Schema::F64(_)) = schema {
                 if let Some(f64_num) = num.as_f64() {
                     return Value::F64(f64_num);
                 }
             }
-            if let Some(Schema::USize(_)) = validation {
+            if let Some(Schema::USize(_)) = schema {
                 if let Some(u64_num) = num.as_u64() {
                     if let Ok(usize_num) = usize::try_from(u64_num) {
                         return Value::USize(usize_num);
                     }
                 }
             }
-            if let Some(Schema::ISize(_)) = validation {
+            if let Some(Schema::ISize(_)) = schema {
                 if let Some(i64_num) = num.as_i64() {
                     if let Ok(isize_num) = isize::try_from(i64_num) {
                         return Value::ISize(isize_num);
                     }
                 }
             }
-            if let Some(Schema::Enum(v)) = validation {
+            if let Some(Schema::Enum(v)) = schema {
                 match v.values {
                     EnumValues::USize(_) => {
                         if let Some(u64_num) = num.as_u64() {
@@ -73,7 +73,7 @@ fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Op
         serde_json::Value::Object(obj) => {
             let mut result: BTreeMap<String, Value> = BTreeMap::new();
             for (key, item) in obj {
-                if let Some(Schema::Obj(obj_validation)) = validation {
+                if let Some(Schema::Obj(obj_validation)) = schema {
                     let fff = key.clone();
                     result.insert(key.clone(), internal_value_from_json_and_schema(item, obj_validation.validation.get(&fff)));
                 } else {
@@ -86,8 +86,8 @@ fn internal_value_from_json_and_schema(value: &serde_json::Value, validation: Op
     }
 }
 
-pub fn value_from_json_and_schema(value: &serde_json::Value, validation: &Schema) -> Value {
-    internal_value_from_json_and_schema(value, Some(validation))
+pub fn value_from_json_and_schema(value: &serde_json::Value, schema: &Schema) -> Value {
+    internal_value_from_json_and_schema(value, Some(schema))
 }
 
 #[cfg(test)]
@@ -96,8 +96,8 @@ mod tests {
 
     use araucaria::{
         schema::{
-            BoolSchema, DateTimeSchema, DateSchema, EmailSchema, EnumSchema, F64Schema, I64Schema, ISizeSchema,
-            ObjSchema, StrSchema, TimeSchema, U64Schema, USizeSchema, Schema,
+            BoolSchema, DateSchema, DateTimeSchema, EmailSchema, EnumSchema, F64Schema, I64Schema, ISizeSchema, ObjSchema, Schema, StrSchema,
+            TimeSchema, U64Schema, USizeSchema,
         },
         value::Value,
     };
@@ -309,7 +309,7 @@ mod tests {
         let usize_values: Vec<usize> = vec![0, 1, 2, 3, 4, 5];
         let isize_values: Vec<isize> = vec![0, -1, -2, -3, -4, -5];
         let string_values: Vec<String> = vec!["APPLE".into(), "MELON".into(), "TOMATO".into(), "ORANGE".into(), "PEACH".into()];
-        let validation = Schema::Obj(ObjSchema::from(BTreeMap::from([
+        let schema = Schema::Obj(ObjSchema::from(BTreeMap::from([
             ("u64".into(), Schema::U64(U64Schema::default())),
             ("i64".into(), Schema::I64(I64Schema::default())),
             ("f64".into(), Schema::F64(F64Schema::default())),
@@ -357,12 +357,12 @@ mod tests {
         json_map.insert("enum_isize".into(), serde_json::Value::Number(serde_json::Number::from_i128(-1).unwrap()));
         json_map.insert("enum_str".into(), serde_json::Value::String("MELON".into()));
         let json_value = serde_json::Value::Object(json_map);
-        assert_eq!(value_from_json_and_schema(&json_value, &validation), value);
+        assert_eq!(value_from_json_and_schema(&json_value, &schema), value);
     }
 
     #[test]
     fn value_from_json_and_schema_obj_other_type() {
-        let validation = Schema::U64(U64Schema::default());
+        let schema = Schema::U64(U64Schema::default());
         let value = Value::Obj(BTreeMap::from([
             ("u64".into(), Value::U64(27)),
             ("i64".into(), Value::I64(-28)),
@@ -381,12 +381,12 @@ mod tests {
         json_map.insert("bool".into(), serde_json::Value::Bool(true));
         json_map.insert("datetime".into(), serde_json::Value::String("2025-04-26T18:27Z".into()));
         let json_value = serde_json::Value::Object(json_map);
-        assert_eq!(value_from_json_and_schema(&json_value, &validation), value);
+        assert_eq!(value_from_json_and_schema(&json_value, &schema), value);
     }
 
     #[test]
     fn value_from_json_and_schema_arr() {
-        let validation = Schema::Obj(ObjSchema::from(BTreeMap::from([
+        let schema = Schema::Obj(ObjSchema::from(BTreeMap::from([
             ("u64".into(), Schema::U64(U64Schema::default())),
             ("f64".into(), Schema::F64(F64Schema::default())),
             ("usize".into(), Schema::USize(USizeSchema::default())),
@@ -400,7 +400,7 @@ mod tests {
             serde_json::Value::Number(serde_json::Number::from_i128(-31).unwrap()),
         ]);
         let value = Value::Arr(vec![Value::U64(27), Value::I64(-28), Value::F64(-29.5), Value::U64(30), Value::I64(-31)]);
-        assert_eq!(value_from_json_and_schema(&json_value, &validation), value);
+        assert_eq!(value_from_json_and_schema(&json_value, &schema), value);
     }
 
     #[test]

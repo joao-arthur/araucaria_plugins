@@ -7,12 +7,12 @@ use araucaria::{
 
 use crate::utils::date::parse_date;
 
-pub fn validate_date(validation: &DateSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_date(schema: &DateSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
             if parse_date(str_value).is_ok() {
-                if let Some(operation) = &validation.operation {
+                if let Some(operation) = &schema.operation {
                     if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone()), root) {
                         base.push(ValidationErr::Operation(operation.clone()));
                     }
@@ -22,17 +22,17 @@ pub fn validate_date(validation: &DateSchema, value: &Value, root: &Value) -> Re
             }
         }
         Value::None => {
-            if validation.required {
+            if schema.required {
                 base.push(ValidationErr::Required);
             }
             base.push(ValidationErr::Date);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }
         _ => {
             base.push(ValidationErr::Date);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }

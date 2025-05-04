@@ -4,24 +4,24 @@ use araucaria::{
     value::Value,
 };
 
-pub fn validate_enum(validation: &EnumSchema, value: &Value) -> Result<(), SchemaErr> {
-    match &validation.values {
+pub fn validate_enum(schema: &EnumSchema, value: &Value) -> Result<(), SchemaErr> {
+    match &schema.values {
         EnumValues::USize(usize_enum) => {
             let mut base = vec![];
             match value {
                 Value::USize(usize_value) => {
                     if !usize_enum.contains(usize_value) {
-                        base.push(ValidationErr::Enumerated(validation.values.clone()));
+                        base.push(ValidationErr::Enumerated(schema.values.clone()));
                     }
                 }
                 Value::None => {
-                    if validation.required {
+                    if schema.required {
                         base.push(ValidationErr::Required);
                     }
-                    base.push(ValidationErr::Enumerated(validation.values.clone()));
+                    base.push(ValidationErr::Enumerated(schema.values.clone()));
                 }
                 _ => {
-                    base.push(ValidationErr::Enumerated(validation.values.clone()));
+                    base.push(ValidationErr::Enumerated(schema.values.clone()));
                 }
             }
             if !base.is_empty() { Err(SchemaErr::Validation(base)) } else { Ok(()) }
@@ -31,17 +31,17 @@ pub fn validate_enum(validation: &EnumSchema, value: &Value) -> Result<(), Schem
             match value {
                 Value::ISize(isize_value) => {
                     if !isize_enum.contains(isize_value) {
-                        base.push(ValidationErr::Enumerated(validation.values.clone()));
+                        base.push(ValidationErr::Enumerated(schema.values.clone()));
                     }
                 }
                 Value::None => {
-                    if validation.required {
+                    if schema.required {
                         base.push(ValidationErr::Required);
                     }
-                    base.push(ValidationErr::Enumerated(validation.values.clone()));
+                    base.push(ValidationErr::Enumerated(schema.values.clone()));
                 }
                 _ => {
-                    base.push(ValidationErr::Enumerated(validation.values.clone()));
+                    base.push(ValidationErr::Enumerated(schema.values.clone()));
                 }
             }
             if !base.is_empty() { Err(SchemaErr::Validation(base)) } else { Ok(()) }
@@ -51,17 +51,17 @@ pub fn validate_enum(validation: &EnumSchema, value: &Value) -> Result<(), Schem
             match value {
                 Value::Str(str_value) => {
                     if !str_enum.contains(str_value) {
-                        base.push(ValidationErr::Enumerated(validation.values.clone()));
+                        base.push(ValidationErr::Enumerated(schema.values.clone()));
                     }
                 }
                 Value::None => {
-                    if validation.required {
+                    if schema.required {
                         base.push(ValidationErr::Required);
                     }
-                    base.push(ValidationErr::Enumerated(validation.values.clone()));
+                    base.push(ValidationErr::Enumerated(schema.values.clone()));
                 }
                 _ => {
-                    base.push(ValidationErr::Enumerated(validation.values.clone()));
+                    base.push(ValidationErr::Enumerated(schema.values.clone()));
                 }
             }
             if !base.is_empty() { Err(SchemaErr::Validation(base)) } else { Ok(()) }

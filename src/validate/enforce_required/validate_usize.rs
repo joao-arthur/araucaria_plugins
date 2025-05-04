@@ -5,28 +5,28 @@ use araucaria::{
     value::Value,
 };
 
-pub fn validate_usize(validation: &USizeSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_usize(schema: &USizeSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::USize(usize_value) => {
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 if let Some(Err(())) = compare(operation, &OperandValue::USize(*usize_value), root) {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
         }
         Value::None => {
-            if validation.required {
+            if schema.required {
                 base.push(ValidationErr::Required);
                 base.push(ValidationErr::USize);
-                if let Some(operation) = &validation.operation {
+                if let Some(operation) = &schema.operation {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
         }
         _ => {
             base.push(ValidationErr::USize);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }

@@ -6,7 +6,7 @@ use araucaria::{
 
 use crate::utils::email::email_is_valid;
 
-pub fn validate_email(validation: &EmailSchema, value: &Value) -> Result<(), SchemaErr> {
+pub fn validate_email(schema: &EmailSchema, value: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
@@ -15,7 +15,7 @@ pub fn validate_email(validation: &EmailSchema, value: &Value) -> Result<(), Sch
             }
         }
         Value::None => {
-            if validation.required {
+            if schema.required {
                 base.push(ValidationErr::Required);
             }
             base.push(ValidationErr::Email);

@@ -27,8 +27,8 @@ mod validate_time;
 mod validate_u64;
 mod validate_usize;
 
-fn internal_validate(validation: &Schema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
-    let result = match validation {
+fn internal_validate(schema: &Schema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+    let result = match schema {
         Schema::U64(v) => validate_u64(v, value, root),
         Schema::I64(v) => validate_i64(v, value, root),
         Schema::F64(v) => validate_f64(v, value, root),
@@ -85,8 +85,8 @@ fn internal_validate(validation: &Schema, value: &Value, root: &Value) -> Result
     result
 }
 
-pub fn validate(validation: &Schema, value: &Value) -> Result<(), SchemaErr> {
-    internal_validate(validation, value, value)
+pub fn validate(schema: &Schema, value: &Value) -> Result<(), SchemaErr> {
+    internal_validate(schema, value, value)
 }
 
 #[cfg(test)]
@@ -97,8 +97,8 @@ mod tests {
     use araucaria::{
         error::{SchemaErr, ValidationErr},
         schema::{
-            BoolSchema, DateTimeSchema, DateSchema, EmailSchema, EnumSchema, EnumValues, F64Schema, I64Schema,
-            ISizeSchema, ObjSchema, StrSchema, TimeSchema, U64Schema, USizeSchema, Schema,
+            BoolSchema, DateSchema, DateTimeSchema, EmailSchema, EnumSchema, EnumValues, F64Schema, I64Schema, ISizeSchema, ObjSchema, Schema,
+            StrSchema, TimeSchema, U64Schema, USizeSchema,
         },
         value::{Value, stub::bool_stub},
     };
@@ -218,9 +218,7 @@ mod tests {
 
     #[test]
     fn validate_obj_optional() {
-        let v = Schema::Obj(
-            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])).optional(),
-        );
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])).optional());
         assert_eq!(validate(&v, &Value::None), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
         assert_eq!(validate(&v, &bool_stub()), Err(SchemaErr::from([("bool".into(), SchemaErr::from([REQUIRED, BOOL]))])));
     }
@@ -241,9 +239,7 @@ mod tests {
 
     #[test]
     fn validate_obj_optional_nested_required() {
-        let v = Schema::Obj(
-            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])).optional(),
-        );
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default()))])).optional());
         let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
         let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
         let value_none = Value::from([("bool".into(), Value::None)]);
@@ -256,9 +252,7 @@ mod tests {
 
     #[test]
     fn validate_obj_required_nested_optional() {
-        let v = Schema::Obj(
-            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default().optional()))])),
-        );
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default().optional()))])));
         let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
         let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
         let value_none = Value::from([("bool".into(), Value::None)]);
@@ -271,9 +265,7 @@ mod tests {
 
     #[test]
     fn validate_obj_optional_nested_optional() {
-        let v = Schema::Obj(
-            ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default().optional()))])).optional(),
-        );
+        let v = Schema::Obj(ObjSchema::from(BTreeMap::from([("bool".into(), Schema::Bool(BoolSchema::default().optional()))])).optional());
         let value_bool = Value::from([("bool".into(), Value::Bool(false))]);
         let value_other_type = Value::from([("bool".into(), Value::U64(19))]);
         let value_none = Value::from([("bool".into(), Value::None)]);

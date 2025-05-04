@@ -5,28 +5,28 @@ use araucaria::{
     value::Value,
 };
 
-pub fn validate_isize(validation: &ISizeSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_isize(schema: &ISizeSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::ISize(isize_value) => {
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 if let Some(Err(())) = compare(operation, &OperandValue::ISize(*isize_value), root) {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
         }
         Value::None => {
-            if validation.required {
+            if schema.required {
                 base.push(ValidationErr::Required);
             }
             base.push(ValidationErr::ISize);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }
         _ => {
             base.push(ValidationErr::ISize);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }

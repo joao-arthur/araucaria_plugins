@@ -5,28 +5,28 @@ use araucaria::{
     value::Value,
 };
 
-pub fn validate_u64(validation: &U64Schema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_u64(schema: &U64Schema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::U64(u64_value) => {
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 if let Some(Err(())) = compare(operation, &OperandValue::U64(*u64_value), root) {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
         }
         Value::None => {
-            if validation.required {
+            if schema.required {
                 base.push(ValidationErr::Required);
                 base.push(ValidationErr::U64);
-                if let Some(operation) = &validation.operation {
+                if let Some(operation) = &schema.operation {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
         }
         _ => {
             base.push(ValidationErr::U64);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }

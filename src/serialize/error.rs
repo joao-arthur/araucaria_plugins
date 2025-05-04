@@ -1,7 +1,7 @@
 use serde::{Serialize, Serializer};
 use std::collections::BTreeMap;
 
-use super::{EnumValues, Operation, to_operation, validation::to_enum_values};
+use super::{EnumValues, Operation, schema::to_enum_values, to_operation};
 
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub enum ValidationErr {

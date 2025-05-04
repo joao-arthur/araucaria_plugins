@@ -3,12 +3,12 @@ use araucaria::{error::SchemaErr, schema::Schema, value::Value};
 mod enforce_optional;
 mod enforce_required;
 
-pub fn validate(validation: &Schema, value: &Value) -> Result<(), SchemaErr> {
-    let result = enforce_required::validate(validation, value);
+pub fn validate(schema: &Schema, value: &Value) -> Result<(), SchemaErr> {
+    let result = enforce_required::validate(schema, value);
 
     match result {
         Ok(_) => Ok(()),
-        Err(_) => enforce_optional::validate(validation, value),
+        Err(_) => enforce_optional::validate(schema, value),
     }
 }
 
@@ -18,7 +18,7 @@ mod tests {
 
     use araucaria::{
         error::{SchemaErr, ValidationErr},
-        schema::{BoolSchema, F64Schema, ObjSchema, StrSchema, U64Schema, Schema},
+        schema::{BoolSchema, F64Schema, ObjSchema, Schema, StrSchema, U64Schema},
         value::Value,
     };
 

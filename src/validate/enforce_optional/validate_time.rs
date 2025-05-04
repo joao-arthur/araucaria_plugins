@@ -7,12 +7,12 @@ use araucaria::{
 
 use crate::utils::time::parse_time;
 
-pub fn validate_time(validation: &TimeSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_time(schema: &TimeSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
             if parse_time(str_value).is_ok() {
-                if let Some(operation) = &validation.operation {
+                if let Some(operation) = &schema.operation {
                     if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone()), root) {
                         base.push(ValidationErr::Operation(operation.clone()));
                     }
@@ -22,17 +22,17 @@ pub fn validate_time(validation: &TimeSchema, value: &Value, root: &Value) -> Re
             }
         }
         Value::None => {
-            if validation.required {
+            if schema.required {
                 base.push(ValidationErr::Required);
             }
             base.push(ValidationErr::Time);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }
         _ => {
             base.push(ValidationErr::Time);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
         }

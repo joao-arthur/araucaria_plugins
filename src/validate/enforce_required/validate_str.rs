@@ -7,53 +7,53 @@ use araucaria::{
 
 use crate::utils::string::{bytes_len, chars_len, graphemes_len, lowercase_len, normalize_nfc, numbers_len, symbols_len, uppercase_len};
 
-pub fn validate_str(validation: &StrSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
+pub fn validate_str(schema: &StrSchema, value: &Value, root: &Value) -> Result<(), SchemaErr> {
     let mut base = vec![];
     match value {
         Value::Str(str_value) => {
             let str_value = normalize_nfc(str_value);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 if let Some(Err(())) = compare(operation, &OperandValue::Str(str_value.clone()), root) {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
             }
-            if let Some(bytes_len_operation) = &validation.bytes_len {
+            if let Some(bytes_len_operation) = &schema.bytes_len {
                 let len = bytes_len(&str_value);
                 if let Some(Err(())) = compare(bytes_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
                 }
             }
-            if let Some(chars_len_operation) = &validation.chars_len {
+            if let Some(chars_len_operation) = &schema.chars_len {
                 let len = chars_len(&str_value);
                 if let Some(Err(())) = compare(chars_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
                 }
             }
-            if let Some(graphemes_len_operation) = &validation.graphemes_len {
+            if let Some(graphemes_len_operation) = &schema.graphemes_len {
                 let len = graphemes_len(&str_value);
                 if let Some(Err(())) = compare(graphemes_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
                 }
             }
-            if let Some(lowercase_len_operation) = &validation.lowercase_len {
+            if let Some(lowercase_len_operation) = &schema.lowercase_len {
                 let len = lowercase_len(&str_value);
                 if let Some(Err(())) = compare(lowercase_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
                 }
             }
-            if let Some(uppercase_len_operation) = &validation.uppercase_len {
+            if let Some(uppercase_len_operation) = &schema.uppercase_len {
                 let len = uppercase_len(&str_value);
                 if let Some(Err(())) = compare(uppercase_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
                 }
             }
-            if let Some(numbers_len_operation) = &validation.numbers_len {
+            if let Some(numbers_len_operation) = &schema.numbers_len {
                 let len = numbers_len(&str_value);
                 if let Some(Err(())) = compare(numbers_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
                 }
             }
-            if let Some(symbols_len_operation) = &validation.symbols_len {
+            if let Some(symbols_len_operation) = &schema.symbols_len {
                 let len = symbols_len(&str_value);
                 if let Some(Err(())) = compare(symbols_len_operation, &OperandValue::USize(len), root) {
                     base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
@@ -61,59 +61,59 @@ pub fn validate_str(validation: &StrSchema, value: &Value, root: &Value) -> Resu
             }
         }
         Value::None => {
-            if validation.required {
+            if schema.required {
                 base.push(ValidationErr::Required);
                 base.push(ValidationErr::Str);
-                if let Some(operation) = &validation.operation {
+                if let Some(operation) = &schema.operation {
                     base.push(ValidationErr::Operation(operation.clone()));
                 }
-                if let Some(bytes_len_operation) = &validation.bytes_len {
+                if let Some(bytes_len_operation) = &schema.bytes_len {
                     base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
                 }
-                if let Some(chars_len_operation) = &validation.chars_len {
+                if let Some(chars_len_operation) = &schema.chars_len {
                     base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
                 }
-                if let Some(graphemes_len_operation) = &validation.graphemes_len {
+                if let Some(graphemes_len_operation) = &schema.graphemes_len {
                     base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
                 }
-                if let Some(lowercase_len_operation) = &validation.lowercase_len {
+                if let Some(lowercase_len_operation) = &schema.lowercase_len {
                     base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
                 }
-                if let Some(uppercase_len_operation) = &validation.uppercase_len {
+                if let Some(uppercase_len_operation) = &schema.uppercase_len {
                     base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
                 }
-                if let Some(numbers_len_operation) = &validation.numbers_len {
+                if let Some(numbers_len_operation) = &schema.numbers_len {
                     base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
                 }
-                if let Some(symbols_len_operation) = &validation.symbols_len {
+                if let Some(symbols_len_operation) = &schema.symbols_len {
                     base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
                 }
             }
         }
         _ => {
             base.push(ValidationErr::Str);
-            if let Some(operation) = &validation.operation {
+            if let Some(operation) = &schema.operation {
                 base.push(ValidationErr::Operation(operation.clone()));
             }
-            if let Some(bytes_len_operation) = &validation.bytes_len {
+            if let Some(bytes_len_operation) = &schema.bytes_len {
                 base.push(ValidationErr::BytesLen(bytes_len_operation.clone()))
             }
-            if let Some(chars_len_operation) = &validation.chars_len {
+            if let Some(chars_len_operation) = &schema.chars_len {
                 base.push(ValidationErr::CharsLen(chars_len_operation.clone()))
             }
-            if let Some(graphemes_len_operation) = &validation.graphemes_len {
+            if let Some(graphemes_len_operation) = &schema.graphemes_len {
                 base.push(ValidationErr::GraphemesLen(graphemes_len_operation.clone()))
             }
-            if let Some(lowercase_len_operation) = &validation.lowercase_len {
+            if let Some(lowercase_len_operation) = &schema.lowercase_len {
                 base.push(ValidationErr::LowercaseLen(lowercase_len_operation.clone()))
             }
-            if let Some(uppercase_len_operation) = &validation.uppercase_len {
+            if let Some(uppercase_len_operation) = &schema.uppercase_len {
                 base.push(ValidationErr::UppercaseLen(uppercase_len_operation.clone()))
             }
-            if let Some(numbers_len_operation) = &validation.numbers_len {
+            if let Some(numbers_len_operation) = &schema.numbers_len {
                 base.push(ValidationErr::NumbersLen(numbers_len_operation.clone()))
             }
-            if let Some(symbols_len_operation) = &validation.symbols_len {
+            if let Some(symbols_len_operation) = &schema.symbols_len {
                 base.push(ValidationErr::SymbolsLen(symbols_len_operation.clone()))
             }
         }
