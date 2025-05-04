@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn validate_enum_isize_default() {
-        let v = EnumSchema::from(ISIZE_VALUES.clone());
+        let v = EnumSchema::from(ISIZE_VALUES);
         let enum_err = ValidationErr::Enumerated(EnumValues::from(ISIZE_VALUES));
         assert_eq!(validate_enum(&v, &Value::ISize(-3)), Ok(()));
         assert_eq!(validate_enum(&v, &Value::ISize(1)), Err(SchemaErr::from([enum_err.clone()])));
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn validate_enum_isize_optional() {
-        let v = EnumSchema::from(ISIZE_VALUES.clone()).optional();
+        let v = EnumSchema::from(ISIZE_VALUES).optional();
         let enum_err = ValidationErr::Enumerated(EnumValues::from(ISIZE_VALUES));
         assert_eq!(validate_enum(&v, &Value::ISize(-3)), Ok(()));
         assert_eq!(validate_enum(&v, &Value::ISize(1)), Err(SchemaErr::from([enum_err.clone()])));
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn validate_enum_str_default() {
-        let v = EnumSchema::from(STR_VALUES.clone());
+        let v = EnumSchema::from(STR_VALUES);
         let enum_err = ValidationErr::Enumerated(EnumValues::from(STR_VALUES));
         assert_eq!(validate_enum(&v, &Value::from("GRAPE")), Ok(()));
         assert_eq!(validate_enum(&v, &Value::from("TOMATO")), Err(SchemaErr::from([enum_err.clone()])));
@@ -137,7 +137,7 @@ mod tests {
 
     #[test]
     fn validate_enum_str_optional() {
-        let v = EnumSchema::from(STR_VALUES.clone()).optional();
+        let v = EnumSchema::from(STR_VALUES).optional();
         let enum_err = ValidationErr::Enumerated(EnumValues::from(STR_VALUES));
         assert_eq!(validate_enum(&v, &Value::from("GRAPE")), Ok(()));
         assert_eq!(validate_enum(&v, &Value::from("TOMATO")), Err(SchemaErr::from([enum_err.clone()])));

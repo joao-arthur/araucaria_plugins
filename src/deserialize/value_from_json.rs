@@ -18,7 +18,7 @@ pub fn value_from_json(value: &serde_json::Value) -> Value {
         }
         serde_json::Value::Bool(bool) => Value::Bool(*bool),
         serde_json::Value::String(str) => Value::Str(str.clone()),
-        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(|item| value_from_json(item)).collect()),
+        serde_json::Value::Array(arr) => Value::Arr(arr.iter().map(value_from_json).collect()),
         serde_json::Value::Object(obj) => {
             let mut result: BTreeMap<String, Value> = BTreeMap::new();
             for (key, item) in obj {

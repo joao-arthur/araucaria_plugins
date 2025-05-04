@@ -29,7 +29,7 @@ mod tests {
 
     #[test]
     fn parse_date_time_ok() {
-        assert_eq!(parse_date_time("2029-12-31T06:11Z".into()), Ok(DtTm(2029, 12, 31, 6, 11)));
+        assert_eq!(parse_date_time("2029-12-31T06:11Z"), Ok(DtTm(2029, 12, 31, 6, 11)));
     }
 
     #[test]

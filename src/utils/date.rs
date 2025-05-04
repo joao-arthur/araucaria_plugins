@@ -24,8 +24,8 @@ mod tests {
 
     #[test]
     fn parse_date_ok() {
-        assert_eq!(parse_date("2029-12-31".into()), Ok(Dt(2029, 12, 31)));
-        assert_eq!(parse_date("2024-02-29".into()), Ok(Dt(2024, 2, 29)));
+        assert_eq!(parse_date("2029-12-31"), Ok(Dt(2029, 12, 31)));
+        assert_eq!(parse_date("2024-02-29"), Ok(Dt(2024, 2, 29)));
     }
 
     #[test]
