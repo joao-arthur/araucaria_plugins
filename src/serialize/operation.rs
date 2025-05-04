@@ -129,7 +129,7 @@ mod tests {
     const ARAUCARIA_OPERATION_GE: araucaria::operation::Operation = araucaria::operation::Operation::Ge(ARAUCARIA_OPERAND_USIZE);
     const ARAUCARIA_OPERATION_LT: araucaria::operation::Operation = araucaria::operation::Operation::Lt(ARAUCARIA_OPERAND_ISIZE);
     const ARAUCARIA_OPERATION_LE: araucaria::operation::Operation = araucaria::operation::Operation::Le(ARAUCARIA_OPERAND_BOOL);
-    const ARAUCARIA_OPERATION_BTWN: LazyLock<araucaria::operation::Operation> =
+    static ARAUCARIA_OPERATION_BTWN: LazyLock<araucaria::operation::Operation> =
         LazyLock::new(|| araucaria::operation::Operation::Btwn(ARAUCARIA_OPERAND_STR.clone(), ARAUCARIA_OPERAND_FIELD.clone()));
 
     const OPERAND_VALUE_U64: OperandValue = OperandValue::U64(VALUE_U64);
@@ -146,7 +146,7 @@ mod tests {
     const OPERAND_USIZE: Operand = Operand::Value(OPERAND_VALUE_USIZE);
     const OPERAND_ISIZE: Operand = Operand::Value(OPERAND_VALUE_ISIZE);
     const OPERAND_BOOL: Operand = Operand::Value(OPERAND_VALUE_BOOL);
-    const OPERAND_STR: LazyLock<Operand> = LazyLock::new(|| Operand::Value(OPERAND_VALUE_STR.clone()));
+    static OPERAND_STR: LazyLock<Operand> = LazyLock::new(|| Operand::Value(OPERAND_VALUE_STR.clone()));
     static OPERAND_FIELD: LazyLock<Operand> = LazyLock::new(|| Operand::FieldPath(FIELD.into()));
 
     const OPERATION_EQ: Operation = Operation::Eq(OPERAND_U64);
@@ -155,7 +155,7 @@ mod tests {
     const OPERATION_GE: Operation = Operation::Ge(OPERAND_USIZE);
     const OPERATION_LT: Operation = Operation::Lt(OPERAND_ISIZE);
     const OPERATION_LE: Operation = Operation::Le(OPERAND_BOOL);
-    const OPERATION_BTWN: LazyLock<Operation> = LazyLock::new(|| Operation::Btwn(OPERAND_STR.clone(), OPERAND_FIELD.clone()));
+    static OPERATION_BTWN: LazyLock<Operation> = LazyLock::new(|| Operation::Btwn(OPERAND_STR.clone(), OPERAND_FIELD.clone()));
 
     #[test]
     fn araucaria_operand_value_to_operand_value() {

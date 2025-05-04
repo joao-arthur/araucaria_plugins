@@ -287,6 +287,7 @@ mod tests {
     const OP_ISIZE: ValidationErr = ValidationErr::Operation(Operation::Lt(ISIZE_VALUE_A));
     const OP_BOOL: ValidationErr = ValidationErr::Operation(Operation::Le(BOOL_VALUE));
     static OP_STR: LazyLock<ValidationErr> = LazyLock::new(|| ValidationErr::Operation(Operation::Btwn(STR_VALUE_A.clone(), STR_VALUE_B.clone())));
+
     const BYTES_LEN_EQ: ValidationErr = ValidationErr::BytesLen(Operation::Eq(USIZE_VALUE_A));
     const BYTES_LEN_NE: ValidationErr = ValidationErr::BytesLen(Operation::Ne(USIZE_VALUE_A));
     const BYTES_LEN_GT: ValidationErr = ValidationErr::BytesLen(Operation::Gt(USIZE_VALUE_A));
@@ -294,6 +295,7 @@ mod tests {
     const BYTES_LEN_LT: ValidationErr = ValidationErr::BytesLen(Operation::Lt(USIZE_VALUE_A));
     const BYTES_LEN_LE: ValidationErr = ValidationErr::BytesLen(Operation::Le(USIZE_VALUE_A));
     const BYTES_LEN_BTWN: ValidationErr = ValidationErr::BytesLen(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
+
     const CHARS_LEN_EQ: ValidationErr = ValidationErr::CharsLen(Operation::Eq(USIZE_VALUE_A));
     const CHARS_LEN_NE: ValidationErr = ValidationErr::CharsLen(Operation::Ne(USIZE_VALUE_A));
     const CHARS_LEN_GT: ValidationErr = ValidationErr::CharsLen(Operation::Gt(USIZE_VALUE_A));
@@ -301,6 +303,7 @@ mod tests {
     const CHARS_LEN_LT: ValidationErr = ValidationErr::CharsLen(Operation::Lt(USIZE_VALUE_A));
     const CHARS_LEN_LE: ValidationErr = ValidationErr::CharsLen(Operation::Le(USIZE_VALUE_A));
     const CHARS_LEN_BTWN: ValidationErr = ValidationErr::CharsLen(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
+
     const GRAPHEMES_LEN_EQ: ValidationErr = ValidationErr::GraphemesLen(Operation::Eq(USIZE_VALUE_A));
     const GRAPHEMES_LEN_NE: ValidationErr = ValidationErr::GraphemesLen(Operation::Ne(USIZE_VALUE_A));
     const GRAPHEMES_LEN_GT: ValidationErr = ValidationErr::GraphemesLen(Operation::Gt(USIZE_VALUE_A));
@@ -308,6 +311,7 @@ mod tests {
     const GRAPHEMES_LEN_LT: ValidationErr = ValidationErr::GraphemesLen(Operation::Lt(USIZE_VALUE_A));
     const GRAPHEMES_LEN_LE: ValidationErr = ValidationErr::GraphemesLen(Operation::Le(USIZE_VALUE_A));
     const GRAPHEMES_LEN_BTWN: ValidationErr = ValidationErr::GraphemesLen(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
+
     const LOWER_LEN_EQ: ValidationErr = ValidationErr::LowercaseLen(Operation::Eq(USIZE_VALUE_A));
     const LOWER_LEN_NE: ValidationErr = ValidationErr::LowercaseLen(Operation::Ne(USIZE_VALUE_A));
     const LOWER_LEN_GT: ValidationErr = ValidationErr::LowercaseLen(Operation::Gt(USIZE_VALUE_A));
@@ -315,6 +319,7 @@ mod tests {
     const LOWER_LEN_LT: ValidationErr = ValidationErr::LowercaseLen(Operation::Lt(USIZE_VALUE_A));
     const LOWER_LEN_LE: ValidationErr = ValidationErr::LowercaseLen(Operation::Le(USIZE_VALUE_A));
     const LOWER_LEN_BTWN: ValidationErr = ValidationErr::LowercaseLen(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
+
     const UPPER_LEN_EQ: ValidationErr = ValidationErr::UppercaseLen(Operation::Eq(USIZE_VALUE_A));
     const UPPER_LEN_NE: ValidationErr = ValidationErr::UppercaseLen(Operation::Ne(USIZE_VALUE_A));
     const UPPER_LEN_GT: ValidationErr = ValidationErr::UppercaseLen(Operation::Gt(USIZE_VALUE_A));
@@ -322,6 +327,7 @@ mod tests {
     const UPPER_LEN_LT: ValidationErr = ValidationErr::UppercaseLen(Operation::Lt(USIZE_VALUE_A));
     const UPPER_LEN_LE: ValidationErr = ValidationErr::UppercaseLen(Operation::Le(USIZE_VALUE_A));
     const UPPER_LEN_BTWN: ValidationErr = ValidationErr::UppercaseLen(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
+
     const NUMBERS_LEN_EQ: ValidationErr = ValidationErr::NumbersLen(Operation::Eq(USIZE_VALUE_A));
     const NUMBERS_LEN_NE: ValidationErr = ValidationErr::NumbersLen(Operation::Ne(USIZE_VALUE_A));
     const NUMBERS_LEN_GT: ValidationErr = ValidationErr::NumbersLen(Operation::Gt(USIZE_VALUE_A));
@@ -329,6 +335,7 @@ mod tests {
     const NUMBERS_LEN_LT: ValidationErr = ValidationErr::NumbersLen(Operation::Lt(USIZE_VALUE_A));
     const NUMBERS_LEN_LE: ValidationErr = ValidationErr::NumbersLen(Operation::Le(USIZE_VALUE_A));
     const NUMBERS_LEN_BTWN: ValidationErr = ValidationErr::NumbersLen(Operation::Btwn(USIZE_VALUE_A, USIZE_VALUE_B));
+
     const SYMBOLS_LEN_EQ: ValidationErr = ValidationErr::SymbolsLen(Operation::Eq(USIZE_VALUE_A));
     const SYMBOLS_LEN_NE: ValidationErr = ValidationErr::SymbolsLen(Operation::Ne(USIZE_VALUE_A));
     const SYMBOLS_LEN_GT: ValidationErr = ValidationErr::SymbolsLen(Operation::Gt(USIZE_VALUE_A));

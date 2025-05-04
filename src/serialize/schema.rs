@@ -36,18 +36,18 @@ mod tests {
     fn araucaria_enum_values_to_enum_values() {
         let araucaria_enum_usize = araucaria::schema::EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]);
         let araucaria_enum_isize = araucaria::schema::EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]);
-        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]);
+        let araucaria_enum_str = araucaria::schema::EnumValues::Str(vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()]);
 
         assert_eq!(to_enum_values(araucaria_enum_usize), EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18]));
         assert_eq!(to_enum_values(araucaria_enum_isize), EnumValues::ISize(vec![0, -3, 6, -9, 12, -15]));
-        assert_eq!(to_enum_values(araucaria_enum_str), EnumValues::Str(vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()]));
+        assert_eq!(to_enum_values(araucaria_enum_str), EnumValues::Str(vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()]));
     }
 
     #[test]
     fn serialize_enum_values() {
-        let str_values = vec!["PEDRA".into(), "PAPEL".into(), "TESOURA".into()];
+        let str_values = vec!["ROCK".into(), "PAPER".into(), "SCISSORS".into()];
         assert_eq!(serde_json::to_string(&EnumValues::USize(vec![0, 3, 6, 9, 12, 15, 18])).unwrap(), r#"[0,3,6,9,12,15,18]"#.to_string());
         assert_eq!(serde_json::to_string(&EnumValues::ISize(vec![0, -3, 6, -9, 12, -15])).unwrap(), r#"[0,-3,6,-9,12,-15]"#.to_string());
-        assert_eq!(serde_json::to_string(&EnumValues::Str(str_values)).unwrap(), r#"["PEDRA","PAPEL","TESOURA"]"#.to_string());
+        assert_eq!(serde_json::to_string(&EnumValues::Str(str_values)).unwrap(), r#"["ROCK","PAPER","SCISSORS"]"#.to_string());
     }
 }
