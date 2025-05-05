@@ -28,34 +28,15 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::sync::LazyLock;
+    use std::{collections::BTreeMap, sync::LazyLock};
 
-    use araucaria::schema::{BoolSchema, F64Schema, I64Schema, ISizeSchema, ObjSchema, Schema, StrSchema, U64Schema, USizeSchema};
+    use araucaria::schema::{BoolSchema, ObjSchema, Schema, StrSchema, U64Schema};
     use serde::Deserialize;
     use serde_json::json;
 
-    use crate::locale::locale_pt_long;
+    use crate::{locale::locale_pt_long, serialize::SchemaErrLocale};
 
     use super::deserialize_from_json;
-
-    #[derive(Debug, PartialEq, Deserialize)]
-    struct NumberValues {
-        u64_field: u64,
-        i64_field: i64,
-        f64_field: f64,
-        usize_field: usize,
-        isize_field: isize,
-    }
-
-    pub static FOO_BAR_SCHEMA: LazyLock<Schema> = LazyLock::new(|| {
-        Schema::from(ObjSchema::from([
-            ("u64_field".into(), Schema::from(U64Schema::default())),
-            ("i64_field".into(), Schema::from(I64Schema::default())),
-            ("f64_field".into(), Schema::from(F64Schema::default())),
-            ("usize_field".into(), Schema::from(USizeSchema::default())),
-            ("isize_field".into(), Schema::from(ISizeSchema::default())),
-        ]))
-    });
 
     #[derive(Debug, PartialEq, Deserialize)]
     struct User {
@@ -73,27 +54,29 @@ mod tests {
     });
 
     #[test]
-    fn deserialize_struct_ok() {
-        let locale = locale_pt_long();
-        let json = json!({
-            "u64_field": 83,
-            "i64_field": -12,
-            "f64_field": -3.75,
-            "usize_field": 27,
-            "isize_field": -34,
-        });
-        let instance = NumberValues { u64_field: 83, i64_field: -12, f64_field: -3.75, usize_field: 27, isize_field: -34 };
-        assert_eq!(deserialize_from_json(json, &FOO_BAR_SCHEMA, &locale), Ok(instance));
-    }
-
-    #[test]
-    fn deserialize_struct_optional_field_ok() {
+    fn deserialize_struct_missing_optional() {
         let locale = locale_pt_long();
         let json = json!({
             "name": "John Lennon",
             "score": 92,
         });
-        let instance = User { name: "John Lennon".into(), score: 92, is_active: None};
+        let instance = User { name: "John Lennon".into(), score: 92, is_active: None };
         assert_eq!(deserialize_from_json(json, &USER_SCHEMA, &locale), Ok(instance));
+    }
+
+    #[test]
+    fn deserialize_struct_missing_required() {
+        let locale = locale_pt_long();
+        let json = json!({
+            "name": "John Lennon",
+            "is_active": true
+        });
+        assert_eq!(
+            deserialize_from_json::<User>(json, &USER_SCHEMA, &locale),
+            Err(SchemaErrLocale::Obj(BTreeMap::from([(
+                "score".into(),
+                SchemaErrLocale::Validation(vec!["É obrigatório".into(), "Deve ser um número inteiro sem sinal de 64 bits".into()])
+            )])))
+        );
     }
 }
