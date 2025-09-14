@@ -3,7 +3,7 @@
 A set of optional plugins to make [Araucaria](https://github.com/joao-arthur/araucaria) usable.
 
 [![CI](https://github.com/joao-arthur/araucaria_plugins/actions/workflows/ci.yaml/badge.svg)](https://github.com/joao-arthur/araucaria_plugins/actions/workflows/ci.yaml)
-[![codecov](https://codecov.io/github/joao-arthur/araucaria_plugins/branch/main/graph/badge.svg?token=9FI5PDDFB3)](https://codecov.io/github/joao-arthur/araucaria_plugins)
+[![codecov](https://codecov.io/gh/joao-arthur/araucaria_plugins/graph/badge.svg?token=CS3HWJEDYP)](https://codecov.io/gh/joao-arthur/araucaria_plugins)
 
 ## 📦️ Install
 
